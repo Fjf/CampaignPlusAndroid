@@ -1,0 +1,202 @@
+PLAYTHROUGH API.
+
+/createplaythrough (POST)
+
+- requires login
+- json api
+
+Creates a playthrough with a given name, owned by the logged in user.
+
+Parameters:
+ name
+
+
+
+/getplaythroughs (GET)
+
+- requires login
+- json api
+
+Returns the list of playthroughs.
+Data is formatted as a json list of objects containing playthrough id, name
+ and time of creation.
+
+
+
+/getplaythroughurl (POST)
+
+- requires login
+- json api
+
+Returns the URL which is linked to a playthrough id.
+
+Parameters:
+ id
+
+
+
+/getplaythroughname (POST)
+
+- requires login
+- json api
+
+Returns the an object containing the name linked to a playthrough.
+
+Parameters:
+ code
+
+
+
+/getjoinedplaythroughs (GET)
+
+- requires login
+- json api
+
+Returns a list of playthroughs the logged in user is a part of.
+Data is formatted as a json list of objects containing playthrough code, name
+ and time of creation.
+
+
+
+USER API
+
+/register (POST)
+
+- json api
+
+Registers a user.
+Returns an object containing if registering was successful and a possible error
+ message.
+
+Parameters:
+ name
+ password
+ redirect (optional)
+
+
+
+/login (POST)
+
+- json api
+
+Logs in a user. Sets the user session.
+Returns an object containing wether logging in was successful and a possible error
+ message.
+
+Parameters:
+ name
+ password
+ redirect(optional)
+
+
+
+/session (GET)
+
+- json api
+
+Returns the username of the session user.
+
+
+
+PLAYER API
+
+/createplayer (POST)
+
+- json api
+- requires login
+
+Creates a player for a certain playthrough.
+Will return an object containing a success boolean and an optional error message.
+
+Parameters:
+ name
+ class_name
+ code (playthrough code)
+ backstory
+ race
+
+
+
+/updateplayer (POST)
+
+- json api
+- requires login
+
+Updates the information about a player, any player information field may be empty.
+An empty field will not be updated. Any filled in field will be updated to its new value.
+Will return an object containing a success boolean and an optional error message.
+
+Parameters:
+ pid 
+ name (optional)
+ class_name (optional)
+ code (playthrough code)
+ backstory (optional)
+ race (optional)
+
+
+
+/getplayers (POST)
+
+- json api
+- requires login
+
+Returns a list with all players in a certain playthrough.
+Every entry in the list  contains player id, name, class and user name.
+May only access if the requesting user is a part of this playthrough.
+Can request using either playthrough_id or playthrough_code
+
+Parameters:
+ playthrough_id (optional)
+ playthrough_code (optional)
+
+NOTE: one of the above has to be non empty, if both are non empty it will use playthrough_id
+
+
+
+/deleteplayer (POST)
+
+- json api
+- requires login
+
+Deletes one of the logged in user's players.
+Will not work for other player's users.
+Returns boolean success and optional error message.
+
+Parameters:
+ id
+
+
+
+/getplayerdata (POST)
+
+- json api
+- requires login
+
+Gets all information about a player character.
+Returns an object containing success boolean.
+On success also returns player name, class, race, backstory and user name.
+
+Parameters:
+ player_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
