@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText password;
     private TextView info;
     private Button login;
+    private String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         password = (EditText)findViewById(R.id.passwordField);
         info = (TextView)findViewById(R.id.attemptsField);
         login = (Button)findViewById(R.id.loginButton);
-
     }
 
     public void validateButton(View view){
@@ -51,38 +51,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void validate(String userName, String userPassword) throws JSONException, UnsupportedEncodingException {
-//        RequestParams rp = new RequestParams();
-        JSONObject login = new JSONObject();
-        login.put("name", userName);
-        login.put("password", userPassword);
-        StringEntity entity = new StringEntity(login.toString());
+        // Disable button
+        login.setEnabled(false);
+
+        // Store all parameters in json object.
+        JSONObject data = new JSONObject();
+        data.put("name", userName);
+        data.put("password", userPassword);
+        StringEntity entity = new StringEntity(data.toString());
+
         HttpUtils.post("login", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // If the response is JSONObject instead of expected JSONArray
-                Log.d("asd", "---------------- this is response : " + response);
+                // TODO: This might be redundant as the function returns a JSONobject.
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
                     if (serverResp.getBoolean("success")) {
                         Intent intent = new Intent(MainActivity.this, SecondActivity.class);
                         startActivity(intent);
                     } else {
-//
                         info.setText(serverResp.get("error").toString());
                     }
 
                 } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    info.setText("Server response error.");
+                    Log.d(TAG, "Invalid response: " + response.toString());
                 }
+
+                // Re enable button after login response.
+                login.setEnabled(true);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                // If the response is JSONObject instead of expected JSONArray
-                Log.d("asd", "---------------- ERROR response: " + response);
-                info.setText("NOT SUCCESFUL");
+                info.setText("Internal server error.");
+                Log.d(TAG, "Invalid response: " + response);
 
+                // Re enable button after login response.
+                login.setEnabled(true);
             }
         });
     }
