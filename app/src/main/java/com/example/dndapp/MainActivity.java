@@ -40,7 +40,12 @@ public class MainActivity extends AppCompatActivity {
         login = (Button)findViewById(R.id.loginButton);
     }
 
-    public void validateButton(View view){
+    public void validateRegisterTransition(View view) {
+        Intent intent = new Intent(MainActivity.this, registerActivity.class);
+        startActivity(intent);
+    }
+
+    public void validateLoginButton(View view){
         try {
             validate(name.getText().toString(), password.getText().toString());
         } catch (JSONException e) {
