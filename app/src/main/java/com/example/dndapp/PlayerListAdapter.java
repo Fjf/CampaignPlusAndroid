@@ -7,26 +7,34 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class PlayerListAdapter extends ArrayAdapter {
     private final Activity context;
-    private final String[] names;
+    private final List<PlayerArrayElement> entries;
 
-    public PlayerListAdapter(Activity context, String[] names) {
-        super(context, R.layout.listview_row, names);
+    public PlayerListAdapter(Activity context, List<PlayerArrayElement> entries) {
+        super(context, R.layout.playerview_row, entries);
 
         this.context = context;
-        this.names = names;
+        this.entries = entries;
     }
 
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater=context.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.listview_row, null,true);
+        View rowView = inflater.inflate(R.layout.playerview_row, null,true);
+
+        PlayerArrayElement pae = entries.get(position);
 
         //this code gets references to objects in the listview_row.xml file
-        TextView nameTextField = (TextView) rowView.findViewById(R.id.listTextViewID);
+        TextView playerText = (TextView) rowView.findViewById(R.id.playerName);
+        TextView classText = (TextView) rowView.findViewById(R.id.className);
+        TextView userText = (TextView) rowView.findViewById(R.id.userName);
 
         //this code sets the values of the objects to values from the arrays
-        nameTextField.setText(names[position]);
+        userText.setText(pae.getUserName());
+        playerText.setText(pae.getPlayerName());
+        classText.setText(pae.getClassName());
 
         return rowView;
 

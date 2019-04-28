@@ -1,6 +1,7 @@
 package com.example.dndapp;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,14 +20,15 @@ import java.io.UnsupportedEncodingException;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class registerActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
     private EditText registerName;
     private EditText registerPassword;
     private EditText registerEmail;
     private EditText registerReenterPassword;
     private TextView registerInfo;
-    private Button register;
+    private Button registerButton;
+    private final String TAG = "RegisterActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,10 @@ public class registerActivity extends AppCompatActivity {
         registerReenterPassword = (EditText)findViewById(R.id.registerReenterPassword);
         registerEmail = (EditText)findViewById(R.id.registerEmail);
         registerInfo = (TextView)findViewById(R.id.registerInfo);
-        register = (Button)findViewById(R.id.registerButton);
+        registerButton = (Button)findViewById(R.id.registerButton);
+
+        Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
+        registerInfo.setTypeface(font);
     }
 
     public void validateRegisterButton(View view){
@@ -57,7 +62,7 @@ public class registerActivity extends AppCompatActivity {
 
     private void validate(String name, String password, String email) throws JSONException, UnsupportedEncodingException {
         // Disable button
-        register.setEnabled(false);
+        registerButton.setEnabled(false);
 
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
@@ -70,22 +75,23 @@ public class registerActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 // TODO: This might be redundant as the function returns a JSONobject.
-//                try {
-//                    JSONObject serverResp = new JSONObject(response.toString());
-//                    if (serverResp.getBoolean("success")) {
-//                        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-//                        startActivity(intent);
-//                    } else {
-//                        info.setText(serverResp.get("error").toString());
-//                    }
-//
-//                } catch (JSONException e) {
-//                    info.setText("Server response error.");
-//                    Log.d(TAG, "Invalid response: " + response.toString());
-//                }
-//
-//                // Re enable button after login response.
-//                login.setEnabled(true);
+                try {
+                    JSONObject serverResp = new JSONObject(response.toString());
+                    if (serverResp.getBoolean("success")) {
+                        Intent intent = new Intent(RegisterActivity.this, SecondActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        registerInfo.setText(serverResp.get("error").toString());
+                    }
+
+                } catch (JSONException e) {
+                    registerInfo.setText("Server response error.");
+                    Log.d(TAG, "Invalid response: " + response.toString());
+                }
+
+                // Re enable button after login response.
+                registerButton.setEnabled(true);
             }
 
             @Override
