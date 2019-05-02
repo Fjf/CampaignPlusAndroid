@@ -1,6 +1,7 @@
 package com.example.dndapp;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,13 +11,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+
 import org.json.*;
 
 import cz.msebera.android.httpclient.Header;
@@ -38,9 +35,18 @@ public class MainActivity extends AppCompatActivity {
         password = (EditText)findViewById(R.id.passwordField);
         info = (TextView)findViewById(R.id.attemptsField);
         login = (Button)findViewById(R.id.loginButton);
+
+        Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
+        info.setTypeface(font);
     }
 
-    public void validateButton(View view){
+    public void validateRegisterTransition(View view) {
+        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void validateLoginButton(View view){
         try {
             validate(name.getText().toString(), password.getText().toString());
         } catch (JSONException e) {
@@ -63,12 +69,12 @@ public class MainActivity extends AppCompatActivity {
         HttpUtils.post("login", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // TODO: This might be redundant as the function returns a JSONobject.
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
                     if (serverResp.getBoolean("success")) {
                         Intent intent = new Intent(MainActivity.this, SecondActivity.class);
                         startActivity(intent);
+                        finish();
                     } else {
                         info.setText(serverResp.get("error").toString());
                     }

@@ -13,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -55,17 +57,20 @@ public class PlaythroughActivity extends AppCompatActivity {
         HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                String[] names = new String[response.length()];
+                List<PlayerArrayElement> entries = new ArrayList<>();
                 for (int i = 0; i < response.length(); i++) {
                     try {
-                        names[i] = response.getJSONObject(i).getString("name");
+                        String pn = response.getJSONObject(i).getString("name");
+                        String un = response.getJSONObject(i).getString("user_name");
+                        String cn = response.getJSONObject(i).getString("class");
+                        entries.add(new PlayerArrayElement(pn, un, cn));
                     } catch (JSONException e) {
                         e.printStackTrace();
                         return;
                     }
                 }
 
-                updatePlayerList(names);
+                updatePlayerList(entries);
             }
 
             @Override
@@ -75,8 +80,8 @@ public class PlaythroughActivity extends AppCompatActivity {
         });
     }
 
-    private void updatePlayerList(String[] names) {
-        PlaythroughListAdapter adapter = new PlaythroughListAdapter(this, names);
+    private void updatePlayerList(List<PlayerArrayElement> entries) {
+        PlayerListAdapter adapter = new PlayerListAdapter(this, entries);
         playerList.setAdapter(adapter);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.dndapp;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,7 @@ public class PlaythroughListAdapter extends ArrayAdapter {
         View rowView = inflater.inflate(R.layout.listview_row, null,true);
 
         //this code gets references to objects in the listview_row.xml file
-        TextView nameTextField = (TextView) rowView.findViewById(R.id.listTextViewID);
+        TextView nameTextField = (TextView) rowView.findViewById(R.id.playerName);
 
         //this code sets the values of the objects to values from the arrays
         nameTextField.setText(names[position]);
