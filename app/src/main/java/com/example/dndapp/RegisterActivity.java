@@ -96,11 +96,11 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-//                info.setText("Internal server error.");
-//                Log.d(TAG, "Invalid response: " + response);
-//
-//                // Re enable button after login response.
-//                login.setEnabled(true);
+                registerInfo.setText("Internal server error.");
+                Log.d(TAG, "Invalid response: " + response);
+
+                // Re enable button after login response.
+                registerInfo.setEnabled(true);
             }
         });
     }
