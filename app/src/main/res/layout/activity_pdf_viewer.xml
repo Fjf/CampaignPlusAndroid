@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context=".PdfViewerActivity">-->
+
+
+<!--</android.support.constraint.ConstraintLayout>-->
+
+<RelativeLayout android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout_editor_absoluteX="8dp"
+    tools:layout_editor_absoluteY="64dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.github.barteksc.pdfviewer.PDFView            android:layout_width="fill_parent"            android:layout_height="fill_parent"            android:id="@+id/pdfView">
+    </com.github.barteksc.pdfviewer.PDFView>
+</RelativeLayout>
