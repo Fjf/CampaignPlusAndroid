@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ForgotPasswordActivity"></activity>
+        <activity android:name=".PdfViewerActivity"></activity>
         <activity android:name=".RegisterActivity" />
         <activity android:name=".PlaythroughActivity" />
         <activity android:name=".SecondActivity" />
