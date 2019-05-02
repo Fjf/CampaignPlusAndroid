@@ -34,9 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
         info.setTypeface(font);
-
-        Intent i = new Intent(MainActivity.this, PdfViewerActivity.class);
-        startActivity(i);
     }
 
     public void validateRegisterTransition(View view) {

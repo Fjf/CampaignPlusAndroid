@@ -11,8 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ForgotPasswordActivity"></activity>
-        <activity android:name=".PdfViewerActivity"></activity>
+        <activity android:name=".PlayerInfoActivity"></activity>
+        <activity android:name=".ForgotPasswordActivity" />
+        <activity android:name=".PdfViewerActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".PlaythroughActivity" />
         <activity android:name=".SecondActivity" />

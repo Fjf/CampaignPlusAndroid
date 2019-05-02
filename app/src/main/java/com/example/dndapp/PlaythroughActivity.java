@@ -39,7 +39,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         try {
             getPlayers();
         } catch (UnsupportedEncodingException e) {
-            return;
+            e.printStackTrace();
         }
     }
 
