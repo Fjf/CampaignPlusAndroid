@@ -1,50 +1,43 @@
 package com.example.dndapp;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
 import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
-import org.json.*;
+
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class MainActivity extends AppCompatActivity {
-    private EditText name;
-    private EditText password;
+public class ForgotPasswordActivity extends AppCompatActivity {
+    private EditText email;
+    private Button submit;
     private TextView info;
-    private Button login;
-    private String TAG = "MainActivity";
+    private String TAG = "ForgotPasswordActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_forgot_password);
 
-        name = (EditText)findViewById(R.id.usernameField);
-        password = (EditText)findViewById(R.id.passwordField);
-        info = (TextView)findViewById(R.id.attemptsField);
-        login = (Button)findViewById(R.id.loginButton);
-
-        Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
-        info.setTypeface(font);
+        submit = (Button)findViewById(R.id.fwSubmit);
+        email = (EditText)findViewById(R.id.fwEmail);
+        info = (TextView)findViewById(R.id.fwInfo);
     }
 
-    public void validateRegisterTransition(View view) {
-        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    public void validateLoginButton(View view){
+    public void validateSubmitButton(View view){
         try {
-            validate(name.getText().toString(), password.getText().toString());
+            validate(email.getText().toString());
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -52,28 +45,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void validateForgotPasswordButton(View view) {
-        Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
-        startActivity(intent);
-    }
-
-    private void validate(String userName, String userPassword) throws JSONException, UnsupportedEncodingException {
+    private void validate(String email) throws JSONException, UnsupportedEncodingException {
         // Disable button
-        login.setEnabled(false);
+        submit.setEnabled(false);
 
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
-        data.put("name", userName);
-        data.put("password", userPassword);
+        data.put("email", email);
         StringEntity entity = new StringEntity(data.toString());
 
-        HttpUtils.post("login", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("forgot_password", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
+                    Log.d(TAG, serverResp.toString());
                     if (serverResp.getBoolean("success")) {
-                        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                        Intent intent = new Intent(ForgotPasswordActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
@@ -86,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Re enable button after login response.
-                login.setEnabled(true);
+                submit.setEnabled(true);
             }
 
             @Override
@@ -95,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Invalid response: " + response);
 
                 // Re enable button after login response.
-                login.setEnabled(true);
+                submit.setEnabled(true);
             }
         });
     }
