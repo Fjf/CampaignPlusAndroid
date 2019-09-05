@@ -11,13 +11,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PlayerInfoActivity"></activity>
-        <activity android:name=".ForgotPasswordActivity" />
+        <activity
+            android:name=".Login.ServerSettingsActivity"
+            android:label="@string/title_activity_server_settings"
+            android:parentActivityName=".Login.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dndapp.Login.MainActivity" />
+        </activity>
+        <activity android:name=".Player.PlayerInfoActivity" />
+        <activity android:name=".Login.ForgotPasswordActivity" />
         <activity android:name=".PdfViewerActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".PlaythroughActivity" />
-        <activity android:name=".SecondActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".Login.RegisterActivity" />
+        <activity android:name=".Playthrough.PlaythroughActivity" />
+        <activity android:name=".Main.SecondActivity" />
+        <activity android:name=".Login.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

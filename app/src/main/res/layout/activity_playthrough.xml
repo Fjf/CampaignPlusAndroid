@@ -16,8 +16,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        tools:context=".PlaythroughActivity"
-        tools:layout_editor_absoluteX="0dp">
+        tools:context=".Playthrough.PlaythroughActivity"
+        tools:layout_editor_absoluteX="802dp">
 
         <ListView
             android:id="@+id/playerList"

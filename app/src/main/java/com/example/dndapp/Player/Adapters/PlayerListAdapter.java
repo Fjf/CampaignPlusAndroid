@@ -1,4 +1,4 @@
-package com.example.dndapp;
+package com.example.dndapp.Player.Adapters;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.example.dndapp.Playthrough.PlayerArrayElement;
+import com.example.dndapp.R;
 
 import java.util.List;
 

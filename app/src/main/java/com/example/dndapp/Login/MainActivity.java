@@ -1,14 +1,24 @@
-package com.example.dndapp;
+package com.example.dndapp.Login;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp.R;
+import com.example.dndapp.Main.SecondActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import java.io.UnsupportedEncodingException;
 import org.json.*;
@@ -27,19 +37,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        name = (EditText)findViewById(R.id.usernameField);
-        password = (EditText)findViewById(R.id.passwordField);
-        info = (TextView)findViewById(R.id.attemptsField);
-        login = (Button)findViewById(R.id.loginButton);
+        name = (EditText) findViewById(R.id.usernameField);
+        password = (EditText) findViewById(R.id.passwordField);
+        info = (TextView) findViewById(R.id.attemptsField);
+        login = (Button) findViewById(R.id.loginButton);
 
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
         info.setTypeface(font);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        String ip = sharedPreferences.getString("ip_address", "127.0.0.1");
+        Log.d(TAG, ip);
+        HttpUtils.setIp(ip);
     }
 
     public void validateRegisterTransition(View view) {
         Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public void settingsTransition(View view) {
+        Intent intent = new Intent(MainActivity.this, ServerSettingsActivity.class);
+        startActivity(intent);
     }
 
     public void validateLoginButton(View view){
@@ -91,12 +111,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                info.setText("Internal server error.");
+                info.setText("Failed to connect to the server.");
                 Log.d(TAG, "Invalid response: " + response);
 
                 // Re enable button after login response.
                 login.setEnabled(true);
             }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                String response = errorResponse == null ? null : errorResponse.toString();
+                onFailure(statusCode, headers, response, throwable);
+            }
+
         });
     }
 }

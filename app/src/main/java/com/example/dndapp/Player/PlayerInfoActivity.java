@@ -1,7 +1,9 @@
-package com.example.dndapp;
+package com.example.dndapp.Player;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.example.dndapp.R;
 
 public class PlayerInfoActivity extends AppCompatActivity {
 

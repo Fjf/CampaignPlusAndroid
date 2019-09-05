@@ -1,4 +1,4 @@
-package com.example.dndapp;
+package com.example.dndapp.Playthrough;
 
 public class PlayerArrayElement {
     public String getPlayerName() {

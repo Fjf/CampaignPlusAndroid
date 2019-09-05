@@ -1,4 +1,4 @@
-package com.example.dndapp;
+package com.example.dndapp.Playthrough;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 
+import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp.Player.Adapters.PlayerListAdapter;
+import com.example.dndapp.R;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;

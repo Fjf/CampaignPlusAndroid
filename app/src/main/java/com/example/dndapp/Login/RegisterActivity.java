@@ -1,4 +1,4 @@
-package com.example.dndapp;
+package com.example.dndapp.Login;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp.Main.SecondActivity;
+import com.example.dndapp.R;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
