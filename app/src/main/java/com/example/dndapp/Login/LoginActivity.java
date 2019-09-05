@@ -6,17 +6,15 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.R;
 import com.example.dndapp.Main.SecondActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -25,12 +23,12 @@ import org.json.*;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     private EditText name;
     private EditText password;
     private TextView info;
     private Button login;
-    private String TAG = "MainActivity";
+    private String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +45,31 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String ip = sharedPreferences.getString("ip_address", "127.0.0.1");
-        Log.d(TAG, ip);
         HttpUtils.setIp(ip);
+
+        password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    validateLoginButton(login);
+                    handled = true;
+                }
+                return handled;
+            }
+        });
     }
 
+
+
     public void validateRegisterTransition(View view) {
-        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
         finish();
     }
 
     public void settingsTransition(View view) {
-        Intent intent = new Intent(MainActivity.this, ServerSettingsActivity.class);
+        Intent intent = new Intent(LoginActivity.this, ServerSettingsActivity.class);
         startActivity(intent);
     }
 
@@ -73,11 +84,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void validateForgotPasswordButton(View view) {
-        Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
+        Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
         startActivity(intent);
     }
 
-    private void validate(String userName, String userPassword) throws JSONException, UnsupportedEncodingException {
+    private void validate(final String userName, String userPassword) throws JSONException, UnsupportedEncodingException {
         // Disable button
         login.setEnabled(false);
 
@@ -93,7 +104,13 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
                     if (serverResp.getBoolean("success")) {
-                        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                        // Store user name in shared preferences..
+                        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+                        SharedPreferences.Editor edit = preferences.edit();
+                        edit.putString("name", userName);
+                        edit.apply();
+
+                        Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
                         startActivity(intent);
                         finish();
                     } else {

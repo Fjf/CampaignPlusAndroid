@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.example.dndapp.Login.MainActivity;
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
 import com.example.dndapp._utils.HttpUtils;
@@ -82,6 +81,7 @@ public class SecondActivity extends AppCompatActivity {
         } else if (id == R.id.action_showpc) {
             Intent intent = new Intent(SecondActivity.this, PlayerInfoActivity.class);
             startActivity(intent);
+            finish();
             return true;
         }
 

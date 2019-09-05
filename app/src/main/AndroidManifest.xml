@@ -14,11 +14,11 @@
         <activity
             android:name=".Login.ServerSettingsActivity"
             android:label="@string/title_activity_server_settings"
-            android:parentActivityName=".Login.MainActivity"
+            android:parentActivityName=".Login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dndapp.Login.MainActivity" />
+                android:value="com.example.dndapp.Login.LoginActivity" />
         </activity>
         <activity android:name=".Player.PlayerInfoActivity" />
         <activity android:name=".Login.ForgotPasswordActivity" />
@@ -26,7 +26,7 @@
         <activity android:name=".Login.RegisterActivity" />
         <activity android:name=".Playthrough.PlaythroughActivity" />
         <activity android:name=".Main.SecondActivity" />
-        <activity android:name=".Login.MainActivity">
+        <activity android:name=".Login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -63,7 +63,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     JSONObject serverResp = new JSONObject(response.toString());
                     Log.d(TAG, serverResp.toString());
                     if (serverResp.getBoolean("success")) {
-                        Intent intent = new Intent(ForgotPasswordActivity.this, MainActivity.class);
+                        Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
