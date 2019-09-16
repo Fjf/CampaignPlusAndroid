@@ -23,6 +23,22 @@ public class PdfViewerActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_pdf_viewer);
 
+        loadPdf(page_number);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        int page_number = intent.getIntExtra("REQUESTED_PAGE_NUMBER", 1);
+
+        if (this.pdfView == null) {
+            loadPdf(page_number);
+        } else {
+            this.pdfView.jumpTo(page_number);
+        }
+    }
+
+    private void loadPdf(int page_number) {
         this.pdfView = findViewById(R.id.pdfView);
         this.pdfView.setSaveEnabled(true);
 
@@ -35,14 +51,7 @@ public class PdfViewerActivity extends AppCompatActivity {
         PdfViewer.setView(pdfView);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
 
-        int page_number = intent.getIntExtra("REQUESTED_PAGE_NUMBER", 1);
-
-        this.pdfView.jumpTo(page_number);
-    }
 
     @Override
     public void onBackPressed(){

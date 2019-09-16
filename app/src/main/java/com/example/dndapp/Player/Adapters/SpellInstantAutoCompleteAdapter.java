@@ -9,35 +9,52 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.Item;
-import com.example.dndapp._utils.PlayerSpellData;
+import com.example.dndapp._data.SpellData;
+
+import java.util.ArrayList;
 
 public class SpellInstantAutoCompleteAdapter extends ArrayAdapter {
     private final Activity context;
-    private final PlayerSpellData[] objects;
+    private final ArrayList<SpellData> objects;
+    private final int resource;
 
-    public SpellInstantAutoCompleteAdapter(@NonNull Activity context, @NonNull PlayerSpellData[] objects) {
+    public SpellInstantAutoCompleteAdapter(@NonNull Activity context, @NonNull ArrayList<SpellData> objects) {
         super(context, R.layout.spell_selection_row, objects);
 
+        this.resource = R.layout.spell_selection_row;
         this.context = context;
         this.objects = objects;
     }
 
-    public View getView(int position, View view, ViewGroup parent) {
-        LayoutInflater inflater = context.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.spell_selection_row, null,true);
+//    @Override
+//    public int getCount() {
+//        return objects.size();
+//    }
+//
+//    @Override
+//    public SpellData getItem(final int position) {
+//        return this.objects.get(position);
+//    }
 
-        //this code gets references to objects in the listview_row.xml file
+    @Override
+    public View getView(int position, View rowView, ViewGroup parent) {
+        LayoutInflater inflater = context.getLayoutInflater();
+
+        rowView = inflater.inflate(resource, null,true);
+
         TextView nameTextField = (TextView) rowView.findViewById(R.id.instant_spell_name);
         TextView levelTextField = (TextView) rowView.findViewById(R.id.instant_spell_level);
-        TextView idTextFields = (TextView) rowView.findViewById(R.id.instant_spell_id);
+        TextView idTextField = (TextView) rowView.findViewById(R.id.instant_spell_id);
+
+        SpellData obj = (SpellData) getItem(position);
+        assert obj != null;
 
         //this code sets the values of the objects to values from the arrays
-        nameTextField.setText(objects[position].getName());
-        levelTextField.setText(Integer.toString(objects[position].getLevel()));
-        idTextFields.setText(objects[position].getId());
+        nameTextField.setText(obj.getName());
+        levelTextField.setText(Integer.toString(obj.getLevel()));
+        idTextField.setText(Integer.toString(obj.getId()));
 
         return rowView;
-    };
+    }
 
 }

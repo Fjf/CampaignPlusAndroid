@@ -1,8 +1,10 @@
 package com.example.dndapp.Player;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +23,7 @@ import com.example.dndapp.Player.Adapters.SpellListAdapter;
 import com.example.dndapp.R;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.PlayerItemData;
-import com.example.dndapp._utils.PlayerSpellData;
+import com.example.dndapp._data.SpellData;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -46,8 +48,12 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
+    private SpellData[] psdDataSet;
+
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
+    private final int UPDATE_SPELL = 2;
+    private SpellData currentSpellData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
         startActivityForResult(intent, UPDATE_STATS);
     }
 
+    public void switchViewAddSpell(View view) {
+        Intent intent = new Intent(PlayerInfoActivity.this, AddSpellActivity.class);
+        startActivityForResult(intent, UPDATE_SPELL);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -108,20 +119,19 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == UPDATE_ITEMS) {
-            // After adding an item, update the item list from the server.
-            try {
+        try {
+            if (requestCode == UPDATE_ITEMS) {
+                // After adding an item, update the item list from the server.
                 getPlayerItems();
-            } catch (UnsupportedEncodingException | JSONException e) {
-                e.printStackTrace();
-            }
-        } else if (requestCode == UPDATE_STATS) {
-            // After updating your stats, update player stats.
-            try {
+            } else if (requestCode == UPDATE_STATS) {
+                // After updating your stats, update player stats.
                 getPlayerData();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+            } else if (requestCode == UPDATE_SPELL) {
+                // After creating a spell, update spells list.
+                getPlayerSpells();
             }
+        } catch (UnsupportedEncodingException | JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -132,7 +142,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_phb) {
             Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
             startActivity(intent);
@@ -186,14 +195,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     itemRecyclerView.setAdapter(itemAdapter);
 
                     itemRecyclerView.addOnItemTouchListener(
-                        new RecyclerItemClickListener(self, itemRecyclerView,new RecyclerItemClickListener.OnItemClickListener() {
-                            @Override public void onItemClick(View view, int position) {
+                        new RecyclerItemClickListener(self, itemRecyclerView,new RecyclerItemClickListener.ClickListener() {
+                            @Override public void onClick(View view, int position) {
                                 Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
                                 intent.putExtra("REQUESTED_PAGE_NUMBER", 143);
                                 startActivity(intent);
                             }
 
-                            @Override public void onLongItemClick(View view, int position) {
+                            @Override public void onLongClick(View view, int position) {
                                 // do whatever
                             }
                             })
@@ -330,25 +339,29 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     JSONArray array = response.getJSONArray("spells");
                     JSONObject obj;
 
-                    final PlayerSpellData[] psdDataSet = new PlayerSpellData[array.length()];
+                    psdDataSet = new SpellData[array.length()];
                     for (int i = 0; i < array.length(); i++) {
                         obj = array.getJSONObject(i);
-                        psdDataSet[i] = new PlayerSpellData(obj);
+                        psdDataSet[i] = new SpellData(obj);
                     }
 
                     spellAdapter = new SpellListAdapter(psdDataSet);
                     spellRecyclerView.setAdapter(spellAdapter);
 
                     spellRecyclerView.addOnItemTouchListener(
-                        new RecyclerItemClickListener(self, spellRecyclerView,new RecyclerItemClickListener.OnItemClickListener() {
-                            @Override public void onItemClick(View view, int position) {
+                        new RecyclerItemClickListener(self, spellRecyclerView, new RecyclerItemClickListener.ClickListener() {
+                            @Override public void onClick(View view, int position) {
                                 Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
                                 intent.putExtra("REQUESTED_PAGE_NUMBER", psdDataSet[position].getPhb());
                                 startActivity(intent);
                             }
 
-                            @Override public void onLongItemClick(View view, int position) {
-                                // do whatever
+                            @Override public void onLongClick(View view, int position) {
+                                currentSpellData = psdDataSet[position];
+                                TextView tv = findViewById(R.id.deleteItemTextButton);
+                                tv.setText("Delete " + currentSpellData.getName());
+                                Log.d(TAG, "__________ WHYYYYYYYY");
+                                findViewById(R.id.settingsOverlayMenu).setVisibility(View.VISIBLE);
                             }
                         })
                     );
@@ -362,5 +375,89 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Log.d(TAG, "Invalid response: " + response);
             }
         });
+    }
+
+    public void requestDeleteItem(View view) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        try {
+                            deleteItem();
+                        } catch (UnsupportedEncodingException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
+        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    private void deleteItem() throws UnsupportedEncodingException, JSONException {
+        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        String playerId = preferences.getString("player_id", null);
+
+        // No player was selected yet.
+        // TODO: Tell the user to select a character or playthrough.
+        if (playerId == null) {
+            Log.d(TAG, "There was no player selected yet.");
+            return;
+        }
+
+        JSONObject data = new JSONObject();
+        data.put("player_id", playerId);
+        data.put("spell_id", currentSpellData.getId());
+
+
+        final Context self = this;
+        StringEntity entity = new StringEntity(data.toString());
+        String url = "deleteplayerspell";
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    if (!response.getBoolean("success")) {
+                        Log.d(TAG, "Something went wrong retrieving spells from the server.");
+                        return;
+                    }
+
+                    closeMenus();
+                    getPlayerSpells();
+                } catch (JSONException | UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Log.d(TAG, "Invalid response: " + response);
+            }
+        });
+    }
+
+    private void closeMenus() {
+        findViewById(R.id.settingsOverlayMenu).setVisibility(View.GONE);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.settingsOverlayMenu).getVisibility() == View.GONE)
+            super.onBackPressed();
+        else
+            closeMenus();
+    }
+
+    public void closeMenu(View view) {
+        closeMenus();
     }
 }

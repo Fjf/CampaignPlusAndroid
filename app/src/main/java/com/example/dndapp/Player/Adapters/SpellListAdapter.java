@@ -7,11 +7,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
-import com.example.dndapp._utils.PlayerItemData;
-import com.example.dndapp._utils.PlayerSpellData;
+import com.example.dndapp._data.SpellData;
 
 public class SpellListAdapter extends RecyclerView.Adapter<SpellListAdapter.ItemViewHolder> {
-    private PlayerSpellData[] psdDataSet;
+    private SpellData[] psdDataSet;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -30,7 +29,7 @@ public class SpellListAdapter extends RecyclerView.Adapter<SpellListAdapter.Item
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public SpellListAdapter(PlayerSpellData[] psdDataSet) {
+    public SpellListAdapter(SpellData[] psdDataSet) {
 
         this.psdDataSet = psdDataSet;
     }

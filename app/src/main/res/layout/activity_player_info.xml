@@ -17,7 +17,7 @@
 
         <LinearLayout
             android:id="@+id/linearLayout"
-            android:layout_width="412dp"
+            android:layout_width="match_parent"
             android:layout_height="400dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toTopOf="parent"
@@ -313,12 +313,15 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="3"
+                android:weightSum="5"
                 android:orientation="vertical">
 
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/HPLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:minHeight="100dp"
+                    android:layout_height="wrap_content"
+
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1">
 
@@ -453,10 +456,11 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout3"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_margin="4dp"
+            android:minHeight="150dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -467,9 +471,69 @@
                 android:id="@+id/player_spell_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-        </LinearLayout>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/addSpellActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:onClick="switchViewAddSpell"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@android:drawable/ic_menu_add" />
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/settingsOverlayMenu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/overlaySettingsLight"
+        android:gravity="bottom"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:gravity="center"
+            android:background="@color/overlaySettings"
+            android:textSize="8pt"
+            android:textStyle="bold"
+            android:text="Settings"/>
+
+        <TextView
+            android:id="@+id/deleteItemTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:clickable="true"
+            android:background="@drawable/list_item_onclick_color"
+            android:onClick="requestDeleteItem"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:clickable="true"
+            android:background="@drawable/list_item_onclick_color"
+            android:onClick="closeMenu"
+            android:text="Cancel"
+            android:focusable="true" />
+    </LinearLayout>
 
     <include
         android:id="@+id/toolbar"

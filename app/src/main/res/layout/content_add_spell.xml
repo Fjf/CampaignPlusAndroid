@@ -8,4 +8,42 @@
     tools:context=".Player.AddSpellActivity"
     tools:showIn="@layout/activity_add_spell">
 
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/spell_info_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add a spell to your character spell list."
+        android:textSize="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/spell_info_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.example.dndapp._utils.InstantAutoComplete
+            android:id="@+id/autocomplete_spells"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:minHeight="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:hint="Select a spell..."
+             />
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="playerAddSpell"
+            app:srcCompat="@android:drawable/ic_menu_save"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/autocomplete_spells"
+            />
+    </android.support.v7.widget.LinearLayoutCompat>
 </android.support.constraint.ConstraintLayout>
