@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,398 +9,470 @@
     tools:context=".Player.PlayerInfoActivity">
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout2"
-        android:layout_width="280dp"
-        android:layout_height="369dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/StatsLayout"
-        app:layout_constraintTop_toBottomOf="@+id/HPLayout">
-
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout3"
-        android:layout_width="396dp"
-        android:layout_height="203dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:id="@+id/content_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/StatsLayout"
-        android:layout_width="109dp"
-        android:layout_height="502dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/HPLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <RadioButton
-            android:id="@+id/radioButton3"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:buttonTint="#4CAF50"
-            android:checked="false"
-            android:clickable="false"
-            android:shadowColor="#F44336"
-            android:textColorHighlight="#009688"
-            android:textColorLink="#00090202"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statDexterityTotal"
-            app:layout_constraintStart_toEndOf="@+id/statDexterityTotal"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="56dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_horizontal"
-            android:text="Constutition"
-            android:textSize="11dp"
-            app:autoSizeMaxTextSize="11sp"
-            app:autoSizeMinTextSize="8sp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toTopOf="@+id/statConstitutionTotal"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="56dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_horizontal"
-            android:text="Intelligence"
-            android:textSize="11dp"
-            app:autoSizeMaxTextSize="12sp"
-            app:autoSizeMinTextSize="6sp"
-            app:layout_constraintBottom_toTopOf="@+id/statIntelligenceTotal"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="56dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_horizontal"
-            android:text="Wisdom"
-            android:textSize="11dp"
-            app:layout_constraintBottom_toTopOf="@+id/statWisdomTotal"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/textView7"
-            android:layout_width="56dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_horizontal"
-            android:text="Charisma"
-            android:textSize="11dp"
-            app:layout_constraintBottom_toTopOf="@+id/statCharismaTotal"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/statStrengthTotal"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="40dp"
-            android:gravity="center"
-            android:text="1"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/statConstitutionTotal"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="1"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/statDexterityTotal" />
-
-        <TextView
-            android:id="@+id/statDexterityTotal"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="1"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/statStrengthTotal" />
-
-        <TextView
-            android:id="@+id/statIntelligenceTotal"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="1"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/statConstitutionTotal" />
-
-        <TextView
-            android:id="@+id/statWisdomTotal"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="1"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/statIntelligenceTotal" />
-
-        <TextView
-            android:id="@+id/statCharismaTotal"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="1"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/statWisdomTotal" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="56dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_horizontal"
-            android:text="Strength"
-            android:textSize="11dp"
-            app:layout_constraintBottom_toTopOf="@+id/statStrengthTotal"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="56dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_horizontal"
-            android:text="Dexterity"
-            android:textSize="11dp"
-            app:layout_constraintBottom_toTopOf="@+id/statDexterityTotal"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <RadioButton
-            android:id="@+id/radioButton"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:buttonTint="#4CAF50"
-            android:checked="false"
-            android:clickable="false"
-            android:shadowColor="#F44336"
-            android:textColorHighlight="#009688"
-            android:textColorLink="#00090202"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toTopOf="@+id/textView3"
-            app:layout_constraintStart_toEndOf="@+id/statStrengthTotal"
-            app:layout_constraintTop_toBottomOf="@+id/textView2"
-            app:layout_constraintVertical_bias="0.222" />
-
-        <RadioButton
-            android:id="@+id/radioButton2"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:buttonTint="#4CAF50"
-            android:checked="false"
-            android:clickable="false"
-            android:shadowColor="#F44336"
-            android:textColorHighlight="#009688"
-            android:textColorLink="#00090202"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statConstitutionTotal"
-            app:layout_constraintStart_toEndOf="@+id/statConstitutionTotal"
-            app:layout_constraintTop_toTopOf="@+id/statConstitutionTotal"
-            app:layout_constraintVertical_bias="0.423" />
-
-        <RadioButton
-            android:id="@+id/radioButton4"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:buttonTint="#4CAF50"
-            android:checked="false"
-            android:clickable="false"
-            android:shadowColor="#F44336"
-            android:textColorHighlight="#009688"
-            android:textColorLink="#00090202"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statWisdomTotal"
-            app:layout_constraintStart_toEndOf="@+id/statWisdomTotal"
-            app:layout_constraintTop_toTopOf="@+id/statWisdomTotal" />
-
-        <RadioButton
-            android:id="@+id/radioButton6"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:buttonTint="#4CAF50"
-            android:checked="false"
-            android:clickable="false"
-            android:shadowColor="#F44336"
-            android:textColorHighlight="#009688"
-            android:textColorLink="#00090202"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statCharismaTotal"
-            app:layout_constraintStart_toEndOf="@+id/statCharismaTotal"
-            app:layout_constraintTop_toTopOf="@+id/statCharismaTotal"
-            app:layout_constraintVertical_bias="0.461" />
-
-        <RadioButton
-            android:id="@+id/radioButton5"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:buttonTint="#4CAF50"
-            android:checked="false"
-            android:clickable="false"
-            android:shadowColor="#F44336"
-            android:textColorHighlight="#009688"
-            android:textColorLink="#00090202"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statIntelligenceTotal"
-            app:layout_constraintStart_toEndOf="@+id/statIntelligenceTotal"
-            app:layout_constraintTop_toTopOf="@+id/statIntelligenceTotal"
-            app:layout_constraintVertical_bias="0.461" />
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/HPLayout"
-        android:layout_width="279dp"
-        android:layout_height="122dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <EditText
-            android:id="@+id/statCurrentHP"
-            android:layout_width="158dp"
-            android:layout_height="42dp"
-            android:ems="10"
-            android:gravity="center"
-            android:inputType="number"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.867"
-            app:layout_constraintStart_toStartOf="parent"
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="412dp"
+            android:layout_height="400dp"
+            android:orientation="horizontal"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.8" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteX="-1dp"
+            android:baselineAligned="false">
 
-        <TextView
-            android:id="@+id/textView13"
-            android:layout_width="23dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="8dp"
-            android:gravity="center_vertical"
-            android:text="HP"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statMaxHP"
-            app:layout_constraintEnd_toEndOf="@+id/statMaxHP"
-            app:layout_constraintStart_toEndOf="@+id/statMaxHP"
-            app:layout_constraintTop_toTopOf="@+id/statMaxHP"
-            app:layout_constraintVertical_bias="0.0" />
+            <LinearLayout
+                android:id="@+id/StatsLayout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:onClick="switchViewUpdateStats"
+                android:orientation="vertical"
+                android:weightSum="6">
 
-        <EditText
-            android:id="@+id/statTemporaryHP"
-            android:layout_width="77dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginBottom="8dp"
-            android:ellipsize="none"
-            android:ems="10"
-            android:gravity="center"
-            android:hint="11"
-            android:inputType="number"
-            app:layout_constraintBottom_toTopOf="@+id/statCurrentHP"
-            app:layout_constraintEnd_toEndOf="@+id/statCurrentHP"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/statMaxHP" />
+                <!-- Strength set-->
 
-        <TextView
-            android:id="@+id/textView14"
-            android:layout_width="19dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="8dp"
-            android:gravity="center_vertical"
-            android:text="HP"
-            android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/statTemporaryHP"
-            app:layout_constraintEnd_toEndOf="@+id/statTemporaryHP"
-            app:layout_constraintHorizontal_bias="0.645"
-            app:layout_constraintStart_toEndOf="@+id/statTemporaryHP"
-            app:layout_constraintTop_toTopOf="@+id/statTemporaryHP"
-            app:layout_constraintVertical_bias="0.0" />
+                <!-- Constitution -->
 
-        <TextView
-            android:id="@+id/statArmorClass"
-            android:layout_width="55dp"
-            android:layout_height="15dp"
-            android:layout_marginTop="8dp"
-            android:text="Armor Class"
-            app:autoSizeMinTextSize="3dp"
-            app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toTopOf="@+id/editText"
-            app:layout_constraintEnd_toStartOf="@+id/statMaxHP"
-            app:layout_constraintTop_toTopOf="@+id/textView13"
-            app:layout_constraintVertical_bias="1.0" />
 
-        <EditText
-            android:id="@+id/editText"
-            android:layout_width="56dp"
-            android:layout_height="42dp"
-            android:layout_marginBottom="8dp"
-            android:ems="10"
-            android:inputType="number"
-            app:layout_constraintBottom_toBottomOf="@+id/statCurrentHP"
-            app:layout_constraintEnd_toStartOf="@+id/statCurrentHP" />
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="56dp">
 
-        <TextView
-            android:id="@+id/statMaxHP"
-            android:layout_width="77dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center|center_vertical"
-            android:text="30000"
-            app:layout_constraintBottom_toTopOf="@+id/statCurrentHP"
-            app:layout_constraintStart_toStartOf="@+id/statCurrentHP" />
+                    <RadioButton
+                        android:id="@+id/stStrength"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:buttonTint="#4CAF50"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:shadowColor="#F44336"
+                        android:textColorHighlight="#009688"
+                        android:textColorLink="#00090202"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statStrengthTotal"
+                        app:layout_constraintStart_toEndOf="@+id/statStrengthTotal"
+                        app:layout_constraintTop_toTopOf="@+id/statStrengthTotal" />
 
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="23dp"
-            android:layout_height="18dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="HP"
-            app:layout_constraintBottom_toBottomOf="@+id/statCurrentHP"
-            app:layout_constraintEnd_toEndOf="@+id/statCurrentHP"
-            app:layout_constraintStart_toEndOf="@+id/statCurrentHP"
-            app:layout_constraintTop_toTopOf="@+id/statCurrentHP" />
+                    <TextView
+                        android:id="@+id/statStrengthTotal"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textView2" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="56dp"
+                        android:layout_height="16dp"
+                        android:gravity="center_horizontal"
+                        android:text="Strength"
+                        android:textSize="11dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="56dp">
+
+                    <RadioButton
+                        android:id="@+id/stDexterity"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:buttonTint="#4CAF50"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:shadowColor="#F44336"
+                        android:textColorHighlight="#009688"
+                        android:textColorLink="#00090202"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statDexterityTotal"
+                        app:layout_constraintStart_toEndOf="@+id/statDexterityTotal"
+                        app:layout_constraintTop_toTopOf="@+id/statDexterityTotal" />
+
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="56dp"
+                        android:layout_height="16dp"
+                        android:gravity="center_horizontal"
+                        android:text="Dexterity"
+                        android:textSize="11dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/statDexterityTotal" />
+
+                    <TextView
+                        android:id="@+id/statDexterityTotal"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="56dp">
+
+                    <RadioButton
+                        android:id="@+id/stConstitution"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:buttonTint="#4CAF50"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:shadowColor="#F44336"
+                        android:textColorHighlight="#009688"
+                        android:textColorLink="#00090202"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statConstitutionTotal"
+                        app:layout_constraintStart_toEndOf="@+id/statConstitutionTotal"
+                        app:layout_constraintTop_toTopOf="@+id/statConstitutionTotal" />
+
+                    <TextView
+                        android:id="@+id/statConstitutionTotal"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textView4" />
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="56dp"
+                        android:layout_height="16dp"
+                        android:gravity="center_horizontal"
+                        android:text="Constutition"
+                        android:textSize="11dp"
+                        app:autoSizeMaxTextSize="11sp"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeTextType="uniform"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/statConstitutionTotal" />
+                </android.support.constraint.ConstraintLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="56dp">
+
+
+                    <RadioButton
+                        android:id="@+id/stIntelligence"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:buttonTint="#4CAF50"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:shadowColor="#F44336"
+                        android:textColorHighlight="#009688"
+                        android:textColorLink="#00090202"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statIntelligenceTotal"
+                        app:layout_constraintStart_toEndOf="@+id/statIntelligenceTotal"
+                        app:layout_constraintTop_toTopOf="@+id/statIntelligenceTotal" />
+
+                    <TextView
+                        android:id="@+id/statIntelligenceTotal"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textView5" />
+
+
+                    <TextView
+                        android:id="@+id/textView5"
+                        android:layout_width="56dp"
+                        android:layout_height="16dp"
+                        android:gravity="center_horizontal"
+                        android:text="Intelligence"
+                        android:textSize="11dp"
+                        app:autoSizeMaxTextSize="12sp"
+                        app:autoSizeMinTextSize="6sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/statIntelligenceTotal" />
+                </android.support.constraint.ConstraintLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="56dp">
+
+                    <RadioButton
+                        android:id="@+id/stWisdom"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:buttonTint="#4CAF50"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:shadowColor="#F44336"
+                        android:textColorHighlight="#009688"
+                        android:textColorLink="#00090202"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statWisdomTotal"
+                        app:layout_constraintStart_toEndOf="@+id/statWisdomTotal"
+                        app:layout_constraintTop_toTopOf="@+id/statWisdomTotal" />
+
+                    <TextView
+                        android:id="@+id/textView6"
+                        android:layout_width="56dp"
+                        android:layout_height="16dp"
+                        android:gravity="center_horizontal"
+                        android:text="Wisdom"
+                        android:textSize="11dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/statWisdomTotal"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textView6" />
+
+                </android.support.constraint.ConstraintLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="56dp">
+
+
+                    <RadioButton
+                        android:id="@+id/stCharisma"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:buttonTint="#4CAF50"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:shadowColor="#F44336"
+                        android:textColorHighlight="#009688"
+                        android:textColorLink="#00090202"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statCharismaTotal"
+                        app:layout_constraintStart_toEndOf="@+id/statCharismaTotal"
+                        app:layout_constraintTop_toTopOf="@+id/statCharismaTotal" />
+
+                    <TextView
+                        android:id="@+id/statCharismaTotal"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textView7" />
+
+                    <TextView
+                        android:id="@+id/textView7"
+                        android:layout_width="56dp"
+                        android:layout_height="16dp"
+                        android:gravity="center_horizontal"
+                        android:text="Charisma"
+                        android:textSize="11dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:orientation="vertical">
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/HPLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1">
+
+                    <EditText
+                        android:id="@+id/statCurrentHP"
+                        android:layout_width="158dp"
+                        android:layout_height="42dp"
+                        android:ems="10"
+                        android:gravity="center"
+                        android:inputType="number"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.867"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.8" />
+
+                    <EditText
+                        android:id="@+id/statTemporaryHP"
+                        android:layout_width="77dp"
+                        android:layout_height="25dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:ellipsize="none"
+                        android:ems="10"
+                        android:gravity="center"
+                        android:hint="11"
+                        android:inputType="number"
+                        app:layout_constraintBottom_toTopOf="@+id/statCurrentHP"
+                        app:layout_constraintEnd_toEndOf="@+id/statCurrentHP"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toEndOf="@+id/statMaxHP" />
+
+                    <EditText
+                        android:id="@+id/statArmorClass"
+                        android:layout_width="56dp"
+                        android:layout_height="42dp"
+                        android:layout_marginBottom="8dp"
+                        android:ems="10"
+                        android:inputType="number"
+                        app:layout_constraintBottom_toBottomOf="@+id/statCurrentHP"
+                        app:layout_constraintEnd_toStartOf="@+id/statCurrentHP" />
+
+                    <TextView
+                        android:id="@+id/textView14"
+                        android:layout_width="19dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:gravity="center_vertical"
+                        android:text="HP"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statTemporaryHP"
+                        app:layout_constraintEnd_toEndOf="@+id/statTemporaryHP"
+                        app:layout_constraintHorizontal_bias="0.645"
+                        app:layout_constraintStart_toEndOf="@+id/statTemporaryHP"
+                        app:layout_constraintTop_toTopOf="@+id/statTemporaryHP"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/textView10"
+                        android:layout_width="55dp"
+                        android:layout_height="15dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Armor Class"
+                        app:autoSizeMinTextSize="3dp"
+                        app:autoSizeTextType="uniform"
+                        app:layout_constraintBottom_toTopOf="@+id/statArmorClass"
+                        app:layout_constraintEnd_toStartOf="@+id/statMaxHP"
+                        app:layout_constraintTop_toTopOf="@+id/textView13"
+                        app:layout_constraintVertical_bias="1.0" />
+
+                    <TextView
+                        android:id="@+id/textView13"
+                        android:layout_width="23dp"
+                        android:layout_height="25dp"
+                        android:layout_marginStart="8dp"
+                        android:gravity="center_vertical"
+                        android:text="HP"
+                        android:textSize="11sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/statMaxHP"
+                        app:layout_constraintEnd_toEndOf="@+id/statMaxHP"
+                        app:layout_constraintStart_toEndOf="@+id/statMaxHP"
+                        app:layout_constraintTop_toTopOf="@+id/statMaxHP"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/statMaxHP"
+                        android:layout_width="77dp"
+                        android:layout_height="25dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center|center_vertical"
+                        android:textColor="@android:color/black"
+                        app:layout_constraintBottom_toTopOf="@+id/statCurrentHP"
+                        app:layout_constraintStart_toStartOf="@+id/statCurrentHP" />
+
+                    <TextView
+                        android:id="@+id/textView12"
+                        android:layout_width="23dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="HP"
+                        app:layout_constraintBottom_toBottomOf="@+id/statCurrentHP"
+                        app:layout_constraintEnd_toEndOf="@+id/statCurrentHP"
+                        app:layout_constraintStart_toEndOf="@+id/statCurrentHP"
+                        app:layout_constraintTop_toTopOf="@+id/statCurrentHP" />
+                </android.support.constraint.ConstraintLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/constraintLayout2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="4">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/floatingActionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:onClick="switchViewAddItem"
+                        app:layout_constraintBottom_toBottomOf="@+id/player_item_list"
+                        app:layout_constraintEnd_toEndOf="@+id/player_item_list"
+                        app:srcCompat="@android:drawable/ic_menu_add" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/player_item_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </android.support.constraint.ConstraintLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/constraintLayout3"
+            android:layout_width="match_parent"
+            android:layout_margin="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            android:layout_height="0dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/player_spell_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
     </android.support.constraint.ConstraintLayout>
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
 
 </android.support.constraint.ConstraintLayout>

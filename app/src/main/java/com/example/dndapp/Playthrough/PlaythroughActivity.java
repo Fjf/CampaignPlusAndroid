@@ -10,11 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.example.dndapp.Main.SecondActivity;
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp.Player.Adapters.PlayerListAdapter;
+import com.example.dndapp.Playthrough.Adapters.PlayerListAdapter;
 import com.example.dndapp.R;
 import com.loopj.android.http.JsonHttpResponseHandler;
 

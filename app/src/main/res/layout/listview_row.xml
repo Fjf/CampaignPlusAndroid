@@ -1,29 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:gravity="center">
 
-    <LinearLayout
-        android:layout_width="351dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="169dp">
-
-        <TextView
-            android:id="@+id/playerName"
-            android:layout_width="373dp"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textAlignment="textStart"
-            android:textSize="18sp"
-            tools:layout_editor_absoluteX="109dp"
-            tools:layout_editor_absoluteY="220dp" />
-    </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/playerName"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        tools:layout_editor_absoluteX="-3dp"
+        tools:layout_editor_absoluteY="2dp" />
+</LinearLayout>

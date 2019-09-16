@@ -28,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText password;
     private TextView info;
     private Button login;
+    private SharedPreferences sharedPreferences;
     private String TAG = "LoginActivity";
 
     @Override
@@ -43,8 +44,11 @@ public class LoginActivity extends AppCompatActivity {
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
         info.setTypeface(font);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String ip = sharedPreferences.getString("ip_address", "127.0.0.1");
+        String userName = sharedPreferences.getString("user_name", "");
+        name.setText(userName);
+
         HttpUtils.setIp(ip);
 
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -76,9 +80,7 @@ public class LoginActivity extends AppCompatActivity {
     public void validateLoginButton(View view){
         try {
             validate(name.getText().toString(), password.getText().toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
@@ -104,10 +106,15 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
                     if (serverResp.getBoolean("success")) {
-                        // Store user name in shared preferences..
+                        // Store user name in shared preferences for rest of the app.
                         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
                         SharedPreferences.Editor edit = preferences.edit();
                         edit.putString("name", userName);
+                        edit.apply();
+
+                        // Store username in sharedpreferences for next login.
+                        edit = sharedPreferences.edit();
+                        edit.putString("user_name", userName);
                         edit.apply();
 
                         Intent intent = new Intent(LoginActivity.this, SecondActivity.class);

@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.dndapp">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,6 +9,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".Player.AddSpellActivity"
+            android:label="@string/title_activity_add_spell"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".Player.PlayerStatsActivity"
+            android:label="@string/title_activity_player_stats"
+            android:parentActivityName=".Player.PlayerInfoActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dndapp.Player.PlayerInfoActivity" />
+        </activity>
+        <activity
+            android:name=".Player.AddItemActivity"
+            android:label="@string/title_activity_add_item"
+            android:parentActivityName=".Player.PlayerInfoActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dndapp.Player.PlayerInfoActivity" />
+        </activity>
         <activity
             android:name=".Login.ServerSettingsActivity"
             android:label="@string/title_activity_server_settings"
@@ -22,7 +42,10 @@
         </activity>
         <activity android:name=".Player.PlayerInfoActivity" />
         <activity android:name=".Login.ForgotPasswordActivity" />
-        <activity android:name=".PdfViewerActivity" />
+        <activity
+            android:name=".PdfViewerActivity"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance" />
         <activity android:name=".Login.RegisterActivity" />
         <activity android:name=".Playthrough.PlaythroughActivity" />
         <activity android:name=".Main.SecondActivity" />
@@ -34,5 +57,7 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

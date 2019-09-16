@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Dndapp</string>
     <string name="title_activity_server_settings">ServerSettingsActivity</string>
+    <string name="title_activity_add_item">AddItemActivity</string>
+    <string name="title_activity_player_stats">PlayerStatsActivity</string>
+    <string name="title_activity_add_spell">AddSpellActivity</string>
 </resources>

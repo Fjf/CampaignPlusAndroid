@@ -1,4 +1,4 @@
-package com.example.dndapp.Player.Adapters;
+package com.example.dndapp.Playthrough.Adapters;
 
 import android.app.Activity;
 import android.view.LayoutInflater;

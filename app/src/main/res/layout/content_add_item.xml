@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/add_item_wrapper" xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="5dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="10dp"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".Player.AddItemActivity"
+    tools:showIn="@layout/activity_add_item">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:text="Find existing items"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="7"
+        >
+
+        <com.example.dndapp._utils.InstantAutoComplete
+            android:id="@+id/autocomplete_items"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Find items..."
+            android:layout_weight="4"
+            tools:layout_editor_absoluteY="619dp" />
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/add_items_amount"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:hint="Amount"
+            android:layout_height="wrap_content"
+            tools:layout_editor_absoluteY="619dp"
+            />
+        <Button
+            android:id="@+id/button4"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            android:onClick="playerAddItem"
+            tools:layout_editor_absoluteY="619dp" />
+    </android.support.v7.widget.LinearLayoutCompat>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="Create new item"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+
+    <Switch
+        android:id="@+id/item_weapon_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center|right"
+        android:onClick="toggleWeaponInfo"
+        android:text="Toggle Item/Weapon"
+        android:textColor="@android:color/primary_text_light" />
+
+    <EditText
+        android:id="@+id/item_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Item Name"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/item_information"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Extra Information (Optional)"
+        android:inputType="textMultiLine" />
+
+    <EditText
+        android:id="@+id/item_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Amount"
+        android:inputType="number" />
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/add_weapon_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Weapon Information" />
+
+        <EditText
+            android:id="@+id/flat_damage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Flat Damage"
+            android:inputType="numberSigned" />
+
+        <Spinner
+            android:id="@+id/dice_selection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/dice_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="numberSigned"
+            android:hint="Dice Amount" />
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/button2"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Item"
+        android:onClick="buttonAddItem"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+
+</LinearLayout>
