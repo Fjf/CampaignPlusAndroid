@@ -10,9 +10,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".Player.PlayerSpellActivity"
+            android:label="@string/title_activity_player_spell"
+            android:parentActivityName=".Player.PlayerInfoActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dndapp.Player.PlayerInfoActivity" />
+        </activity>
+        <activity
             android:name=".Player.AddSpellActivity"
             android:label="@string/title_activity_add_spell"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Player.PlayerStatsActivity"
             android:label="@string/title_activity_player_stats"

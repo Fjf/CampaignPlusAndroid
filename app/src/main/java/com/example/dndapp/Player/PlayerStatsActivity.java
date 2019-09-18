@@ -1,5 +1,6 @@
 package com.example.dndapp.Player;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -7,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,11 +28,15 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 public class PlayerStatsActivity extends AppCompatActivity {
     private static final String TAG = "PlayerStatsActivity";
     private String playerId;
+    private float x1;
+    private float x2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_player_stats);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -101,4 +107,18 @@ public class PlayerStatsActivity extends AppCompatActivity {
         });
     }
 
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = event.getX();
+                if (x1 > x2) { // Left swipe
+                    Intent intent = new Intent(PlayerStatsActivity.this, PlayerInfoActivity.class);
+                    startActivity(intent);
+                }
+        }
+        return false;
+    }
 }

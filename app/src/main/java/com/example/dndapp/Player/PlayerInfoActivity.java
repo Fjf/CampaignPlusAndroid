@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -53,11 +54,16 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
     private final int UPDATE_SPELL = 2;
-    private SpellData currentSpellData;
+    private float x1;
+    private float x2;
+    private SpellData selectedSpell;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.overridePendingTransition(R.anim.from_left,
+                R.anim.to_left);
 
         setContentView(R.layout.activity_player_info);
 
@@ -92,7 +98,29 @@ public class PlayerInfoActivity extends AppCompatActivity {
         spellLayoutManager = new LinearLayoutManager(this);
         spellRecyclerView.setLayoutManager(spellLayoutManager);
 
-
+        findViewById(R.id.view_scroll_bar).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x1 = event.getX();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        x2 = event.getX();
+                        if (Math.abs(x1 - x2) < 100) {
+                            v.performClick();
+                            return true;
+                        }
+                        if (x1 < x2) { // Left swipe
+                            Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+                            startActivity(intent);
+                            return true;
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     public void switchViewAddItem(android.view.View view) {
@@ -351,16 +379,16 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     spellRecyclerView.addOnItemTouchListener(
                         new RecyclerItemClickListener(self, spellRecyclerView, new RecyclerItemClickListener.ClickListener() {
                             @Override public void onClick(View view, int position) {
-                                Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
-                                intent.putExtra("REQUESTED_PAGE_NUMBER", psdDataSet[position].getPhb());
+                                Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+                                intent.putExtra("SPELL_ID", psdDataSet[position].getId());
                                 startActivity(intent);
                             }
 
                             @Override public void onLongClick(View view, int position) {
-                                currentSpellData = psdDataSet[position];
+                                selectedSpell = psdDataSet[position];
+
                                 TextView tv = findViewById(R.id.deleteItemTextButton);
-                                tv.setText("Delete " + currentSpellData.getName());
-                                Log.d(TAG, "__________ WHYYYYYYYY");
+                                tv.setText("Delete " + selectedSpell.getName());
                                 findViewById(R.id.settingsOverlayMenu).setVisibility(View.VISIBLE);
                             }
                         })
@@ -375,6 +403,16 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Log.d(TAG, "Invalid response: " + response);
             }
         });
+    }
+
+    public void eatClickEvent(View view) { }
+
+    public void showSpellInfo(View view) {
+        closeMenus();
+
+        Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+        intent.putExtra("SPELL_ID", selectedSpell.getId());
+        startActivity(intent);
     }
 
     public void requestDeleteItem(View view) {
@@ -415,7 +453,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         JSONObject data = new JSONObject();
         data.put("player_id", playerId);
-        data.put("spell_id", currentSpellData.getId());
+        data.put("spell_id", selectedSpell.getId());
 
 
         final Context self = this;
@@ -459,5 +497,13 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     public void closeMenu(View view) {
         closeMenus();
+    }
+
+    public void showSpellPHB(View view) {
+        closeMenus();
+
+        Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
+        intent.putExtra("REQUESTED_PAGE_NUMBER", selectedSpell.getPhb());
+        startActivity(intent);
     }
 }
