@@ -10,13 +10,13 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.Item;
+import com.example.dndapp._data.ItemData;
 
 public class ItemInstantAutoCompleteAdapter extends ArrayAdapter {
     private final Activity context;
-    private final Item[] objects;
+    private final ItemData[] objects;
 
-    public ItemInstantAutoCompleteAdapter(@NonNull Activity context, @NonNull Item[] objects) {
+    public ItemInstantAutoCompleteAdapter(@NonNull Activity context, @NonNull ItemData[] objects) {
         super(context, R.layout.item_selection_row, objects);
 
         this.context = context;
@@ -27,7 +27,7 @@ public class ItemInstantAutoCompleteAdapter extends ArrayAdapter {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.item_selection_row, null,true);
 
-        //this code gets references to objects in the listview_row.xml file
+        //this code gets references to objects in the playthrough_listview_rowlistview_row.xml file
         TextView nameTextField = (TextView) rowView.findViewById(R.id.instant_item_name);
         TextView categoryTextField = (TextView) rowView.findViewById(R.id.instant_item_category);
         TextView idTextFields = (TextView) rowView.findViewById(R.id.instant_item_id);

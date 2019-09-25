@@ -4,22 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Login.ServerSettingsActivity">
+    tools:context=".Player.PlayerItemActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
+        <include
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            layout="@layout/toolbar" />
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_server_settings" />
+    <include layout="@layout/content_player_item" />
 
 </android.support.design.widget.CoordinatorLayout>

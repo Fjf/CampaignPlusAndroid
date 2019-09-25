@@ -8,10 +8,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
+import com.example.dndapp._data.ItemData;
 import com.example.dndapp._utils.PlayerItemData;
 
 public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemViewHolder> {
-    private PlayerItemData[] pidDataSet;
+    private ItemData[] pidDataSet;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -28,9 +29,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ItemListAdapter(PlayerItemData[] pidDataSet) {
-
-
+    public ItemListAdapter(ItemData[] pidDataSet) {
         this.pidDataSet = pidDataSet;
     }
 

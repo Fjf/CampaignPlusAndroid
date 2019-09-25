@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="41dp"
         android:ems="10"
-        android:inputType="textPersonName|phone"
+        android:digits="0123456789."
+        android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
@@ -27,7 +28,6 @@
         android:gravity="center"
         android:text="Fill in the server's IP address."
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,7 +39,6 @@
         android:onClick="updateIpAddress"
         android:text="Update"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ipAddress" />
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -25,6 +23,8 @@
             android:gravity="center"
             android:paddingTop="1dp"
             android:background="@color/colorPrimaryDark"
+            android:textColor="@color/colorPrimary"
+            android:onClick="openPlayerSpellActivity"
             android:text="Spells" />
 
         <TextView
@@ -32,6 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
+            android:textColor="@color/colorPrimaryDark"
             android:gravity="center"
             android:layout_margin="1dp"
             android:layout_weight="1"
@@ -44,7 +45,9 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:background="@color/colorPrimaryDark"
+            android:textColor="@color/colorPrimary"
             android:layout_weight="1"
+            android:onClick="openPlayerItemActivity"
             android:text="Items" />
     </LinearLayout>
 
@@ -73,6 +76,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:onClick="switchViewUpdateStats"
+                android:descendantFocusability="blocksDescendants"
                 android:orientation="vertical"
                 android:weightSum="6">
 
@@ -87,19 +91,14 @@
                     android:layout_weight="1"
                     android:minHeight="56dp">
 
-                    <RadioButton
+                    <TextView
                         android:id="@+id/stStrength"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:buttonTint="#4CAF50"
-                        android:checked="false"
-                        android:clickable="false"
-                        android:shadowColor="#F44336"
-                        android:textColorHighlight="#009688"
-                        android:textColorLink="#00090202"
-                        android:textSize="11sp"
+                        android:background="@drawable/round_corner"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        app:layout_constraintVertical_bias="0.6"
                         app:layout_constraintBottom_toBottomOf="@+id/statStrengthTotal"
                         app:layout_constraintStart_toEndOf="@+id/statStrengthTotal"
                         app:layout_constraintTop_toTopOf="@+id/statStrengthTotal" />
@@ -131,20 +130,16 @@
                     android:layout_weight="1"
                     android:minHeight="56dp">
 
-                    <RadioButton
+                    <TextView
                         android:id="@+id/stDexterity"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:buttonTint="#4CAF50"
-                        android:checked="false"
-                        android:clickable="false"
-                        android:shadowColor="#F44336"
-                        android:textColorHighlight="#009688"
-                        android:textColorLink="#00090202"
-                        android:textSize="11sp"
-                        app:layout_constraintBottom_toBottomOf="@+id/statDexterityTotal"
+
+                        android:background="@drawable/round_corner"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        app:layout_constraintVertical_bias="0.6"                        app:layout_constraintBottom_toBottomOf="@+id/statDexterityTotal"
+
                         app:layout_constraintStart_toEndOf="@+id/statDexterityTotal"
                         app:layout_constraintTop_toTopOf="@+id/statDexterityTotal" />
 
@@ -177,17 +172,16 @@
                     android:layout_weight="1"
                     android:minHeight="56dp">
 
-                    <RadioButton
+                    <TextView
                         android:id="@+id/stConstitution"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:buttonTint="#4CAF50"
-                        android:checked="false"
-                        android:clickable="false"
-                        android:shadowColor="#F44336"
-                        android:textColorHighlight="#009688"
-                        android:textColorLink="#00090202"
-                        android:textSize="11sp"
+
+                        android:background="@drawable/round_corner"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        app:layout_constraintVertical_bias="0.6"
+
                         app:layout_constraintBottom_toBottomOf="@+id/statConstitutionTotal"
                         app:layout_constraintStart_toEndOf="@+id/statConstitutionTotal"
                         app:layout_constraintTop_toTopOf="@+id/statConstitutionTotal" />
@@ -199,6 +193,7 @@
                         android:gravity="center"
                         android:text="1"
                         android:textSize="20dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/textView4" />
 
@@ -223,17 +218,16 @@
                     android:minHeight="56dp">
 
 
-                    <RadioButton
+                    <TextView
                         android:id="@+id/stIntelligence"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:buttonTint="#4CAF50"
-                        android:checked="false"
-                        android:clickable="false"
-                        android:shadowColor="#F44336"
-                        android:textColorHighlight="#009688"
-                        android:textColorLink="#00090202"
-                        android:textSize="11sp"
+
+                        android:background="@drawable/round_corner"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        app:layout_constraintVertical_bias="0.6"
+
                         app:layout_constraintBottom_toBottomOf="@+id/statIntelligenceTotal"
                         app:layout_constraintStart_toEndOf="@+id/statIntelligenceTotal"
                         app:layout_constraintTop_toTopOf="@+id/statIntelligenceTotal" />
@@ -268,17 +262,14 @@
                     android:layout_weight="1"
                     android:minHeight="56dp">
 
-                    <RadioButton
+                    <TextView
                         android:id="@+id/stWisdom"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:buttonTint="#4CAF50"
-                        android:checked="false"
-                        android:clickable="false"
-                        android:shadowColor="#F44336"
-                        android:textColorHighlight="#009688"
-                        android:textColorLink="#00090202"
-                        android:textSize="11sp"
+                        android:background="@drawable/round_corner"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        app:layout_constraintVertical_bias="0.6"
                         app:layout_constraintBottom_toBottomOf="@+id/statWisdomTotal"
                         app:layout_constraintStart_toEndOf="@+id/statWisdomTotal"
                         app:layout_constraintTop_toTopOf="@+id/statWisdomTotal" />
@@ -312,17 +303,14 @@
                     android:minHeight="56dp">
 
 
-                    <RadioButton
+                    <TextView
                         android:id="@+id/stCharisma"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:buttonTint="#4CAF50"
-                        android:checked="false"
-                        android:clickable="false"
-                        android:shadowColor="#F44336"
-                        android:textColorHighlight="#009688"
-                        android:textColorLink="#00090202"
-                        android:textSize="11sp"
+                        android:background="@drawable/round_corner"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        app:layout_constraintVertical_bias="0.6"
                         app:layout_constraintBottom_toBottomOf="@+id/statCharismaTotal"
                         app:layout_constraintStart_toEndOf="@+id/statCharismaTotal"
                         app:layout_constraintTop_toTopOf="@+id/statCharismaTotal" />
@@ -372,6 +360,7 @@
                         android:ems="10"
                         android:gravity="center"
                         android:inputType="number"
+                        android:hint="Current"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.867"
@@ -382,13 +371,14 @@
                     <EditText
                         android:id="@+id/statTemporaryHP"
                         android:layout_width="77dp"
-                        android:layout_height="25dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_marginBottom="8dp"
                         android:ellipsize="none"
                         android:ems="10"
+                        android:textSize="6pt"
                         android:gravity="center"
-                        android:hint="11"
+                        android:hint="Bonus"
                         android:inputType="number"
                         app:layout_constraintBottom_toTopOf="@+id/statCurrentHP"
                         app:layout_constraintEnd_toEndOf="@+id/statCurrentHP"
@@ -491,6 +481,19 @@
                         android:id="@+id/player_item_list"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/no_items_text"
+                        android:text="You have no items."
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:visibility="gone"
+                        android:layout_centerInParent="true"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        android:textColor="@android:color/darker_gray"/>
                 </android.support.constraint.ConstraintLayout>
             </LinearLayout>
 
@@ -512,6 +515,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/no_spells_text"
+                android:text="You have no spells."
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:visibility="gone"
+                android:layout_centerInParent="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:textColor="@android:color/darker_gray"/>
+
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/addSpellActionButton"
                 android:layout_width="wrap_content"
@@ -527,7 +543,7 @@
     </android.support.constraint.ConstraintLayout>
 
     <LinearLayout
-        android:id="@+id/settingsOverlayMenu"
+        android:id="@+id/itemSettingsOverlayMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -547,7 +563,7 @@
             android:background="@color/overlaySettings"
             android:textSize="8pt"
             android:textStyle="bold"
-            android:text="Settings"/>
+            android:text="Item Settings"/>
 
         <TextView
             android:id="@+id/deleteItemTextButton"
@@ -560,6 +576,82 @@
             android:clickable="true"
             android:background="@drawable/list_item_onclick_color"
             android:onClick="requestDeleteItem"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:clickable="true"
+            android:background="@drawable/list_item_onclick_color"
+            android:onClick="showItemInfo"
+            android:text="Show Item Info"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:clickable="true"
+            android:background="@drawable/list_item_onclick_color"
+            android:onClick="showItemPHB"
+            android:text="Show Item in PHB"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:clickable="true"
+            android:background="@drawable/list_item_onclick_color"
+            android:onClick="closeMenu"
+            android:text="Cancel"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/spellSettingsOverlayMenu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/overlaySettingsLight"
+        android:gravity="bottom"
+        android:visibility="gone"
+        android:onClick="eatClickEvent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:gravity="center"
+            android:background="@color/overlaySettings"
+            android:textSize="8pt"
+            android:textStyle="bold"
+            android:text="Spell Settings"/>
+
+        <TextView
+            android:id="@+id/deleteSpellTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:gravity="center"
+            android:textSize="10pt"
+            android:clickable="true"
+            android:background="@drawable/list_item_onclick_color"
+            android:onClick="requestDeleteSpell"
             android:focusable="true" />
 
         <TextView

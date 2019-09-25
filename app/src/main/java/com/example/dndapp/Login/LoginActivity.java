@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,9 +15,9 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.dndapp.Playthrough.PlaythroughOverviewActivity;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp.R;
-import com.example.dndapp.Main.SecondActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import java.io.UnsupportedEncodingException;
 import org.json.*;
@@ -24,8 +25,8 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText name;
-    private EditText password;
+    private TextInputEditText name;
+    private TextInputEditText password;
     private TextView info;
     private Button login;
     private SharedPreferences sharedPreferences;
@@ -36,8 +37,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        name = (EditText) findViewById(R.id.usernameField);
-        password = (EditText) findViewById(R.id.passwordField);
+        name = (TextInputEditText) findViewById(R.id.usernameField);
+        password = (TextInputEditText) findViewById(R.id.passwordField);
         info = (TextView) findViewById(R.id.attemptsField);
         login = (Button) findViewById(R.id.loginButton);
 
@@ -69,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
     public void validateRegisterTransition(View view) {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
-        finish();
     }
 
     public void settingsTransition(View view) {
@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                         edit.putString("user_name", userName);
                         edit.apply();
 
-                        Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, PlaythroughOverviewActivity.class);
                         startActivity(intent);
                         finish();
                     } else {

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
+    android:background="@drawable/round_corner"
     android:gravity="center"
     android:padding="4dp">
 
@@ -11,9 +11,9 @@
         android:id="@+id/playerlist_spell_name"
         android:layout_width="0dp"
         android:textSize="18dp"
+        android:background="@drawable/right_line"
         android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:background="@color/colorAccent" />
+        android:layout_weight="0.5" />
 
     <TextView
         android:id="@+id/playerlist_spell_level"
@@ -21,8 +21,7 @@
         android:textSize="18dp"
         android:layout_marginStart="4dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.25"
-        android:background="@color/colorAccent" />
+        android:layout_weight="0.25" />
 
     <TextView
         android:id="@+id/playerlist_spell_phb"

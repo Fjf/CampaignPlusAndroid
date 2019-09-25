@@ -30,4 +30,5 @@ dependencies {
     implementation 'com.loopj.android:android-async-http:1.4.9'
     implementation 'cz.msebera.android:httpclient:4.3.6'
     implementation 'com.github.barteksc:android-pdf-viewer:2.6.1'
+    implementation 'me.dm7.barcodescanner:zxing:1.9.13'
 }

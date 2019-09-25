@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp.Main.SecondActivity;
+import com.example.dndapp.Playthrough.PlaythroughOverviewActivity;
 import com.example.dndapp.R;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -56,9 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 registerInfo.setText("Passwords did not match");
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
@@ -81,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
                     if (serverResp.getBoolean("success")) {
-                        Intent intent = new Intent(RegisterActivity.this, SecondActivity.class);
+                        Intent intent = new Intent(RegisterActivity.this, PlaythroughOverviewActivity.class);
                         startActivity(intent);
                         finish();
                     } else {

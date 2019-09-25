@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/activity_playthrough_overview"
+    tools:context=".Playthrough.PlaythroughOverviewActivity">
+
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp">
+
+        <ListView
+            android:id="@+id/playthroughs"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="5dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/add_playthrough_button">
+        </ListView>
+
+        <EditText
+            android:id="@+id/playthrough_code"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            android:hint="Fill in the playthrough ID"
+            app:layout_constraintEnd_toStartOf="@id/add_playthrough_button"
+            app:layout_constraintTop_toBottomOf="@id/playthroughs"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/add_playthrough_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:src="@android:drawable/ic_input_add"
+            android:background="@drawable/round_corner"
+            app:layout_constraintBottom_toBottomOf="@id/add_playthrough_qr_button"
+            app:layout_constraintEnd_toStartOf="@id/add_playthrough_qr_button"
+            app:layout_constraintTop_toTopOf="@id/add_playthrough_qr_button"
+            android:contentDescription="Add new playthrough"
+            android:onClick="joinPlaythroughButton"/>
+
+        <ImageButton
+            android:id="@+id/add_playthrough_qr_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/round_corner"
+            android:contentDescription="Add new playthrough using QR code"
+            android:onClick="startQRScanner"
+            android:src="@android:drawable/ic_menu_camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playthroughs" />
+    </android.support.constraint.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/loading_bar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true" />
+
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/select_pc_overlay"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:background="@color/overlaySettings">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_margin="40dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:paddingBottom="16dp"
+                android:gravity="center"
+                android:textSize="10pt"
+                android:clickable="true"
+                android:background="@drawable/list_item_onclick_color"
+                android:text="Add new PC"
+                android:onClick="joinPlaythroughButton"
+                android:layout_marginBottom="5dp"
+                android:focusable="true" />
+
+            <Spinner
+                android:id="@+id/player_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:paddingBottom="16dp"
+                android:minHeight="45dp"
+                android:layout_marginBottom="5dp"
+                android:spinnerMode="dialog"
+                android:background="@drawable/list_item_onclick_color"
+                android:gravity="center"
+                android:textSize="10pt" />
+
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

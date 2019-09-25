@@ -31,6 +31,10 @@ public class HttpUtils {
         client.post(null, getAbsoluteUrl(url), null, params, RequestParams.APPLICATION_JSON, responseHandler);
     }
 
+    public static void put(String url, StringEntity params, AsyncHttpResponseHandler responseHandler) {
+        client.put(null, getAbsoluteUrl(url), null, params, RequestParams.APPLICATION_JSON, responseHandler);
+    }
+
     public static void getByUrl(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.get(url, params, responseHandler);
     }

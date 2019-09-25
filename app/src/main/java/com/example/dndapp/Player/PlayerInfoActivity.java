@@ -15,15 +15,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.Adapters.ItemListAdapter;
 import com.example.dndapp.Player.Adapters.SpellListAdapter;
 import com.example.dndapp.R;
+import com.example.dndapp._data.ItemData;
+import com.example.dndapp._data.ItemType;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.PlayerItemData;
 import com.example.dndapp._data.SpellData;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -32,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -50,20 +52,32 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     private SpellData[] psdDataSet;
+    private ItemData[] pidDataSet;
 
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
     private final int UPDATE_SPELL = 2;
+    private final int SHOW_SPELLS = 3;
+    private final int SHOW_ITEMS = 4;
+
     private float x1;
     private float x2;
     private SpellData selectedSpell;
+    private ItemData selectedItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.overridePendingTransition(R.anim.from_left,
-                R.anim.to_left);
+        String playerId = getIntent().getStringExtra("player_id");
+
+        // Update sharedpreferences if new playerID gets passed to this activity.
+        if (playerId != null) {
+            SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+            SharedPreferences.Editor edit = preferences.edit();
+            edit.putString("player_id", playerId);
+            edit.apply();
+        }
 
         setContentView(R.layout.activity_player_info);
 
@@ -112,15 +126,34 @@ public class PlayerInfoActivity extends AppCompatActivity {
                             return true;
                         }
                         if (x1 < x2) { // Left swipe
-                            Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
-                            startActivity(intent);
+                            openPlayerSpellActivity(v);
+                            return true;
+                        } else { // Right swipe
+                            openPlayerItemActivity(v);
                             return true;
                         }
-                        break;
                 }
                 return false;
             }
         });
+    }
+
+    public void openPlayerSpellActivity(View view) {
+        if (psdDataSet.length == 0) {
+            Toast.makeText(this, "You don't have any spells.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+        startActivityForResult(intent, SHOW_SPELLS);
+    }
+
+    public void openPlayerItemActivity(View view) {
+        if (pidDataSet.length == 0) {
+            Toast.makeText(this, "You don't have any items.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
+        startActivityForResult(intent, SHOW_ITEMS);
     }
 
     public void switchViewAddItem(android.view.View view) {
@@ -157,6 +190,12 @@ public class PlayerInfoActivity extends AppCompatActivity {
             } else if (requestCode == UPDATE_SPELL) {
                 // After creating a spell, update spells list.
                 getPlayerSpells();
+            } else if (requestCode == SHOW_SPELLS) {
+                this.overridePendingTransition(R.anim.from_left,
+                        R.anim.to_left);
+            } else if (requestCode == SHOW_ITEMS) {
+                this.overridePendingTransition(R.anim.from_right,
+                        R.anim.to_right);
             }
         } catch (UnsupportedEncodingException | JSONException e) {
             e.printStackTrace();
@@ -213,10 +252,16 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     JSONArray array = response.getJSONArray("items");
                     JSONObject obj;
 
-                    PlayerItemData[] pidDataSet = new PlayerItemData[array.length()];
+                    if (array.length() == 0) {
+                        findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
+                    } else {
+                        findViewById(R.id.no_items_text).setVisibility(View.GONE);
+                    }
+
+                    pidDataSet = new ItemData[array.length()];
                     for (int i = 0; i < array.length(); i++) {
                         obj = array.getJSONObject(i);
-                        pidDataSet[i] = new PlayerItemData(obj);
+                        pidDataSet[i] = new ItemData(obj, ItemType.ITEM);
                     }
 
                     itemAdapter = new ItemListAdapter(pidDataSet);
@@ -225,13 +270,17 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     itemRecyclerView.addOnItemTouchListener(
                         new RecyclerItemClickListener(self, itemRecyclerView,new RecyclerItemClickListener.ClickListener() {
                             @Override public void onClick(View view, int position) {
-                                Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
-                                intent.putExtra("REQUESTED_PAGE_NUMBER", 143);
+                                Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
+                                intent.putExtra("ITEM_ID", pidDataSet[position].getId());
                                 startActivity(intent);
                             }
 
                             @Override public void onLongClick(View view, int position) {
-                                // do whatever
+                                selectedItem = pidDataSet[position];
+
+                                TextView tv = findViewById(R.id.deleteItemTextButton);
+                                tv.setText("Delete " + selectedItem.getName());
+                                findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
                             }
                             })
                     );
@@ -256,22 +305,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
         if (playerId == null)
             return;
 
-        JSONObject data = new JSONObject();
-        try {
-            data.put("player_id", playerId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
 
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayerdata";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 System.out.println(response.toString());
 
                 TextView tv;
-                RadioButton rb;
                 try {
                     JSONObject info = (JSONObject) response.get("info");
 
@@ -296,25 +337,23 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     tv.setText(info.getString("intelligence"));
 
                     // Saving throws.
-                    if   (info.getBoolean("saving_throws_str")) {
-                        rb = findViewById(R.id.stStrength);
-                        rb.toggle();
-                    } if (info.getBoolean("saving_throws_dex")) {
-                        rb = findViewById(R.id.stDexterity);
-                        rb.toggle();
-                    } if (info.getBoolean("saving_throws_con")) {
-                        rb = findViewById(R.id.stConstitution);
-                        rb.toggle();
-                    } if (info.getBoolean("saving_throws_wis")) {
-                        rb = findViewById(R.id.stWisdom);
-                        rb.toggle();
-                    } if (info.getBoolean("saving_throws_int")) {
-                        rb = findViewById(R.id.stIntelligence);
-                        rb.toggle();
-                    } if (info.getBoolean("saving_throws_cha")) {
-                        rb = findViewById(R.id.stCharisma);
-                        rb.toggle();
-                    }
+                    tv = findViewById(R.id.stStrength);
+                    tv.setText(getBonus(info.getString("strength")));
+
+                    tv = findViewById(R.id.stDexterity);
+                    tv.setText(getBonus(info.getString("dexterity")));
+
+                    tv = findViewById(R.id.stConstitution);
+                    tv.setText(getBonus(info.getString("constitution")));
+
+                    tv = findViewById(R.id.stWisdom);
+                    tv.setText(getBonus(info.getString("wisdom")));
+
+                    tv = findViewById(R.id.stIntelligence);
+                    tv.setText(getBonus(info.getString("intelligence")));
+
+                    tv = findViewById(R.id.stCharisma);
+                    tv.setText(getBonus(info.getString("charisma")));
 
                     // All other information
                     tv = findViewById(R.id.statArmorClass);
@@ -335,6 +374,15 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Log.d(TAG, "Invalid response: " + response);
             }
         });
+    }
+
+    private String getBonus(String value) {
+        int val = Integer.valueOf(value) / 2 - 5;
+
+        if (val >= 0)
+            return String.format(Locale.ENGLISH, "+%d", val);
+        else
+            return String.format(Locale.ENGLISH, "%d", val);
     }
 
     private void getPlayerSpells() throws UnsupportedEncodingException, JSONException {
@@ -367,11 +415,18 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     JSONArray array = response.getJSONArray("spells");
                     JSONObject obj;
 
+                    if (array.length() == 0) {
+                        findViewById(R.id.no_spells_text).setVisibility(View.VISIBLE);
+                    } else {
+                        findViewById(R.id.no_spells_text).setVisibility(View.GONE);
+                    }
+
                     psdDataSet = new SpellData[array.length()];
                     for (int i = 0; i < array.length(); i++) {
                         obj = array.getJSONObject(i);
                         psdDataSet[i] = new SpellData(obj);
                     }
+
 
                     spellAdapter = new SpellListAdapter(psdDataSet);
                     spellRecyclerView.setAdapter(spellAdapter);
@@ -387,9 +442,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
                             @Override public void onLongClick(View view, int position) {
                                 selectedSpell = psdDataSet[position];
 
-                                TextView tv = findViewById(R.id.deleteItemTextButton);
+                                TextView tv = findViewById(R.id.deleteSpellTextButton);
                                 tv.setText("Delete " + selectedSpell.getName());
-                                findViewById(R.id.settingsOverlayMenu).setVisibility(View.VISIBLE);
+                                findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
                             }
                         })
                     );
@@ -415,14 +470,22 @@ public class PlayerInfoActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void requestDeleteItem(View view) {
+    public void showItemInfo(View view) {
+        closeMenus();
+
+        Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
+        intent.putExtra("SPELL_ID", selectedItem.getId());
+        startActivity(intent);
+    }
+
+    public void requestDeleteSpell(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
                         try {
-                            deleteItem();
+                            deleteSpell();
                         } catch (UnsupportedEncodingException | JSONException e) {
                             e.printStackTrace();
                         }
@@ -440,7 +503,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    private void deleteItem() throws UnsupportedEncodingException, JSONException {
+    private void deleteSpell() throws UnsupportedEncodingException, JSONException {
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         String playerId = preferences.getString("player_id", null);
 
@@ -482,14 +545,81 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void closeMenus() {
-        findViewById(R.id.settingsOverlayMenu).setVisibility(View.GONE);
+    public void requestDeleteItem(View view) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        try {
+                            deleteItem();
+                        } catch (UnsupportedEncodingException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                        break;
 
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
+        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    private void deleteItem() throws UnsupportedEncodingException, JSONException {
+        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        String playerId = preferences.getString("player_id", null);
+
+        // No player was selected yet.
+        // TODO: Tell the user to select a character or playthrough.
+        if (playerId == null) {
+            Log.d(TAG, "There was no player selected yet.");
+            return;
+        }
+
+        JSONObject data = new JSONObject();
+        data.put("player_id", playerId);
+        data.put("item_id", selectedItem.getId());
+
+
+        final Context self = this;
+        StringEntity entity = new StringEntity(data.toString());
+        String url = "deleteplayeritem";
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    if (!response.getBoolean("success")) {
+                        Log.d(TAG, "Something went wrong deleting your item.");
+                        return;
+                    }
+
+                    closeMenus();
+                    getPlayerItems();
+                } catch (JSONException | UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Log.d(TAG, "Invalid response: " + response);
+            }
+        });
+    }
+
+    private void closeMenus() {
+        findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.GONE);
+        findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.GONE);
     }
 
     @Override
     public void onBackPressed() {
-        if (findViewById(R.id.settingsOverlayMenu).getVisibility() == View.GONE)
+        if (findViewById(R.id.spellSettingsOverlayMenu).getVisibility() == View.GONE)
             super.onBackPressed();
         else
             closeMenus();
@@ -504,6 +634,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
         intent.putExtra("REQUESTED_PAGE_NUMBER", selectedSpell.getPhb());
+        startActivity(intent);
+    }
+
+    public void showItemPHB(View view) {
+        closeMenus();
+
+        Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
+        intent.putExtra("REQUESTED_PAGE_NUMBER", selectedItem.getPhb());
         startActivity(intent);
     }
 }

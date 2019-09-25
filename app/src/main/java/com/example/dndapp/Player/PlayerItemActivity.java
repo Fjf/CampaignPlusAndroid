@@ -2,11 +2,12 @@ package com.example.dndapp.Player;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.opengl.Visibility;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,9 +16,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.R;
-import com.example.dndapp._data.SpellData;
+import com.example.dndapp._data.ItemData;
+import com.example.dndapp._data.ItemType;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -30,28 +31,29 @@ import java.io.UnsupportedEncodingException;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class PlayerSpellActivity extends AppCompatActivity {
-    private static final String TAG = "PlayerSpellActivity";
+public class PlayerItemActivity extends AppCompatActivity {
+
     private float x1;
     private float x2;
-    private SpellData[] psdDataSet;
-    private int currentSpellId;
+
+    private ItemData[] pidDataSet;
+    private int currentItemId;
+    private String TAG = "PlayerItemActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        currentItemId = getIntent().getIntExtra("ITEM_ID", -1);
 
-        currentSpellId = getIntent().getIntExtra("SPELL_ID", -1);
+        this.overridePendingTransition(R.anim.from_left, R.anim.to_left);
 
-        // Animation because this is to the right of the player info activity.
-        this.overridePendingTransition(R.anim.from_right, R.anim.to_right);
-
-        setContentView(R.layout.activity_player_spell);
+        setContentView(R.layout.activity_player_item);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         try {
-            getSpells();
+            getItems();
         } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -69,7 +71,7 @@ public class PlayerSpellActivity extends AppCompatActivity {
                             v.performClick();
                             return true;
                         }
-                        if (x1 > x2) { // Right swipe
+                        if (x1 < x2) { // Left swipe
                             openPlayerInfoActivity(v);
                             return true;
                         }
@@ -81,35 +83,17 @@ public class PlayerSpellActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.from_right, R.anim.to_right);
+        overridePendingTransition(R.anim.from_left, R.anim.to_left);
     }
 
-    private void fillSpellData(SpellData current) {
-        TextView ct = findViewById(R.id.spell_info_casting_time);
-        TextView hl = findViewById(R.id.spell_info_higher_level);
-        TextView de = findViewById(R.id.spell_info_description);
-        TextView co = findViewById(R.id.spell_info_components);
-        TextView du = findViewById(R.id.spell_info_duration);
-        TextView le = findViewById(R.id.spell_info_level);
-
-        String description = "null";
-        try {
-            description = new String(current.getDescription().getBytes("ISO-8859-1"), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        ct.setText(current.getCastingTime());
-        hl.setText(current.getHigherLevel());
-        de.setText(description);
-        co.setText(current.getComponents());
-        du.setText(current.getDuration());
-        le.setText(Integer.toString(current.getLevel()));
-    }
-
-    private void getSpells() throws JSONException, UnsupportedEncodingException {
+    private void getItems() throws JSONException, UnsupportedEncodingException {
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         String playerId = preferences.getString("player_id", null);
 
@@ -124,7 +108,7 @@ public class PlayerSpellActivity extends AppCompatActivity {
         data.put("player_id", playerId);
 
         StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayerspells";
+        String url = "getplayeritems";
         HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -134,34 +118,38 @@ public class PlayerSpellActivity extends AppCompatActivity {
                         return;
                     }
 
-                    JSONArray array = response.getJSONArray("spells");
+                    JSONArray array = response.getJSONArray("items");
                     JSONObject obj;
 
-                    psdDataSet = new SpellData[array.length()];
+                    pidDataSet = new ItemData[array.length()];
                     for (int i = 0; i < array.length(); i++) {
                         obj = array.getJSONObject(i);
-                        psdDataSet[i] = new SpellData(obj);
+
+                        ItemType type = getItemType(obj.getString("category"));
+
+                        pidDataSet[i] = new ItemData(obj, type);
                     }
 
-                    if (psdDataSet.length == 0) {
-                        Toast t = Toast.makeText(getApplicationContext(), "You dont have any spells.", Toast.LENGTH_LONG);
+                    // TODO: Give better feedback than this.
+                    // Maybe add dummy data so it will fill in the blanks at least.
+                    if (pidDataSet.length == 0) {
+                        Toast t = Toast.makeText(getApplicationContext(), "You dont have any items.", Toast.LENGTH_LONG);
                         t.show();
                         finish();
                         return;
                     }
 
                     // Default spell information is the first entry
-                    SpellData current = psdDataSet[0];
-                    for (SpellData sd : psdDataSet) {
-                        if (sd.getId() == currentSpellId) {
+                    ItemData current = pidDataSet[0];
+                    for (ItemData sd : pidDataSet) {
+                        if (sd.getId() == currentItemId) {
                             current = sd;
                         }
                     }
 
-                    createSpellDropdown();
+                    createItemDropdown();
 
-                    fillSpellData(current);
-
+                    fillItemData(current);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -174,22 +162,21 @@ public class PlayerSpellActivity extends AppCompatActivity {
         });
     }
 
-    public void openPlayerInfoActivity(View view) {
-        finish();
+    private ItemType getItemType(String category) {
+        if (category.equals("Weapon"))
+            return ItemType.WEAPON;
+
+        // Fallback.
+        return ItemType.ITEM;
     }
 
-    public void openPlayerItemActivity(View view) {
-        Intent intent = new Intent(PlayerSpellActivity.this, PlayerItemActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
-    private void createSpellDropdown() {
+    private void createItemDropdown() {
         int selection = 0;
-        String[] users = new String[psdDataSet.length];
-        for (int i = 0; i < psdDataSet.length; i++) {
-            users[i] = psdDataSet[i].getName();
-            if (psdDataSet[i].getId() == currentSpellId)
+        String[] users = new String[pidDataSet.length];
+        for (int i = 0; i < pidDataSet.length; i++) {
+            users[i] = pidDataSet[i].getName();
+            if (pidDataSet[i].getId() == currentItemId)
                 selection = i;
         }
 
@@ -201,7 +188,7 @@ public class PlayerSpellActivity extends AppCompatActivity {
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                fillSpellData(psdDataSet[position]);
+                fillItemData(pidDataSet[position]);
             }
 
             @Override
@@ -211,22 +198,48 @@ public class PlayerSpellActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    private void fillItemData(ItemData itemData) {
+        TextView na = findViewById(R.id.item_info_value);
+        TextView am = findViewById(R.id.item_info_amount);
 
-        if (id == R.id.action_phb) {
-            Intent intent = new Intent(PlayerSpellActivity.this, PdfViewerActivity.class);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_showpc) {
-            // Player info is always the parent.
-            return true;
+        na.setText(itemData.getNormalValue());
+        am.setText(String.valueOf(itemData.getAmount()));
+
+        if (itemData.getType() == ItemType.WEAPON) {
+            hideAllBut(R.id.item_weapon_info);
+
+            TextView da = findViewById(R.id.weapon_info_damage);
+            TextView dt = findViewById(R.id.weapon_info_damage_type);
+            TextView ra = findViewById(R.id.weapon_info_range);
+            TextView tr = findViewById(R.id.weapon_info_throw_range);
+
+            da.setText(itemData.getNormalDamage());
+            dt.setText(itemData.getDamageType());
+            ra.setText(itemData.getNormalRange());
+            tr.setText(itemData.getNormalThrowRange());
+        } else {
+            hideAllBut(0);
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    public void openPlayerInfoActivity(View v) {
+        finish();
+    }
+
+    public void openPlayerSpellActivity(View v) {
+        Intent intent = new Intent(PlayerItemActivity.this, PlayerSpellActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void hideAllBut(int showId) {
+        int[] ids = new int[]{R.id.item_weapon_info};
+
+        for (int id : ids) {
+            if (id == showId)
+                findViewById(id).setVisibility(View.VISIBLE);
+            else
+                findViewById(id).setVisibility(View.GONE);
+        }
     }
 }

@@ -62,19 +62,17 @@ public class AddSpellActivity extends AppCompatActivity {
                 try {
                     if (!response.getBoolean("success")) {
                         // TODO: Add error message for user.
-                        Log.d(TAG, "Spell retrieval wsa unsuccessful.");
+                        Log.d(TAG, "Spell retrieval was unsuccessful.");
                         return;
                     }
 
                     JSONArray array = response.getJSONArray("spells");
                     spellDataArray = new ArrayList<>();
                     for (int i = 0; i < array.length(); i++) {
-                        spellDataArray.add(new SpellData(array.getJSONObject(i)));
+                        spellDataArray.add(new SpellData(array.getJSONObject(i), true));
                     }
 
                     arrayAdapter = new SpellInstantAutoCompleteAdapter(self, spellDataArray);
-
-//                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(self, android.R.layout.simple_list_item_1, items);
 
                     InstantAutoComplete textView = findViewById(R.id.autocomplete_spells);
                     textView.setAdapter(arrayAdapter);
