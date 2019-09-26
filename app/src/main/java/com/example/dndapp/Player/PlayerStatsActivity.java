@@ -69,7 +69,7 @@ public class PlayerStatsActivity extends AppCompatActivity {
         }
     }
 
-    public void updateStats(View view) throws UnsupportedEncodingException {
+    public void updateStats(View view) throws UnsupportedEncodingException, JSONException {
         String st = ((TextView)findViewById(R.id.totStr)).getText().toString();
         String de = ((TextView)findViewById(R.id.totDex)).getText().toString();
         String co = ((TextView)findViewById(R.id.totCon)).getText().toString();
@@ -87,17 +87,11 @@ public class PlayerStatsActivity extends AppCompatActivity {
         );
 
         JSONObject object;
-        try {
-            object = psd.toJSON();
-            object.put("player_id", playerId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
-
+        object = psd.toJSON();
         StringEntity entity = new StringEntity(object.toString());
-        String url = "setplayerinfo";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+
+        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
+        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

@@ -91,8 +91,8 @@ public class PlayerItemActivity extends AppCompatActivity {
     }
 
     private void getItems() {
-        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
-        HttpUtils.post(url, null, new JsonHttpResponseHandler() {
+        String url = String.format(Locale.ENGLISH, "player/%s/item", playerId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

@@ -59,11 +59,7 @@ public class PlaythroughActivity extends AppCompatActivity {
 
         playerList = findViewById(R.id.playerList);
 
-        try {
-            getPlayers();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        getPlayers();
 
         setHapticFeedback();
 
@@ -117,24 +113,9 @@ public class PlaythroughActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getPlayers() throws UnsupportedEncodingException {
-        JSONObject data = new JSONObject();
-        try {
-            data.put("playthrough_code", code);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayers";
-
-        if (userName == null) {
-            // Should not be able to come here without logging in.
-            return;
-        }
-
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void getPlayers() {
+        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", playthroughId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 
@@ -251,13 +232,13 @@ public class PlaythroughActivity extends AppCompatActivity {
         }
 
         PlayerData pd = getPlayerInfoField();
-
         JSONObject obj = pd.toJSON();
-
         StringEntity entity = new StringEntity(obj.toString());
 
+        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", playthroughId);
+
         findViewById(R.id.player_field_upload).setEnabled(false);
-        HttpUtils.post("updateplayer", entity, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -270,11 +251,7 @@ public class PlaythroughActivity extends AppCompatActivity {
 
                 findViewById(R.id.player_field_upload).setEnabled(true);
 
-                try {
-                    getPlayers();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                getPlayers();
             }
 
             @Override
@@ -308,11 +285,7 @@ public class PlaythroughActivity extends AppCompatActivity {
 
                 findViewById(R.id.player_delete_button).setEnabled(true);
 
-                try {
-                    getPlayers();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                getPlayers();
             }
 
             @Override
@@ -343,11 +316,7 @@ public class PlaythroughActivity extends AppCompatActivity {
 
                 findViewById(R.id.player_create_new_button).setEnabled(true);
 
-                try {
-                    getPlayers();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                getPlayers();
             }
 
             @Override
