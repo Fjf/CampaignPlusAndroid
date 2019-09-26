@@ -2,9 +2,7 @@ package com.example.dndapp.Player;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.opengl.Visibility;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,10 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlayerItemActivity extends AppCompatActivity {
 
@@ -39,24 +36,24 @@ public class PlayerItemActivity extends AppCompatActivity {
     private ItemData[] pidDataSet;
     private int currentItemId;
     private String TAG = "PlayerItemActivity";
+    private String playerId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        currentItemId = getIntent().getIntExtra("ITEM_ID", -1);
+        overridePendingTransition(R.anim.from_left, R.anim.to_left);
 
-        this.overridePendingTransition(R.anim.from_left, R.anim.to_left);
+        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        playerId = preferences.getString("player_id", null);
+
+        currentItemId = getIntent().getIntExtra("ITEM_ID", -1);
 
         setContentView(R.layout.activity_player_item);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        try {
-            getItems();
-        } catch (JSONException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        getItems();
 
         findViewById(R.id.view_scroll_bar).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -90,26 +87,12 @@ public class PlayerItemActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.from_left, R.anim.to_left);
+        overridePendingTransition(R.anim.from_right, R.anim.to_right);
     }
 
-    private void getItems() throws JSONException, UnsupportedEncodingException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null) {
-            Log.d(TAG, "There was not player selected yet.");
-            return;
-        }
-
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayeritems";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void getItems() {
+        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
+        HttpUtils.post(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -133,7 +116,7 @@ public class PlayerItemActivity extends AppCompatActivity {
                     // TODO: Give better feedback than this.
                     // Maybe add dummy data so it will fill in the blanks at least.
                     if (pidDataSet.length == 0) {
-                        Toast t = Toast.makeText(getApplicationContext(), "You dont have any items.", Toast.LENGTH_LONG);
+                        Toast t = Toast.makeText(getApplicationContext(), "You don't have any items.", Toast.LENGTH_LONG);
                         t.show();
                         finish();
                         return;
@@ -181,7 +164,7 @@ public class PlayerItemActivity extends AppCompatActivity {
         }
 
         Spinner spin = findViewById(R.id.name);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_big_item, users);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_big_item, users);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spin.setAdapter(adapter);
         spin.setSelection(selection);

@@ -63,7 +63,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.dndapp.Login.LoginActivity"/>
         </activity>
-        <activity android:name=".Player.PlayerInfoActivity" />
+        <activity android:name=".Player.PlayerInfoActivity"
+                  android:windowSoftInputMode="stateHidden"
+            />
         <activity android:name=".Login.ForgotPasswordActivity" />
         <activity
             android:name=".PdfViewerActivity"

@@ -6,14 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.dndapp.Player.Adapters.SpellInstantAutoCompleteAdapter;
 import com.example.dndapp.R;
+import com.example.dndapp._data.SpellData;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.InstantAutoComplete;
-import com.example.dndapp._data.SpellData;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -22,6 +20,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -31,6 +30,8 @@ public class AddSpellActivity extends AppCompatActivity {
     private static final String TAG = "AddSpellActivity";
     private ArrayList<SpellData> spellDataArray;
     private SpellInstantAutoCompleteAdapter arrayAdapter;
+    private int playthroughId;
+    private String playerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,25 +39,20 @@ public class AddSpellActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_spell);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
 
-        try {
-            getAllSpells(playerId);
-        } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
-        }
+        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        playerId = preferences.getString("player_id", "-1");
+        playthroughId = preferences.getInt("playthrough_id", -1);
+
+        getAllSpells();
     }
 
-    private void getAllSpells(String playerId) throws UnsupportedEncodingException, JSONException {
+    private void getAllSpells() {
         final AddSpellActivity self = this;
 
-        // Store all parameters in json object.
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-        StringEntity entity = new StringEntity(data.toString());
+        String url = String.format(Locale.ENGLISH, "playthrough/%s/spells", playthroughId);
 
-        HttpUtils.post("getspells", entity, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -120,16 +116,13 @@ public class AddSpellActivity extends AppCompatActivity {
             return;
         }
 
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", "-1");
-
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
         data.put("spell_id", id);
         StringEntity entity = new StringEntity(data.toString());
 
-        HttpUtils.post("addplayerspell", entity, new JsonHttpResponseHandler() {
+        String url = String.format(Locale.ENGLISH, "player/%s/spell", playerId);
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

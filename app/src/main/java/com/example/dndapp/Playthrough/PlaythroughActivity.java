@@ -2,10 +2,9 @@ package com.example.dndapp.Playthrough;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.constraint.ConstraintLayout;
+import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
@@ -14,16 +13,15 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
-import com.example.dndapp._data.PlayerData;
-import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp.Playthrough.Adapters.PlayerListAdapter;
 import com.example.dndapp.R;
+import com.example.dndapp._data.PlayerData;
+import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -31,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -44,6 +43,7 @@ public class PlaythroughActivity extends AppCompatActivity {
     private PlayerData[] playerDataArray;
     private int currentSelectedPlayer = -1;
     private String userName;
+    private int playthroughId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +55,7 @@ public class PlaythroughActivity extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         userName = preferences.getString("name", null);
+        playthroughId = preferences.getInt("playthrough_id", -1);
 
         playerList = findViewById(R.id.playerList);
 
@@ -67,7 +68,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         setHapticFeedback();
 
         // Attaching the layout to the toolbar object
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
     }
@@ -84,7 +85,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         };
 
         findViewById(R.id.player_field_reload).setOnTouchListener(vot);
-        findViewById(R.id.player_field_reload).setOnTouchListener(vot);
+        findViewById(R.id.player_field_upload).setOnTouchListener(vot);
         findViewById(R.id.player_delete_button).setOnTouchListener(vot);
     }
 
@@ -165,7 +166,6 @@ public class PlaythroughActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    return;
                 }
 
             }
@@ -200,8 +200,6 @@ public class PlaythroughActivity extends AppCompatActivity {
     }
 
     private void setPlayerInfoField() {
-        boolean clickable;
-
         // Cant set player info if nothing is selected.
         if (currentSelectedPlayer == -1)
             return;
@@ -220,11 +218,9 @@ public class PlaythroughActivity extends AppCompatActivity {
         if (playerDataArray[currentSelectedPlayer].getUserName().equals(userName)) {
             findViewById(R.id.player_field_upload).setVisibility(View.VISIBLE);
             findViewById(R.id.player_delete_button).setVisibility(View.VISIBLE);
-            clickable = true;
         } else {
             findViewById(R.id.player_field_upload).setVisibility(View.GONE);
             findViewById(R.id.player_delete_button).setVisibility(View.GONE);
-            clickable = false;
         }
 
         // TODO: Fix the disabling of textviews of characters which are not yours.
@@ -248,9 +244,11 @@ public class PlaythroughActivity extends AppCompatActivity {
     }
 
     public void updatePlayerInfo(View view) throws JSONException, UnsupportedEncodingException {
-        // Dont upload if nothing is selected.
-        if (currentSelectedPlayer == 0)
+        // Dont upload if no player is selected.
+        if (currentSelectedPlayer == -1) {
+            Toast.makeText(this, "No player selected.", Toast.LENGTH_SHORT).show();
             return;
+        }
 
         PlayerData pd = getPlayerInfoField();
 
@@ -290,16 +288,12 @@ public class PlaythroughActivity extends AppCompatActivity {
         setPlayerInfoField();
     }
 
-    public void deletePlayer(View view) throws JSONException, UnsupportedEncodingException {
-        JSONObject obj = new JSONObject();
-        obj.put("id", playerDataArray[currentSelectedPlayer].getId());
-
-        StringEntity entity = new StringEntity(obj.toString());
-
-        Log.d(TAG, obj.toString());
-
+    public void deletePlayer(View view) {
         findViewById(R.id.player_delete_button).setEnabled(false);
-        HttpUtils.post("deleteplayer", entity, new JsonHttpResponseHandler() {
+
+        String url = String.format(Locale.ENGLISH, "player/%s", playerId);
+
+        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -329,18 +323,14 @@ public class PlaythroughActivity extends AppCompatActivity {
     }
 
     public void createNewCharacter(View view) throws JSONException, UnsupportedEncodingException {
-        PlayerData pd = new PlayerData(-1, "-", "-", "-");
-
-        JSONObject obj = pd.toJSON();
-        // Add code as additional information.
-        obj.put("code", code);
-
+        JSONObject obj = new PlayerData(-1, "-", "-", "-").toJSON();
         StringEntity entity = new StringEntity(obj.toString());
 
-        Log.d(TAG, obj.toString());
-
         findViewById(R.id.player_create_new_button).setEnabled(false);
-        HttpUtils.post("createplayer", entity, new JsonHttpResponseHandler() {
+
+        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", playthroughId);
+
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

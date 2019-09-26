@@ -26,9 +26,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlayerSpellActivity extends AppCompatActivity {
     private static final String TAG = "PlayerSpellActivity";
@@ -36,25 +36,24 @@ public class PlayerSpellActivity extends AppCompatActivity {
     private float x2;
     private SpellData[] psdDataSet;
     private int currentSpellId;
+    private String playerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.from_right, R.anim.to_right);
+
+        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        playerId = preferences.getString("player_id", null);
+
 
         currentSpellId = getIntent().getIntExtra("SPELL_ID", -1);
-
-        // Animation because this is to the right of the player info activity.
-        this.overridePendingTransition(R.anim.from_right, R.anim.to_right);
 
         setContentView(R.layout.activity_player_spell);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        try {
-            getSpells();
-        } catch (JSONException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        getSpells();
 
         findViewById(R.id.view_scroll_bar).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -83,7 +82,7 @@ public class PlayerSpellActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.from_right, R.anim.to_right);
+        overridePendingTransition(R.anim.from_left, R.anim.to_left);
     }
 
     private void fillSpellData(SpellData current) {
@@ -109,23 +108,9 @@ public class PlayerSpellActivity extends AppCompatActivity {
         le.setText(Integer.toString(current.getLevel()));
     }
 
-    private void getSpells() throws JSONException, UnsupportedEncodingException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null) {
-            Log.d(TAG, "There was not player selected yet.");
-            return;
-        }
-
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayerspells";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void getSpells() {
+        String url = String.format(Locale.ENGLISH, "player/%s/spell", playerId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -209,6 +194,11 @@ public class PlayerSpellActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     @Override

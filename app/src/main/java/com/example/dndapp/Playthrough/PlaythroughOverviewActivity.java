@@ -2,6 +2,7 @@ package com.example.dndapp.Playthrough;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
@@ -30,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -45,6 +48,7 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private String playthroughCode = "";
     private EditText et;
+    private int[] ids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,14 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
                 }
                 Intent intent = new Intent(PlaythroughOverviewActivity.this, PlaythroughActivity.class);
                 intent.putExtra("code", codes[position]);
+                intent.putExtra("id", ids[position]);
+
+                SharedPreferences sharedPreferences = getSharedPreferences("PlayerData", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("playthrough_code", codes[position]);
+                editor.putInt("playthrough_id", ids[position]);
+                editor.apply();
+
                 startActivity(intent);
             }
         });
@@ -73,7 +85,7 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
         getJoinedPlaythroughs();
 
         // Attaching the layout to the toolbar object
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
     }
@@ -116,10 +128,12 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
                 try {
                     String[] data = new String[response.length()];
                     codes = new String[response.length()];
+                    ids = new int[response.length()];
                     // Iterate over all playthrough entries in list.
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject entry = response.getJSONObject(i);
                         data[i] = entry.getString("name");
+                        ids[i] = entry.getInt("id");
                         codes[i] = entry.getString("code");
                     }
                     updatePlaythroughsList(data);
@@ -204,7 +218,7 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
 
         final Context self = this;
         // Load all your player characters from database.
-        String url = "getuserplayers";
+        String url = "user/players";
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -278,18 +292,16 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
         findViewById(R.id.select_pc_overlay).setVisibility(View.GONE);
 
         final JSONObject data = new JSONObject();
-        data.put("player_id", id);
         data.put("playthrough_code", playthroughCode);
         StringEntity entity = new StringEntity(data.toString());
 
-        String url = "setplayerplaythrough";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", id);
+        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong updating your player's playthrough.");
-                        // TODO: Give user feedback about this.
+                        Toast.makeText(PlaythroughOverviewActivity.this, "Something went wrong updating your player's playthrough.", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     et.setText("");

@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -34,6 +35,7 @@ public class AddItemActivity extends AppCompatActivity {
 
     private String[] items;
     private int[] ids;
+    private String playerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,7 @@ public class AddItemActivity extends AppCompatActivity {
         spinner.setAdapter(spinnerArrayAdapter);
 
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
+        playerId = preferences.getString("player_id", null);
 
         try {
             getAllItems(playerId);
@@ -85,7 +87,7 @@ public class AddItemActivity extends AppCompatActivity {
 
 //                    ItemInstantAutoCompleteAdapter arrayAdapter = new ItemInstantAutoCompleteAdapter(self, R.layout.item_selection_row, items);
 
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(self, android.R.layout.simple_list_item_1, items);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(self, android.R.layout.simple_list_item_1, items);
 
                     InstantAutoComplete textView = findViewById(R.id.autocomplete_items);
                     textView.setAdapter(arrayAdapter);
@@ -168,17 +170,14 @@ public class AddItemActivity extends AppCompatActivity {
         if (idx == -1)
             return;
 
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", "-1");
-
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
         data.put("item_id", ids[idx]);
         data.put("amount", itemAmount.getText().toString());
         StringEntity entity = new StringEntity(data.toString());
 
-        HttpUtils.post("addplayeritem", entity, new JsonHttpResponseHandler() {
+        String url = String.format(Locale.ENGLISH, "player/%s/spell", playerId);
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

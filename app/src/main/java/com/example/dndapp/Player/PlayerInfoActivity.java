@@ -65,11 +65,13 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private SpellData selectedSpell;
     private ItemData selectedItem;
 
+    private String playerId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String playerId = getIntent().getStringExtra("player_id");
+        playerId = getIntent().getStringExtra("player_id");
 
         // Update sharedpreferences if new playerID gets passed to this activity.
         if (playerId != null) {
@@ -77,6 +79,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
             SharedPreferences.Editor edit = preferences.edit();
             edit.putString("player_id", playerId);
             edit.apply();
+        } else {
+            // You shouldn't be here!
+            finish();
+            return;
         }
 
         setContentView(R.layout.activity_player_info);
@@ -106,11 +112,47 @@ public class PlayerInfoActivity extends AppCompatActivity {
         itemLayoutManager = new LinearLayoutManager(this);
         itemRecyclerView.setLayoutManager(itemLayoutManager);
 
+        itemRecyclerView.addOnItemTouchListener(
+            new RecyclerItemClickListener(this, itemRecyclerView,new RecyclerItemClickListener.ClickListener() {
+                @Override public void onClick(View view, int position) {
+                    Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
+                    intent.putExtra("ITEM_ID", pidDataSet[position].getId());
+                    startActivity(intent);
+                }
+
+                @Override public void onLongClick(View view, int position) {
+                    selectedItem = pidDataSet[position];
+
+                    TextView tv = findViewById(R.id.deleteItemTextButton);
+                    tv.setText("Delete " + selectedItem.getName());
+                    findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
+                }
+            })
+        );
+
         spellRecyclerView = findViewById(R.id.player_spell_list);
         spellRecyclerView.setHasFixedSize(true);
 
         spellLayoutManager = new LinearLayoutManager(this);
         spellRecyclerView.setLayoutManager(spellLayoutManager);
+
+        spellRecyclerView.addOnItemTouchListener(
+            new RecyclerItemClickListener(this, spellRecyclerView, new RecyclerItemClickListener.ClickListener() {
+                @Override public void onClick(View view, int position) {
+                    Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+                    intent.putExtra("SPELL_ID", psdDataSet[position].getId());
+                    startActivity(intent);
+                }
+
+                @Override public void onLongClick(View view, int position) {
+                    selectedSpell = psdDataSet[position];
+
+                    TextView tv = findViewById(R.id.deleteSpellTextButton);
+                    tv.setText("Delete " + selectedSpell.getName());
+                    findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
+                }
+            })
+        );
 
         findViewById(R.id.view_scroll_bar).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -143,7 +185,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             Toast.makeText(this, "You don't have any spells.", Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+        Intent intent = new Intent(this, PlayerSpellActivity.class);
         startActivityForResult(intent, SHOW_SPELLS);
     }
 
@@ -152,22 +194,24 @@ public class PlayerInfoActivity extends AppCompatActivity {
             Toast.makeText(this, "You don't have any items.", Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
+        this.overridePendingTransition(R.anim.from_right, R.anim.to_right);
+
+        Intent intent = new Intent(this, PlayerItemActivity.class);
         startActivityForResult(intent, SHOW_ITEMS);
     }
 
     public void switchViewAddItem(android.view.View view) {
-        Intent intent = new Intent(PlayerInfoActivity.this, AddItemActivity.class);
+        Intent intent = new Intent(this, AddItemActivity.class);
         startActivityForResult(intent, UPDATE_ITEMS);
     }
 
     public void switchViewUpdateStats(View view) {
-        Intent intent = new Intent(PlayerInfoActivity.this, PlayerStatsActivity.class);
+        Intent intent = new Intent(this, PlayerStatsActivity.class);
         startActivityForResult(intent, UPDATE_STATS);
     }
 
     public void switchViewAddSpell(View view) {
-        Intent intent = new Intent(PlayerInfoActivity.this, AddSpellActivity.class);
+        Intent intent = new Intent(this, AddSpellActivity.class);
         startActivityForResult(intent, UPDATE_SPELL);
     }
 
@@ -190,12 +234,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
             } else if (requestCode == UPDATE_SPELL) {
                 // After creating a spell, update spells list.
                 getPlayerSpells();
-            } else if (requestCode == SHOW_SPELLS) {
-                this.overridePendingTransition(R.anim.from_left,
-                        R.anim.to_left);
-            } else if (requestCode == SHOW_ITEMS) {
-                this.overridePendingTransition(R.anim.from_right,
-                        R.anim.to_right);
             }
         } catch (UnsupportedEncodingException | JSONException e) {
             e.printStackTrace();
@@ -210,12 +248,12 @@ public class PlayerInfoActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_phb) {
-            Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
+            Intent intent = new Intent(this, PdfViewerActivity.class);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_showpc) {
             // TODO: Decide what to do here.
-//            Intent intent = new Intent(PlayerInfoActivity.this, PlayerInfoActivity.class);
+//            Intent intent = new Intent(this, PlayerInfoActivity.class);
 //            startActivity(intent);
 //            finish();
             return true;
@@ -225,22 +263,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void getPlayerItems() throws UnsupportedEncodingException, JSONException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null)
-            return;
-
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-
-
-        final Context self = this;
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayeritems";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+        String url = String.format(Locale.ENGLISH, "player/%s/item", playerId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -266,24 +290,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
                     itemAdapter = new ItemListAdapter(pidDataSet);
                     itemRecyclerView.setAdapter(itemAdapter);
-
-                    itemRecyclerView.addOnItemTouchListener(
-                        new RecyclerItemClickListener(self, itemRecyclerView,new RecyclerItemClickListener.ClickListener() {
-                            @Override public void onClick(View view, int position) {
-                                Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
-                                intent.putExtra("ITEM_ID", pidDataSet[position].getId());
-                                startActivity(intent);
-                            }
-
-                            @Override public void onLongClick(View view, int position) {
-                                selectedItem = pidDataSet[position];
-
-                                TextView tv = findViewById(R.id.deleteItemTextButton);
-                                tv.setText("Delete " + selectedItem.getName());
-                                findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
-                            }
-                            })
-                    );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -296,17 +302,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void getPlayerData() throws UnsupportedEncodingException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null)
-            return;
-
+    private void getPlayerData() {
         String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
-
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -385,25 +382,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
             return String.format(Locale.ENGLISH, "%d", val);
     }
 
-    private void getPlayerSpells() throws UnsupportedEncodingException, JSONException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null) {
-            Log.d(TAG, "There was not player selected yet.");
-            return;
-        }
-
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-
-
-        final Context self = this;
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "getplayerspells";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void getPlayerSpells() {
+        String url = String.format(Locale.ENGLISH, "player/%s/spell", playerId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -430,24 +411,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
                     spellAdapter = new SpellListAdapter(psdDataSet);
                     spellRecyclerView.setAdapter(spellAdapter);
-
-                    spellRecyclerView.addOnItemTouchListener(
-                        new RecyclerItemClickListener(self, spellRecyclerView, new RecyclerItemClickListener.ClickListener() {
-                            @Override public void onClick(View view, int position) {
-                                Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
-                                intent.putExtra("SPELL_ID", psdDataSet[position].getId());
-                                startActivity(intent);
-                            }
-
-                            @Override public void onLongClick(View view, int position) {
-                                selectedSpell = psdDataSet[position];
-
-                                TextView tv = findViewById(R.id.deleteSpellTextButton);
-                                tv.setText("Delete " + selectedSpell.getName());
-                                findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
-                            }
-                        })
-                    );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -465,7 +428,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public void showSpellInfo(View view) {
         closeMenus();
 
-        Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
+        Intent intent = new Intent(this, PlayerSpellActivity.class);
         intent.putExtra("SPELL_ID", selectedSpell.getId());
         startActivity(intent);
     }
@@ -473,7 +436,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public void showItemInfo(View view) {
         closeMenus();
 
-        Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
+        Intent intent = new Intent(this, PlayerItemActivity.class);
         intent.putExtra("SPELL_ID", selectedItem.getId());
         startActivity(intent);
     }
@@ -484,11 +447,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
-                        try {
-                            deleteSpell();
-                        } catch (UnsupportedEncodingException | JSONException e) {
-                            e.printStackTrace();
-                        }
+                        deleteSpell();
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
@@ -503,26 +462,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    private void deleteSpell() throws UnsupportedEncodingException, JSONException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null) {
-            Log.d(TAG, "There was no player selected yet.");
-            return;
-        }
-
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-        data.put("spell_id", selectedSpell.getId());
-
-
-        final Context self = this;
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "deleteplayerspell";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void deleteSpell() {
+        String url = String.format(Locale.ENGLISH, "player/%s/spell/%d", playerId, selectedSpell.getId());
+        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -533,7 +475,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
                     closeMenus();
                     getPlayerSpells();
-                } catch (JSONException | UnsupportedEncodingException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -551,11 +493,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
-                        try {
-                            deleteItem();
-                        } catch (UnsupportedEncodingException | JSONException e) {
-                            e.printStackTrace();
-                        }
+                        deleteItem();
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
@@ -570,26 +508,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    private void deleteItem() throws UnsupportedEncodingException, JSONException {
-        SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", null);
-
-        // No player was selected yet.
-        // TODO: Tell the user to select a character or playthrough.
-        if (playerId == null) {
-            Log.d(TAG, "There was no player selected yet.");
-            return;
-        }
-
-        JSONObject data = new JSONObject();
-        data.put("player_id", playerId);
-        data.put("item_id", selectedItem.getId());
-
-
-        final Context self = this;
-        StringEntity entity = new StringEntity(data.toString());
-        String url = "deleteplayeritem";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void deleteItem() {
+        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", playerId, selectedItem.getId());
+        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -632,7 +553,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public void showSpellPHB(View view) {
         closeMenus();
 
-        Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
+        Intent intent = new Intent(this, PdfViewerActivity.class);
         intent.putExtra("REQUESTED_PAGE_NUMBER", selectedSpell.getPhb());
         startActivity(intent);
     }
@@ -640,7 +561,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public void showItemPHB(View view) {
         closeMenus();
 
-        Intent intent = new Intent(PlayerInfoActivity.this, PdfViewerActivity.class);
+        Intent intent = new Intent(this, PdfViewerActivity.class);
         intent.putExtra("REQUESTED_PAGE_NUMBER", selectedItem.getPhb());
         startActivity(intent);
     }
