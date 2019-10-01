@@ -235,7 +235,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         JSONObject obj = pd.toJSON();
         StringEntity entity = new StringEntity(obj.toString());
 
-        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", playthroughId);
+        String url = String.format(Locale.ENGLISH, "player/%d", playerId);
 
         findViewById(R.id.player_field_upload).setEnabled(false);
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {

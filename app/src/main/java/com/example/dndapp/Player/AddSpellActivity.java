@@ -1,11 +1,15 @@
 package com.example.dndapp.Player;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 
 import com.example.dndapp.Player.Adapters.SpellInstantAutoCompleteAdapter;
 import com.example.dndapp.R;
@@ -33,6 +37,8 @@ public class AddSpellActivity extends AppCompatActivity {
     private int playthroughId;
     private String playerId;
 
+    private AutoCompleteTextView spellInput;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +49,8 @@ public class AddSpellActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         playerId = preferences.getString("player_id", "-1");
         playthroughId = preferences.getInt("playthrough_id", -1);
+
+        spellInput = findViewById(R.id.autocomplete_spells);
 
         getAllSpells();
     }
@@ -99,8 +107,7 @@ public class AddSpellActivity extends AppCompatActivity {
     }
 
     public void playerAddSpell(View view) throws JSONException, UnsupportedEncodingException {
-        InstantAutoComplete instantAutoComplete = findViewById(R.id.autocomplete_spells);
-        String text = instantAutoComplete.getText().toString();
+        String text = spellInput.getText().toString();
 
         int id = -1;
         for (int i = 0; i < arrayAdapter.getCount(); i++) {
@@ -152,4 +159,11 @@ public class AddSpellActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        // Hide the keyboard when the spell activity finishes.
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(spellInput.getWindowToken(), 0);
+        super.onPause();
+    }
 }

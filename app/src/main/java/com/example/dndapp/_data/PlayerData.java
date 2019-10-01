@@ -55,9 +55,7 @@ public class PlayerData {
         this.userName = obj.getString("user_name");
         this.id = obj.getInt("id");
         this.className = obj.getString("class");
-
         this.backstory = getIfNotNullString(obj, "backstory");
-
         this.race = obj.getString("race");
     }
 

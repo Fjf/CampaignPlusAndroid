@@ -1,31 +1,46 @@
 package com.example.dndapp.Player;
 
-import android.content.Context;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.Adapters.ItemListAdapter;
 import com.example.dndapp.Player.Adapters.SpellListAdapter;
+import com.example.dndapp.Player.Fragments.PlayerItemFragment;
+import com.example.dndapp.Player.Fragments.PlayerSpellFragment;
+import com.example.dndapp.Player.Fragments.StatsFragment;
+import com.example.dndapp.Player.Listeners.TextOnChangeSaveListener;
 import com.example.dndapp.R;
 import com.example.dndapp._data.ItemData;
 import com.example.dndapp._data.ItemType;
-import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp._data.PlayerData;
+import com.example.dndapp._data.PlayerProficiencyData;
 import com.example.dndapp._data.SpellData;
+import com.example.dndapp._data.StatsData;
+import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -51,8 +66,32 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
-    private SpellData[] psdDataSet;
-    private ItemData[] pidDataSet;
+    private static TextView totalStrength;
+    private static TextView totalConstitution;
+    private static TextView totalDexterity;
+    private static TextView totalWisdom;
+    private static TextView totalCharisma;
+    private static TextView totalIntelligence;
+
+    private static TextView strengthMod;
+    private static TextView dexterityMod;
+    private static TextView constitutionMod;
+    private static TextView wisdomMod;
+    private static TextView intelligenceMod;
+    private static TextView charismaMod;
+
+    private static TextView statArmorClass;
+    private static TextView statMaxHP;
+    private static TextView statLevel;
+
+    public static SpellData[] psdDataSet;
+    public static ItemData[] pidDataSet;
+    public static int selectedSpellId;
+    public static int selectedItemId;
+
+    public static PlayerProficiencyData playerProficiencyData;
+    public static StatsData playerStatsData;
+    public static String playerId;
 
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
@@ -62,49 +101,65 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private float x1;
     private float x2;
-    private SpellData selectedSpell;
-    private ItemData selectedItem;
 
-    private String playerId;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor edit;
+
+    private DrawerLayout drawerLayout;
+    private ListView leftDrawerList;
+    private String[] leftDrawerItemTitles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        playerId = getIntent().getStringExtra("player_id");
-
-        // Update sharedpreferences if new playerID gets passed to this activity.
-        if (playerId != null) {
-            SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-            SharedPreferences.Editor edit = preferences.edit();
-            edit.putString("player_id", playerId);
-            edit.apply();
-        } else {
-            // You shouldn't be here!
-            finish();
-            return;
-        }
-
         setContentView(R.layout.activity_player_info);
-
 
         // Attaching the layout to the toolbar object
         toolbar = findViewById(R.id.toolbar);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
 
-        // Get all information and items.
-        try {
+        registerStatViews();
+
+        leftDrawerItemTitles = getResources().getStringArray(R.array.player_info_left_drawer);
+        drawerLayout = findViewById(R.id.player_info_drawer_layout);
+        leftDrawerList = findViewById(R.id.left_drawer);
+
+        leftDrawerList.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, leftDrawerItemTitles));
+        leftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        edit = preferences.edit();
+
+        playerId = getIntent().getStringExtra("player_id");
+
+        // Update sharedpreferences if new playerID gets passed to this activity.
+        if (playerId != null) {
+            edit.putString("player_id", playerId);
+            edit.apply();
+
+            // Get all information and items.
             getPlayerData();
             getPlayerItems();
             getPlayerSpells();
-        } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
+            getRemotePlayerProficiencies();
+        } else {
+            Toast.makeText(this, "No player character selected.", Toast.LENGTH_SHORT).show();
+//            finish();
+//            return;
         }
+
+        // Set onchange listener for current hp.
+        ((EditText) findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
+        findViewById(R.id.statCurrentHP).setOnKeyListener(new TextOnChangeSaveListener(edit, "current_hp"));
+
+        // Set onchange listener for bonus hp.
+        ((EditText) findViewById(R.id.statTemporaryHP)).setText(preferences.getString("temporary_hp", "0"));
+        findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(edit, "temporary_hp"));
 
         itemRecyclerView = findViewById(R.id.player_item_list);
 
-        // use this setting to improve performance if you know that changes
+        // Use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         itemRecyclerView.setHasFixedSize(true);
 
@@ -113,21 +168,22 @@ public class PlayerInfoActivity extends AppCompatActivity {
         itemRecyclerView.setLayoutManager(itemLayoutManager);
 
         itemRecyclerView.addOnItemTouchListener(
-            new RecyclerItemClickListener(this, itemRecyclerView,new RecyclerItemClickListener.ClickListener() {
-                @Override public void onClick(View view, int position) {
-                    Intent intent = new Intent(PlayerInfoActivity.this, PlayerItemActivity.class);
-                    intent.putExtra("ITEM_ID", pidDataSet[position].getId());
-                    startActivity(intent);
-                }
+                new RecyclerItemClickListener(this, itemRecyclerView, new RecyclerItemClickListener.ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        selectedItemId = position;
+                        openFragment(0);
+                    }
 
-                @Override public void onLongClick(View view, int position) {
-                    selectedItem = pidDataSet[position];
+                    @Override
+                    public void onLongClick(View view, int position) {
+                        selectedItemId = position;
 
-                    TextView tv = findViewById(R.id.deleteItemTextButton);
-                    tv.setText("Delete " + selectedItem.getName());
-                    findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
-                }
-            })
+                        TextView tv = findViewById(R.id.deleteItemTextButton);
+                        tv.setText("Delete " + pidDataSet[selectedItemId].getName());
+                        findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
+                    }
+                })
         );
 
         spellRecyclerView = findViewById(R.id.player_spell_list);
@@ -137,77 +193,28 @@ public class PlayerInfoActivity extends AppCompatActivity {
         spellRecyclerView.setLayoutManager(spellLayoutManager);
 
         spellRecyclerView.addOnItemTouchListener(
-            new RecyclerItemClickListener(this, spellRecyclerView, new RecyclerItemClickListener.ClickListener() {
-                @Override public void onClick(View view, int position) {
-                    Intent intent = new Intent(PlayerInfoActivity.this, PlayerSpellActivity.class);
-                    intent.putExtra("SPELL_ID", psdDataSet[position].getId());
-                    startActivity(intent);
-                }
+                new RecyclerItemClickListener(this, spellRecyclerView, new RecyclerItemClickListener.ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        selectedSpellId = position;
+                        openFragment(2);
+                    }
 
-                @Override public void onLongClick(View view, int position) {
-                    selectedSpell = psdDataSet[position];
+                    @Override
+                    public void onLongClick(View view, int position) {
+                        selectedSpellId = position;
 
-                    TextView tv = findViewById(R.id.deleteSpellTextButton);
-                    tv.setText("Delete " + selectedSpell.getName());
-                    findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
-                }
-            })
+                        TextView tv = findViewById(R.id.deleteSpellTextButton);
+                        tv.setText("Delete " + psdDataSet[selectedSpellId].getName());
+                        findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
+                    }
+                })
         );
-
-        findViewById(R.id.view_scroll_bar).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        x1 = event.getX();
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        x2 = event.getX();
-                        if (Math.abs(x1 - x2) < 100) {
-                            v.performClick();
-                            return true;
-                        }
-                        if (x1 < x2) { // Left swipe
-                            openPlayerSpellActivity(v);
-                            return true;
-                        } else { // Right swipe
-                            openPlayerItemActivity(v);
-                            return true;
-                        }
-                }
-                return false;
-            }
-        });
-    }
-
-    public void openPlayerSpellActivity(View view) {
-        if (psdDataSet.length == 0) {
-            Toast.makeText(this, "You don't have any spells.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent intent = new Intent(this, PlayerSpellActivity.class);
-        startActivityForResult(intent, SHOW_SPELLS);
-    }
-
-    public void openPlayerItemActivity(View view) {
-        if (pidDataSet.length == 0) {
-            Toast.makeText(this, "You don't have any items.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        this.overridePendingTransition(R.anim.from_right, R.anim.to_right);
-
-        Intent intent = new Intent(this, PlayerItemActivity.class);
-        startActivityForResult(intent, SHOW_ITEMS);
     }
 
     public void switchViewAddItem(android.view.View view) {
         Intent intent = new Intent(this, AddItemActivity.class);
         startActivityForResult(intent, UPDATE_ITEMS);
-    }
-
-    public void switchViewUpdateStats(View view) {
-        Intent intent = new Intent(this, PlayerStatsActivity.class);
-        startActivityForResult(intent, UPDATE_STATS);
     }
 
     public void switchViewAddSpell(View view) {
@@ -224,19 +231,15 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            if (requestCode == UPDATE_ITEMS) {
-                // After adding an item, update the item list from the server.
-                getPlayerItems();
-            } else if (requestCode == UPDATE_STATS) {
-                // After updating your stats, update player stats.
-                getPlayerData();
-            } else if (requestCode == UPDATE_SPELL) {
-                // After creating a spell, update spells list.
-                getPlayerSpells();
-            }
-        } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
+        if (requestCode == UPDATE_ITEMS) {
+            // After adding an item, update the item list from the server.
+            getPlayerItems();
+        } else if (requestCode == UPDATE_STATS) {
+            // After updating your stats, update player stats.
+            getPlayerData();
+        } else if (requestCode == UPDATE_SPELL) {
+            // After creating a spell, update spells list.
+            getPlayerSpells();
         }
     }
 
@@ -262,7 +265,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getPlayerItems() throws UnsupportedEncodingException, JSONException {
+    private void getPlayerItems() {
         String url = String.format(Locale.ENGLISH, "player/%s/item", playerId);
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
@@ -285,7 +288,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     pidDataSet = new ItemData[array.length()];
                     for (int i = 0; i < array.length(); i++) {
                         obj = array.getJSONObject(i);
-                        pidDataSet[i] = new ItemData(obj, ItemType.ITEM);
+
+                        ItemType type = getItemType(obj.getString("category"));
+
+                        pidDataSet[i] = new ItemData(obj, type);
                     }
 
                     itemAdapter = new ItemListAdapter(pidDataSet);
@@ -302,6 +308,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
+    private ItemType getItemType(String category) {
+        if (category.equals("Weapon"))
+            return ItemType.WEAPON;
+
+        // Fallback.
+        return ItemType.ITEM;
+    }
+
     private void getPlayerData() {
         String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
@@ -309,58 +323,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 System.out.println(response.toString());
 
-                TextView tv;
                 try {
-                    JSONObject info = (JSONObject) response.get("info");
+                    playerStatsData = new StatsData(response.getJSONObject("info"));
 
-                    // Base stats.
-                    tv = findViewById(R.id.statStrengthTotal);
-                    tv.setText(info.getString("strength"));
-
-                    tv = (TextView) findViewById(R.id.statConstitutionTotal);
-                    tv.setText(info.getString("constitution"));
-
-
-                    tv = findViewById(R.id.statDexterityTotal);
-                    tv.setText(info.getString("dexterity"));
-
-                    tv = findViewById(R.id.statWisdomTotal);
-                    tv.setText(info.getString("wisdom"));
-
-                    tv = findViewById(R.id.statCharismaTotal);
-                    tv.setText(info.getString("charisma"));
-
-                    tv = findViewById(R.id.statIntelligenceTotal);
-                    tv.setText(info.getString("intelligence"));
-
-                    // Saving throws.
-                    tv = findViewById(R.id.stStrength);
-                    tv.setText(getBonus(info.getString("strength")));
-
-                    tv = findViewById(R.id.stDexterity);
-                    tv.setText(getBonus(info.getString("dexterity")));
-
-                    tv = findViewById(R.id.stConstitution);
-                    tv.setText(getBonus(info.getString("constitution")));
-
-                    tv = findViewById(R.id.stWisdom);
-                    tv.setText(getBonus(info.getString("wisdom")));
-
-                    tv = findViewById(R.id.stIntelligence);
-                    tv.setText(getBonus(info.getString("intelligence")));
-
-                    tv = findViewById(R.id.stCharisma);
-                    tv.setText(getBonus(info.getString("charisma")));
-
-                    // All other information
-                    tv = findViewById(R.id.statArmorClass);
-                    tv.setText(info.getString("armor_class"));
-
-                    tv = findViewById(R.id.statMaxHP);
-                    tv.setText(info.getString("max_hp"));
-
-//                    tv = findViewById(R.id.statSpeed);
-//                    tv.setText(info.getString("speed"));
+                    setStatsFields();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -373,13 +339,50 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
-    private String getBonus(String value) {
-        int val = Integer.valueOf(value) / 2 - 5;
+    private void registerStatViews() {
+        totalStrength = findViewById(R.id.statStrengthTotal);
+        totalConstitution = findViewById(R.id.statConstitutionTotal);
+        totalDexterity = findViewById(R.id.statDexterityTotal);
+        totalWisdom = findViewById(R.id.statWisdomTotal);
+        totalCharisma = findViewById(R.id.statCharismaTotal);
+        totalIntelligence = findViewById(R.id.statIntelligenceTotal);
 
-        if (val >= 0)
-            return String.format(Locale.ENGLISH, "+%d", val);
-        else
-            return String.format(Locale.ENGLISH, "%d", val);
+        strengthMod = findViewById(R.id.stStrength);
+        constitutionMod = findViewById(R.id.stConstitution);
+        dexterityMod = findViewById(R.id.stDexterity);
+        wisdomMod = findViewById(R.id.stWisdom);
+        charismaMod = findViewById(R.id.stCharisma);
+        intelligenceMod = findViewById(R.id.stIntelligence);
+
+        statArmorClass = findViewById(R.id.statArmorClass);
+        statMaxHP = findViewById(R.id.statMaxHP);
+        statLevel = findViewById(R.id.level_value);
+    }
+
+    public static void setStatsFields() {
+        StatsData sd = playerStatsData;
+        TextView tv;
+
+        // Base stats.
+        totalStrength.setText(sd.getStrength());
+        totalConstitution.setText(sd.getConstitution());
+        totalDexterity.setText(sd.getDexterity());
+        totalWisdom.setText(sd.getWisdom());
+        totalCharisma.setText(sd.getCharisma());
+        totalIntelligence.setText(sd.getIntelligence());
+
+        // Stat modifier.
+        strengthMod.setText(sd.getStrengthModifier());
+        dexterityMod.setText(sd.getDexterityModifier());
+        constitutionMod.setText(sd.getConstitutionModifier());
+        wisdomMod.setText(sd.getWisdomModifier());
+        intelligenceMod.setText(sd.getIntelligenceModifier());
+        charismaMod.setText(sd.getCharismaModifier());
+
+        // All other information
+        statArmorClass.setText(sd.getArmorClass());
+        statMaxHP.setText(sd.getMaxHP());
+        statLevel.setText(sd.getLevel());
     }
 
     private void getPlayerSpells() {
@@ -423,29 +426,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
-    public void eatClickEvent(View view) { }
-
-    public void showSpellInfo(View view) {
-        closeMenus();
-
-        Intent intent = new Intent(this, PlayerSpellActivity.class);
-        intent.putExtra("SPELL_ID", selectedSpell.getId());
-        startActivity(intent);
-    }
-
-    public void showItemInfo(View view) {
-        closeMenus();
-
-        Intent intent = new Intent(this, PlayerItemActivity.class);
-        intent.putExtra("SPELL_ID", selectedItem.getId());
-        startActivity(intent);
+    public void eatClickEvent(View view) {
     }
 
     public void requestDeleteSpell(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
+                switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         deleteSpell();
                         break;
@@ -463,7 +451,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void deleteSpell() {
-        String url = String.format(Locale.ENGLISH, "player/%s/spell/%d", playerId, selectedSpell.getId());
+        String url = String.format(Locale.ENGLISH, "player/%s/spell/%d", playerId, psdDataSet[selectedSpellId].getId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -491,7 +479,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
+                switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         deleteItem();
                         break;
@@ -509,7 +497,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void deleteItem() {
-        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", playerId, selectedItem.getId());
+        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", playerId, pidDataSet[selectedItemId].getId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -521,7 +509,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
                     closeMenus();
                     getPlayerItems();
-                } catch (JSONException | UnsupportedEncodingException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -533,14 +521,75 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
+
+    public void getRemotePlayerProficiencies() {
+        String url = String.format(Locale.ENGLISH, "player/%s/proficiencies", playerId);
+
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    if (!response.getBoolean("success")) {
+                        Toast.makeText(PlayerInfoActivity.this, response.getString("error"), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    playerProficiencyData = new PlayerProficiencyData(response.getJSONObject("proficiencies"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Log.d(TAG, "Invalid response: " + response);
+            }
+        });
+    }
+
+    public void updatePlayerProficiencies(View view) throws UnsupportedEncodingException {
+        findViewById(R.id.loading_bar).setVisibility(View.VISIBLE);
+
+        StringEntity entity = new StringEntity(playerProficiencyData.toJSON());
+        String url = String.format(Locale.ENGLISH, "player/%s/proficiencies", playerId);
+        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+            @Override
+            public void onFinish() {
+                findViewById(R.id.loading_bar).setVisibility(View.GONE);
+                super.onFinish();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    if (!response.getBoolean("success"))
+                        Toast.makeText(PlayerInfoActivity.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d(TAG, errorResponse.toString());
+            }
+        });
+    }
+
     private void closeMenus() {
         findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.GONE);
         findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.GONE);
     }
 
+    private boolean areMenusOpen() {
+        return findViewById(R.id.spellSettingsOverlayMenu).getVisibility() == View.VISIBLE ||
+                findViewById(R.id.itemSettingsOverlayMenu).getVisibility() == View.VISIBLE;
+
+    }
+
     @Override
     public void onBackPressed() {
-        if (findViewById(R.id.spellSettingsOverlayMenu).getVisibility() == View.GONE)
+        if (!areMenusOpen())
             super.onBackPressed();
         else
             closeMenus();
@@ -554,7 +603,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         closeMenus();
 
         Intent intent = new Intent(this, PdfViewerActivity.class);
-        intent.putExtra("REQUESTED_PAGE_NUMBER", selectedSpell.getPhb());
+        intent.putExtra("REQUESTED_PAGE_NUMBER", psdDataSet[selectedSpellId].getPhb());
         startActivity(intent);
     }
 
@@ -562,7 +611,77 @@ public class PlayerInfoActivity extends AppCompatActivity {
         closeMenus();
 
         Intent intent = new Intent(this, PdfViewerActivity.class);
-        intent.putExtra("REQUESTED_PAGE_NUMBER", selectedItem.getPhb());
+        intent.putExtra("REQUESTED_PAGE_NUMBER", pidDataSet[selectedSpellId].getPhb());
         startActivity(intent);
+    }
+
+    public void openItemFragment(View view) {
+        openFragment(0);
+    }
+
+    public void openSpellFragment(View view) {
+        openFragment(2);
+    }
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            openFragment(position);
+        }
+
+    }
+
+    private void openFragment(int position) {
+        Fragment fragment = null;
+
+        switch (position) {
+            case 0: // My Items
+                if (pidDataSet.length == 0) {
+                    Toast.makeText(this, "You have no items.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                fragment = new PlayerItemFragment();
+                fragment.setEnterTransition(new Slide(Gravity.END));
+                fragment.setExitTransition(new Slide(Gravity.START));
+                break;
+            case 1: // Add Item
+            case 2: // My Spells
+                if (psdDataSet.length == 0) {
+                    Toast.makeText(this, "You have no spells.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                fragment = new PlayerSpellFragment();
+                fragment.setEnterTransition(new Slide(Gravity.START));
+                fragment.setExitTransition(new Slide(Gravity.END));
+                break;
+            case 3: // Add Spell
+            case 4: // Player Stats
+                fragment = new StatsFragment();
+                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                fragment.setExitTransition(new Slide(Gravity.TOP));
+                break;
+
+            default:
+                break;
+        }
+
+        if (fragment != null) {
+            // Got most of the fragment code from here
+            // https://www.androidcode.ninja/android-navigation-drawer-example/
+
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+
+            ft.replace(R.id.player_info_drawer_layout, fragment);
+            ft.addToBackStack(null);
+            ft.commit();
+
+            leftDrawerList.setItemChecked(position, true);
+            leftDrawerList.setSelection(position);
+            getSupportActionBar().setTitle(leftDrawerItemTitles[position]);
+            drawerLayout.closeDrawer(leftDrawerList);
+        } else {
+            Log.e("MainActivity", "Error in creating fragment");
+        }
     }
 }

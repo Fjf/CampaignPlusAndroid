@@ -11,40 +11,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity
-            android:name=".Player.PlayerItemActivity"
-
-            android:label="@string/title_activity_player_item"
-            android:parentActivityName=".Player.PlayerInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dndapp.Player.PlayerInfoActivity" />
-        </activity>
         <activity android:name=".Playthrough.QRCodeScannerActivity" />
-        <activity
-            android:name=".Player.PlayerSpellActivity"
-            android:label="@string/title_activity_player_spell"
-            android:parentActivityName=".Player.PlayerInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dndapp.Player.PlayerInfoActivity" />
-        </activity>
         <activity
             android:name=".Player.AddSpellActivity"
             android:label="@string/title_activity_add_spell"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Player.PlayerStatsActivity"
-            android:label="@string/title_activity_player_stats"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".Player.PlayerInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dndapp.Player.PlayerInfoActivity" />
-        </activity>
         <activity
             android:name=".Player.AddItemActivity"
             android:label="@string/title_activity_add_item"
@@ -63,8 +34,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.dndapp.Login.LoginActivity"/>
         </activity>
-        <activity android:name=".Player.PlayerInfoActivity"
-                  android:windowSoftInputMode="stateHidden"
+        <activity
+            android:name=".Player.PlayerInfoActivity"
+            android:exported="true"
+            android:windowSoftInputMode="stateHidden"
             />
         <activity android:name=".Login.ForgotPasswordActivity" />
         <activity

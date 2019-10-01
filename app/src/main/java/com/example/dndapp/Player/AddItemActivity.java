@@ -176,7 +176,7 @@ public class AddItemActivity extends AppCompatActivity {
         data.put("amount", itemAmount.getText().toString());
         StringEntity entity = new StringEntity(data.toString());
 
-        String url = String.format(Locale.ENGLISH, "player/%s/spell", playerId);
+        String url = String.format(Locale.ENGLISH, "player/%s/item", playerId);
         HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

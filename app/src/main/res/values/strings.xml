@@ -6,4 +6,31 @@
     <string name="title_activity_add_spell">AddSpellActivity</string>
     <string name="title_activity_player_spell">PlayerSpellActivity</string>
     <string name="title_activity_player_item">PlayerItemActivity</string>
+    <string name="speed">Speed</string>
+    <string name="max_hp">Max HP</string>
+    <string name="exhaustion">Exhaustion</string>
+    <string name="level">Level</string>
+    <string name="strength">Strength</string>
+    <string name="dexterity">Dexterity</string>
+    <string name="constitution">Constitution</string>
+    <string name="intelligence">Intelligence</string>
+    <string name="charisma">Charisma</string>
+    <string name="wisdom">Wisdom</string>
+
+    <string-array name="player_info_left_drawer">
+        <item>My Items</item>
+        <item>Add Item</item>
+        <item>My Spells</item>
+        <item>Add Spell</item>
+        <item>Player Stats</item>
+    </string-array>
+
+    <string-array name="exhaustion_info_text">
+        <item>No exhaustion.</item>
+        <item>Disadvantage on ability checks.</item>
+        <item>Speed halved.</item>
+        <item>Disadvantage on attack rolls and saving throws.</item>
+        <item>Hit point maximum halved.</item>
+        <item>Speed reduced to 0.</item>
+    </string-array>
 </resources>

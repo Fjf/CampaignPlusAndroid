@@ -24,162 +24,162 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 >
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="4dp"
-                android:weightSum="2">
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="4dp"
+                    android:weightSum="2">
 
 
-                <TextView
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:paddingRight="10dp"
+                        android:text="Strength"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/totStr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Total Strength"
+                        android:inputType="numberSigned" />
+                </TableRow>
+
+                <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right|center_vertical"
-                    android:paddingRight="10dp"
-                    android:text="Strength"
-                    android:textSize="18sp" />
+                    android:layout_height="match_parent"
+                    android:padding="4dp"
+                    android:weightSum="2">
 
-                <EditText
-                    android:id="@+id/totStr"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:paddingRight="10dp"
+                        android:text="Dexterity"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/totDex"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Total Dexterity"
+                        android:inputType="numberSigned" />
+                </TableRow>
+
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="4dp"
+                    android:weightSum="2">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:paddingRight="10dp"
+                        android:text="Constitution"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/totCon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Total Constitution"
+                        android:inputType="numberSigned" />
+                </TableRow>
+
+                <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Total Strength"
-                    android:inputType="numberSigned" />
-            </TableRow>
+                    android:layout_height="match_parent"
+                    android:padding="4dp"
+                    android:weightSum="2">
 
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:padding="4dp"
-                android:weightSum="2">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:paddingRight="10dp"
+                        android:text="Intelligence"
+                        android:textSize="18sp" />
 
-                <TextView
+                    <EditText
+                        android:id="@+id/totInt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Total Intelligence"
+                        android:inputType="numberSigned" />
+                </TableRow>
+
+
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="4dp"
+                    android:weightSum="2">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:paddingRight="10dp"
+                        android:text="Wisdom"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/totWis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Total Wisdom"
+                        android:inputType="numberSigned" />
+                </TableRow>
+
+                <TableRow
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right|center_vertical"
-                    android:paddingRight="10dp"
-                    android:text="Dexterity"
-                    android:textSize="18sp" />
+                    android:layout_height="match_parent"
+                    android:padding="4dp"
+                    android:weightSum="2">
 
-                <EditText
-                    android:id="@+id/totDex"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Total Dexterity"
-                    android:inputType="numberSigned" />
-            </TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:paddingRight="10dp"
+                        android:text="Charisma"
+                        android:textSize="18sp" />
 
+                    <EditText
+                        android:id="@+id/totCha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:hint="Total Charisma"
+                        android:inputType="numberSigned" />
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="4dp"
-                android:weightSum="2">
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right|center_vertical"
-                    android:paddingRight="10dp"
-                    android:text="Constitution"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/totCon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Total Constitution"
-                    android:inputType="numberSigned" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:padding="4dp"
-                android:weightSum="2">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right|center_vertical"
-                    android:paddingRight="10dp"
-                    android:text="Intelligence"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/totInt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Total Intelligence"
-                    android:inputType="numberSigned" />
-            </TableRow>
-
-
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="4dp"
-                android:weightSum="2">
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right|center_vertical"
-                    android:paddingRight="10dp"
-                    android:text="Wisdom"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/totWis"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Total Wisdom"
-                    android:inputType="numberSigned" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:padding="4dp"
-                android:weightSum="2">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right|center_vertical"
-                    android:paddingRight="10dp"
-                    android:text="Charisma"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/totCha"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Total Charisma"
-                    android:inputType="numberSigned" />
-
-            </TableRow>
+                </TableRow>
 
             </TableLayout>
 

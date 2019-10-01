@@ -6,50 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Player.PlayerItemActivity"
-    tools:showIn="@layout/activity_player_item">
-
-    <LinearLayout
-        android:id="@+id/view_scroll_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/colorPrimaryDark"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="1dp"
-            android:layout_weight="1"
-            android:background="@color/colorPrimaryDark"
-            android:gravity="center"
-            android:text="Spells"
-            android:onClick="openPlayerSpellActivity"
-            android:textColor="@color/colorPrimary" />
-
-        <TextView
-            android:id="@+id/textView15"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/colorPrimaryDark"
-            android:gravity="center"
-            android:text="Overview"
-            android:onClick="openPlayerInfoActivity"
-            android:textColor="@color/colorPrimary" />
-
-        <TextView
-            android:id="@+id/textView16"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="1dp"
-            android:layout_weight="1"
-            android:background="@color/colorPrimary"
-            android:gravity="center"
-            android:text="Items"
-            android:textColor="@color/colorPrimaryDark" />
-    </LinearLayout>
+    android:background="#FFFFFF">
 
     <ScrollView
         android:layout_width="match_parent"
