@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         info.setTypeface(font);
 
         sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        String ip = sharedPreferences.getString("ip_address", "127.0.0.1");
+        String ip = sharedPreferences.getString("ip_address", getString(R.string.defaultIp));
         String userName = sharedPreferences.getString("user_name", "");
         name.setText(userName);
 

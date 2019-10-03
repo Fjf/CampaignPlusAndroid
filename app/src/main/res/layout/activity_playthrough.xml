@@ -140,7 +140,7 @@
                 android:layout_alignParentEnd="true"
                 android:background="@color/colorPrimary"
                 android:hapticFeedbackEnabled="true"
-                android:onClick="deletePlayer"
+                android:onClick="requestDeletePlayer"
                 android:src="@android:drawable/ic_menu_delete" />
         </LinearLayout>
     </RelativeLayout>

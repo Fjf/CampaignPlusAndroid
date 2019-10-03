@@ -189,15 +189,25 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <ListView
-        android:id="@+id/left_drawer"
+    <ScrollView
+        android:id="@+id/left_drawer_wrapper"
         android:layout_width="240dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/colorAccentLight"
-        android:choiceMode="singleChoice"
-        android:focusableInTouchMode="true"
-        android:divider="@color/colorAccent"
-        android:dividerHeight="1px" />
+        android:fillViewport="true"
+        android:layout_gravity="start">
+
+        <ListView
+            android:id="@+id/left_drawer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorAccentLight"
+
+            android:choiceMode="singleChoice"
+            android:focusableInTouchMode="true"
+
+            android:divider="@color/colorAccent"
+            android:dividerHeight="1px"
+            />
+    </ScrollView>
 
 </android.support.v4.widget.DrawerLayout>

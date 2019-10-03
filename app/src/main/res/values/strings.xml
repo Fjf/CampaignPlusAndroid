@@ -16,14 +16,24 @@
     <string name="intelligence">Intelligence</string>
     <string name="charisma">Charisma</string>
     <string name="wisdom">Wisdom</string>
+    <string name="defaultIp">217.102.162.137</string>
 
-    <string-array name="player_info_left_drawer">
+    <string-array name="player_info_left_drawer_titles">
         <item>My Items</item>
         <item>Add Item</item>
         <item>My Spells</item>
         <item>Add Spell</item>
         <item>Player Stats</item>
     </string-array>
+
+    <array name="player_info_left_drawer_icons">
+        <item>@drawable/ic_swap_bag_24dp</item>
+        <item>@drawable/ic_hanging_sign_24dp</item>
+        <item>@drawable/ic_spell_book_24dp</item>
+        <item>@drawable/ic_scroll_unfurled_24dp</item>
+        <item>@drawable/ic_skills_24dp</item>
+    </array>
+
 
     <string-array name="exhaustion_info_text">
         <item>No exhaustion.</item>

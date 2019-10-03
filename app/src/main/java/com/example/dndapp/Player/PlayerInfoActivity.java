@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -20,13 +21,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp.Player.Adapters.DrawerListAdapter;
 import com.example.dndapp.Player.Adapters.ItemListAdapter;
 import com.example.dndapp.Player.Adapters.SpellListAdapter;
 import com.example.dndapp.Player.Fragments.PlayerItemFragment;
@@ -36,7 +37,6 @@ import com.example.dndapp.Player.Listeners.TextOnChangeSaveListener;
 import com.example.dndapp.R;
 import com.example.dndapp._data.ItemData;
 import com.example.dndapp._data.ItemType;
-import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerProficiencyData;
 import com.example.dndapp._data.SpellData;
 import com.example.dndapp._data.StatsData;
@@ -48,6 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
@@ -107,25 +108,30 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ListView leftDrawerList;
-    private String[] leftDrawerItemTitles;
+    private View leftDrawerWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player_info);
+        setContentView(R.layout.activity_player_info);   // Attaching the layout to the toolbar object
 
-        // Attaching the layout to the toolbar object
         toolbar = findViewById(R.id.toolbar);
-        // Setting toolbar as the ActionBar with setSupportActionBar() call
+        toolbar.setTitle("Character Sheet");
+        toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
         setSupportActionBar(toolbar);
 
         registerStatViews();
 
-        leftDrawerItemTitles = getResources().getStringArray(R.array.player_info_left_drawer);
+        String[] leftDrawerItemTitles = getResources().getStringArray(R.array.player_info_left_drawer_titles);
+        TypedArray leftDrawerItemIcons = getResources().obtainTypedArray(R.array.player_info_left_drawer_icons);
+        ArrayList<DrawerListData> dld = createDrawerListData(leftDrawerItemTitles, leftDrawerItemIcons);
+
         drawerLayout = findViewById(R.id.player_info_drawer_layout);
         leftDrawerList = findViewById(R.id.left_drawer);
+        leftDrawerWrapper = findViewById(R.id.left_drawer_wrapper);
 
-        leftDrawerList.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, leftDrawerItemTitles));
+
+        leftDrawerList.setAdapter(new DrawerListAdapter(this, R.layout.left_drawer_menu_item, dld));
         leftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
@@ -212,7 +218,15 @@ public class PlayerInfoActivity extends AppCompatActivity {
         );
     }
 
-    public void switchViewAddItem(android.view.View view) {
+    private ArrayList<DrawerListData> createDrawerListData(String[] leftDrawerItemTitles, TypedArray leftDrawerItemIcons) {
+        ArrayList<DrawerListData> dld = new ArrayList<>();
+        for (int i = 0; i < leftDrawerItemTitles.length; i++) {
+            dld.add(new DrawerListData(leftDrawerItemTitles[i], leftDrawerItemIcons.getDrawable(i)));
+        }
+        return dld;
+    }
+
+    public void switchViewAddItem(View view) {
         Intent intent = new Intent(this, AddItemActivity.class);
         startActivityForResult(intent, UPDATE_ITEMS);
     }
@@ -225,8 +239,27 @@ public class PlayerInfoActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_character_sheet, menu);
         return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.action_show_phb) {
+            Intent intent = new Intent(this, PdfViewerActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == android.R.id.home) {
+            drawerLayout.openDrawer(leftDrawerWrapper);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -241,28 +274,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
             // After creating a spell, update spells list.
             getPlayerSpells();
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id == R.id.action_phb) {
-            Intent intent = new Intent(this, PdfViewerActivity.class);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_showpc) {
-            // TODO: Decide what to do here.
-//            Intent intent = new Intent(this, PlayerInfoActivity.class);
-//            startActivity(intent);
-//            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void getPlayerItems() {
@@ -632,6 +643,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private void openFragment(int position) {
         Fragment fragment = null;
+        Intent intent;
+
+        // Close any open fragments before opening the next.
+        if (this.getFragmentManager().getBackStackEntryCount() != 0)
+            this.getFragmentManager().popBackStackImmediate();
 
         switch (position) {
             case 0: // My Items
@@ -645,6 +661,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 fragment.setExitTransition(new Slide(Gravity.START));
                 break;
             case 1: // Add Item
+                intent = new Intent(this, AddItemActivity.class);
+                startActivityForResult(intent, UPDATE_ITEMS);
+                drawerLayout.closeDrawer(leftDrawerWrapper);
+                return;
             case 2: // My Spells
                 if (psdDataSet.length == 0) {
                     Toast.makeText(this, "You have no spells.", Toast.LENGTH_SHORT).show();
@@ -655,6 +675,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 fragment.setExitTransition(new Slide(Gravity.END));
                 break;
             case 3: // Add Spell
+                intent = new Intent(this, AddSpellActivity.class);
+                startActivityForResult(intent, UPDATE_SPELL);
+                drawerLayout.closeDrawer(leftDrawerWrapper);
+                return;
             case 4: // Player Stats
                 fragment = new StatsFragment();
                 fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
@@ -678,8 +702,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
             leftDrawerList.setItemChecked(position, true);
             leftDrawerList.setSelection(position);
-            getSupportActionBar().setTitle(leftDrawerItemTitles[position]);
-            drawerLayout.closeDrawer(leftDrawerList);
+            drawerLayout.closeDrawer(leftDrawerWrapper);
         } else {
             Log.e("MainActivity", "Error in creating fragment");
         }

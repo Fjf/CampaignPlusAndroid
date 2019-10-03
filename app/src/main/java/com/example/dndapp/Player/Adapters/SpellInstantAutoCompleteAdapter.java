@@ -26,15 +26,6 @@ public class SpellInstantAutoCompleteAdapter extends ArrayAdapter {
         this.objects = objects;
     }
 
-//    @Override
-//    public int getCount() {
-//        return objects.size();
-//    }
-//
-//    @Override
-//    public SpellData getItem(final int position) {
-//        return this.objects.get(position);
-//    }
 
     @Override
     public View getView(int position, View rowView, ViewGroup parent) {

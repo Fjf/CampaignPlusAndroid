@@ -3,6 +3,7 @@ package com.example.dndapp.Player.Fragments;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.example.dndapp.Player.PlayerInfoActivity;
 import com.example.dndapp.R;
 import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONException;
@@ -74,9 +76,7 @@ public class StatsFragment extends android.app.Fragment {
     public StatsFragment() {
     }
 
-    @Override
-    public void onDestroy() {
-
+    private void savePlayerData() {
         String st = ((TextView)view.findViewById(R.id.totStr)).getText().toString();
         String de = ((TextView)view.findViewById(R.id.totDex)).getText().toString();
         String co = ((TextView)view.findViewById(R.id.totCon)).getText().toString();
@@ -110,8 +110,6 @@ public class StatsFragment extends android.app.Fragment {
             e.printStackTrace();
         }
         PlayerInfoActivity.setStatsFields();
-
-        super.onDestroy();
     }
 
     private void setOnChangeRefreshListeners() {
@@ -197,6 +195,12 @@ public class StatsFragment extends android.app.Fragment {
             }
         });
 
+        // Load toolbar eventlisteners.
+        Toolbar tb = view.findViewById(R.id.fragment_toolbar);
+        tb.setTitle("Player Stats Overview");
+        registerExitFragmentButton(tb);
+        registerSaveFragmentButton(tb);
+
         setDefaultValues();
         setStats();
         setPlayerProficiencies();
@@ -206,6 +210,31 @@ public class StatsFragment extends android.app.Fragment {
         setOnChangeRefreshListeners();
 
         return view;
+    }
+
+    private void registerExitFragmentButton(Toolbar tb) {
+        View btn = tb.findViewById(R.id.close_fragment_button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Remove current fragment
+                getActivity().getFragmentManager().popBackStackImmediate();
+            }
+        });
+        btn.setOnTouchListener(new ShortHapticFeedback());
+    }
+
+    private void registerSaveFragmentButton(Toolbar tb) {
+        View btn = tb.findViewById(R.id.save_fragment_button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Remove current fragment
+                savePlayerData();
+                getActivity().getFragmentManager().popBackStackImmediate();
+            }
+        });
+        btn.setOnTouchListener(new ShortHapticFeedback());
     }
 
     @Override

@@ -86,6 +86,7 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
 
         // Attaching the layout to the toolbar object
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("All Playthroughs");
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
     }
@@ -107,7 +108,7 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_phb) {
+        if (id == R.id.action_show_phb) {
             Intent intent = new Intent(PlaythroughOverviewActivity.this, PdfViewerActivity.class);
             startActivity(intent);
             return true;

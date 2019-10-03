@@ -5,10 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:id="@+id/action_phb"
-        android:orderInCategory="100"
-        android:title="Open PHB"
-        app:showAsAction="never" />
+        android:id="@+id/action_show_phb"
+        android:orderInCategory="200"
+        android:title="Show PHB"
+        android:icon="@drawable/ic_rule_book_24dp"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/action_showpc"
         android:orderInCategory="200"

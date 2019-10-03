@@ -27,7 +27,7 @@ public class ServerSettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        String ip = sharedPreferences.getString("ip_address", "127.0.0.1");
+        String ip = sharedPreferences.getString("ip_address", getString(R.string.defaultIp));
 
         // Set current IP to the stored value, or the default value of 127.0.0.1
         EditText et = findViewById(R.id.ipAddress);

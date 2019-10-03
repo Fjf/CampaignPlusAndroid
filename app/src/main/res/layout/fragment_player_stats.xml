@@ -1,1295 +1,1226 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/stats_overview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    android:onClick="eatClickEvent"
-    android:padding="15dp">
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <LinearLayout
+    <include
+        android:id="@+id/fragment_toolbar"
+        layout="@layout/fragment_toolbar_save" />
+
+    <ScrollView
+        android:id="@+id/stats_overview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:onClick="eatClickEvent"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
 
-        <android.support.constraint.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <TextView
-                android:id="@+id/player_data_header"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:gravity="center"
-                android:text="Player Data"
-                android:textSize="10pt"
-                android:textStyle="bold"
+                android:orientation="vertical"
+                android:visibility="visible">
 
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                />
-
-            <TextView
-                android:id="@+id/strength_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center"
-                android:text="@string/strength"
-                android:textStyle="bold"
-                android:textSize="8pt"
-
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/player_data_header"
-                app:layout_constraintEnd_toStartOf="@id/strength_proficiencies"
-
-                />
-
-            <EditText
-                android:id="@+id/totStr"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toStartOf="@id/strength_title"
-                app:layout_constraintTop_toBottomOf="@id/strength_title"
-                app:layout_constraintEnd_toEndOf="@id/strength_title"
-                />
-
-            <TableLayout
-                android:id="@+id/strength_proficiencies"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-
-                app:layout_constraintHorizontal_weight="3"
-                app:layout_constraintStart_toEndOf="@id/strength_title"
-                app:layout_constraintTop_toBottomOf="@id/player_data_header"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TableRow
+                <TextView
+                    android:id="@+id/player_data_header"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="4">
+                    android:layout_height="wrap_content"
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Saving Throws"
-                        android:textStyle="italic|bold"
-                        />
+                    android:gravity="center"
+                    android:text="Player Data"
+                    android:textSize="10pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/strength_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/strength"
+                    android:textSize="8pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/strength_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/player_data_header"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totStr"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/strength_title"
+                    app:layout_constraintStart_toStartOf="@id/strength_title"
+                    app:layout_constraintTop_toBottomOf="@id/strength_title" />
+
+                <TableLayout
+                    android:id="@+id/strength_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/strength_title"
+                    app:layout_constraintTop_toBottomOf="@id/player_data_header">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
 
 
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/saving_throws_str"
-                        android:layout_weight="1"
-                        />
+                        <CheckBox
+                            android:id="@+id/saving_throws_str"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/saving_throws_str_bon"
-                        />
+                        <TextView
+                            android:id="@+id/saving_throws_str_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
 
-                </TableRow>
+                    </TableRow>
 
-                <TableRow
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Athletics" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_ath"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_ath_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <android.support.constraint.Barrier
+                    android:id="@+id/barrier_strength"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+
+
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="strength_proficiencies,totStr" />
+
+                <TextView
+                    android:id="@+id/dexterity_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/dexterity"
+                    android:textSize="8pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/strength_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_strength"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totDex"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/dexterity_title"
+                    app:layout_constraintStart_toStartOf="@id/dexterity_title"
+                    app:layout_constraintTop_toBottomOf="@id/dexterity_title" />
+
+                <TableLayout
+                    android:id="@+id/dexterity_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/dexterity_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_strength">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
+
+
+                        <CheckBox
+                            android:id="@+id/saving_throws_dex"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/saving_throws_dex_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:gravity="center"
+                            android:text="Acrobatics" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_acr"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.25" />
+
+                        <TextView
+                            android:id="@+id/proficiency_acr_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.25"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Sleight of Hand" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_soh"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_soh_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Stealth" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_ste"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_ste_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <android.support.constraint.Barrier
+                    android:id="@+id/barrier_dexterity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="dexterity_proficiencies,totDex" />
+
+                <TextView
+                    android:id="@+id/constitution_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/constitution"
+                    android:textSize="7pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/constitution_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_dexterity"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totCon"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/constitution_title"
+                    app:layout_constraintStart_toStartOf="@id/constitution_title"
+                    app:layout_constraintTop_toBottomOf="@id/constitution_title" />
+
+                <TableLayout
+                    android:id="@+id/constitution_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/strength_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_dexterity">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
+
+
+                        <CheckBox
+                            android:id="@+id/saving_throws_con"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/saving_throws_con_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <android.support.constraint.Barrier
+                    android:id="@+id/barrier_constitution"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="constitution_proficiencies,totCon" />
+
+                <TextView
+                    android:id="@+id/intelligence_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/intelligence"
+                    android:textSize="7pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/intelligence_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_constitution"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totInt"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/intelligence_title"
+                    app:layout_constraintStart_toStartOf="@id/intelligence_title"
+                    app:layout_constraintTop_toBottomOf="@id/intelligence_title" />
+
+                <TableLayout
+                    android:id="@+id/intelligence_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/intelligence_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_constitution">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
+
+
+                        <CheckBox
+                            android:id="@+id/saving_throws_int"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/saving_throws_int_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Arcana" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_arc"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+
+                        <TextView
+                            android:id="@+id/proficiency_arc_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="History" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_his"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_his_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Investigation" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_inv"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_inv_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Nature" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_nat"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_nat_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Religion" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_rel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_rel_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <android.support.constraint.Barrier
+                    android:id="@+id/barrier_intelligence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="intelligence_proficiencies,totInt" />
+
+                <TextView
+                    android:id="@+id/charisma_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/charisma"
+                    android:textSize="7pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/charisma_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_intelligence"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totCha"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/charisma_title"
+                    app:layout_constraintStart_toStartOf="@id/charisma_title"
+                    app:layout_constraintTop_toBottomOf="@id/charisma_title" />
+
+                <TableLayout
+                    android:id="@+id/charisma_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/intelligence_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_intelligence">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
+
+
+                        <CheckBox
+                            android:id="@+id/saving_throws_cha"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/saving_throws_cha_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Deception" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_dec"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_dec_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Intimidation" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_intimidation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_intimidation_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Performance" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_per"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_per_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Persuasion" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_persuasion"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_persuasion_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <android.support.constraint.Barrier
+                    android:id="@+id/barrier_charisma"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="charisma_proficiencies,totCha" />
+
+                <TextView
+                    android:id="@+id/wisdom_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/wisdom"
+                    android:textSize="7pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/wisdom_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_charisma"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totWis"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/wisdom_title"
+                    app:layout_constraintStart_toStartOf="@id/wisdom_title"
+                    app:layout_constraintTop_toBottomOf="@id/wisdom_title" />
+
+                <TableLayout
+                    android:id="@+id/wisdom_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/wisdom_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_charisma">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
+
+
+                        <CheckBox
+                            android:id="@+id/saving_throws_wis"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/saving_throws_wis_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Animal Handling" />
+
+                        <CheckBox
+                            android:id="@+id/proficiency_anh"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_anh_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Insight" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_ins"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_ins_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Medicine" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_med"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_med_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Perception" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_perception"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_perception_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Survival" />
+
+
+                        <CheckBox
+                            android:id="@+id/proficiency_sur"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_sur_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+                </TableLayout>
+
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="4">
+                    android:layout_height="2dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_strength"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Athletics"/>
-
-
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/proficiency_ath"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_ath_bon"
-                        />
-
-                </TableRow>
-            </TableLayout>
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier_strength"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-
-
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="strength_proficiencies,totStr"
-                />
-
-            <TextView
-                android:id="@+id/dexterity_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center"
-                android:text="@string/dexterity"
-                android:textStyle="bold"
-                android:textSize="8pt"
-
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barrier_strength"
-                app:layout_constraintEnd_toStartOf="@id/strength_proficiencies"
-
-                />
-
-            <EditText
-                android:id="@+id/totDex"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toStartOf="@id/dexterity_title"
-                app:layout_constraintTop_toBottomOf="@id/dexterity_title"
-                app:layout_constraintEnd_toEndOf="@id/dexterity_title"
-                />
-
-            <TableLayout
-                android:id="@+id/dexterity_proficiencies"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-
-                app:layout_constraintHorizontal_weight="3"
-                app:layout_constraintStart_toEndOf="@id/dexterity_title"
-                app:layout_constraintTop_toBottomOf="@id/barrier_strength"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TableRow
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="4">
+                    android:layout_height="2dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_dexterity"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Saving Throws"
-                        android:textStyle="italic|bold"
-                        />
-
-
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/saving_throws_dex"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/saving_throws_dex_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="2dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_constitution"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="0.5"
-                        android:gravity="center"
-                        android:text="Acrobatics"/>
-
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/proficiency_acr"
-                        android:layout_weight="0.25"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="0.25"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_acr_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="2dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_intelligence"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Sleight of Hand"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_soh"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_soh_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="2dp"
+                    android:background="@color/colorPrimary"
+                    app:layout_constraintBottom_toTopOf="@id/barrier_charisma"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Stealth"/>
 
+            </android.support.constraint.ConstraintLayout>
 
-                    <CheckBox
-                        android:id="@+id/proficiency_ste"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_ste_bon"
-                        />
-
-                </TableRow>
-            </TableLayout>
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier_dexterity"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="dexterity_proficiencies,totDex"
-                />
-
-            <TextView
-                android:id="@+id/constitution_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center"
-                android:text="@string/constitution"
-                android:textStyle="bold"
-                android:textSize="7pt"
-
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barrier_dexterity"
-                app:layout_constraintEnd_toStartOf="@id/constitution_proficiencies"
-
-                />
-
-            <EditText
-                android:id="@+id/totCon"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toStartOf="@id/constitution_title"
-                app:layout_constraintTop_toBottomOf="@id/constitution_title"
-                app:layout_constraintEnd_toEndOf="@id/constitution_title"
-                />
-
-            <TableLayout
-                android:id="@+id/constitution_proficiencies"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-
-                app:layout_constraintHorizontal_weight="3"
-                app:layout_constraintStart_toEndOf="@id/strength_title"
-                app:layout_constraintTop_toBottomOf="@id/barrier_dexterity"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-
-                        android:gravity="center"
-                        android:text="Saving Throws"
-                        android:textStyle="italic|bold"
-                        />
-
-
-                    <CheckBox
-                        android:id="@+id/saving_throws_con"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/saving_throws_con_bon"
-                        />
-
-                </TableRow>
-            </TableLayout>
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier_constitution"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="constitution_proficiencies,totCon"
-                />
-
-            <TextView
-                android:id="@+id/intelligence_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center"
-                android:text="@string/intelligence"
-                android:textStyle="bold"
-                android:textSize="7pt"
-
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barrier_constitution"
-                app:layout_constraintEnd_toStartOf="@id/intelligence_proficiencies"
-
-                />
-
-            <EditText
-                android:id="@+id/totInt"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toStartOf="@id/intelligence_title"
-                app:layout_constraintTop_toBottomOf="@id/intelligence_title"
-                app:layout_constraintEnd_toEndOf="@id/intelligence_title"
-                />
-
-            <TableLayout
-                android:id="@+id/intelligence_proficiencies"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-
-                app:layout_constraintHorizontal_weight="3"
-                app:layout_constraintStart_toEndOf="@id/intelligence_title"
-                app:layout_constraintTop_toBottomOf="@id/barrier_constitution"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="4">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Saving Throws"
-                        android:textStyle="italic|bold"
-                        />
-
-
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/saving_throws_int"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/saving_throws_int_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Arcana"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_arc"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_arc_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="History"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_his"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_his_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Investigation"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_inv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_inv_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Nature"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_nat"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_nat_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Religion"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_rel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_rel_bon"
-                        />
-
-                </TableRow>
-            </TableLayout>
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier_intelligence"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="intelligence_proficiencies,totInt"
-                />
-
-            <TextView
-                android:id="@+id/charisma_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center"
-                android:text="@string/charisma"
-                android:textStyle="bold"
-                android:textSize="7pt"
-
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barrier_intelligence"
-                app:layout_constraintEnd_toStartOf="@id/charisma_proficiencies"
-
-                />
-
-            <EditText
-                android:id="@+id/totCha"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toStartOf="@id/charisma_title"
-                app:layout_constraintTop_toBottomOf="@id/charisma_title"
-                app:layout_constraintEnd_toEndOf="@id/charisma_title"
-                />
-
-            <TableLayout
-                android:id="@+id/charisma_proficiencies"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-
-                app:layout_constraintHorizontal_weight="3"
-                app:layout_constraintStart_toEndOf="@id/intelligence_title"
-                app:layout_constraintTop_toBottomOf="@id/barrier_intelligence"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="4">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Saving Throws"
-                        android:textStyle="italic|bold"
-                        />
-
-
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/saving_throws_cha"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/saving_throws_cha_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Deception"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_dec"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_dec_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Intimidation"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_intimidation"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_intimidation_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Performance"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_per"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_per_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Persuasion"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_persuasion"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_persuasion_bon"
-                        />
-
-                </TableRow>
-            </TableLayout>
-
-            <android.support.constraint.Barrier
-                android:id="@+id/barrier_charisma"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="charisma_proficiencies,totCha"
-                />
-
-            <TextView
-                android:id="@+id/wisdom_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center"
-                android:text="@string/wisdom"
-                android:textStyle="bold"
-                android:textSize="7pt"
-
-                app:layout_constraintHorizontal_weight="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barrier_charisma"
-                app:layout_constraintEnd_toStartOf="@id/wisdom_proficiencies"
-
-                />
-
-            <EditText
-                android:id="@+id/totWis"
-                android:layout_width="56dp"
-                android:layout_height="wrap_content"
-
-                android:gravity="center_horizontal"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toStartOf="@id/wisdom_title"
-                app:layout_constraintTop_toBottomOf="@id/wisdom_title"
-                app:layout_constraintEnd_toEndOf="@id/wisdom_title"
-                />
-
-            <TableLayout
-                android:id="@+id/wisdom_proficiencies"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-
-                app:layout_constraintHorizontal_weight="3"
-                app:layout_constraintStart_toEndOf="@id/wisdom_title"
-                app:layout_constraintTop_toBottomOf="@id/barrier_charisma"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="4">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Saving Throws"
-                        android:textStyle="italic|bold"
-                        />
-
-
-                    <CheckBox
-                        android:layout_width="0dp"
-                        android:id="@+id/saving_throws_wis"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/saving_throws_wis_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Animal Handling"/>
-
-                    <CheckBox
-                        android:id="@+id/proficiency_anh"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_anh_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Insight"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_ins"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_ins_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Medicine"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_med"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_med_bon"
-                        />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Perception"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_perception"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_perception_bon"
-                        />
-
-                </TableRow>
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:text="Survival"/>
-
-
-                    <CheckBox
-                        android:id="@+id/proficiency_sur"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="Bonus"
-                        android:id="@+id/proficiency_sur_bon"
-                        />
-
-                </TableRow>
-            </TableLayout>
-
-            <View
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/player_info_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="2dp"
-                app:layout_constraintBottom_toTopOf="@id/barrier_strength"
-                app:layout_constraintStart_toStartOf="parent"
-                android:background="@color/colorPrimary"
-                />
+                android:layout_height="wrap_content">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                app:layout_constraintBottom_toTopOf="@id/barrier_dexterity"
-                app:layout_constraintStart_toStartOf="parent"
-                android:background="@color/colorPrimary"
-                />
+                <TextView
+                    android:id="@+id/player_stats_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                app:layout_constraintBottom_toTopOf="@id/barrier_constitution"
-                app:layout_constraintStart_toStartOf="parent"
-                android:background="@color/colorPrimary"
-                />
+                    android:gravity="center"
+                    android:text="Player Stats"
+                    android:textSize="10pt"
+                    android:textStyle="bold"
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                app:layout_constraintBottom_toTopOf="@id/barrier_intelligence"
-                app:layout_constraintStart_toStartOf="parent"
-                android:background="@color/colorPrimary"
-                />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                app:layout_constraintBottom_toTopOf="@id/barrier_charisma"
-                app:layout_constraintStart_toStartOf="parent"
-                android:background="@color/colorPrimary"
-                />
+                <TextView
+                    android:id="@+id/level_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+
+                    android:text="@string/level"
+                    android:textSize="8pt"
+
+                    app:layout_constraintEnd_toStartOf="@id/level_input"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/player_stats_header" />
 
 
-        </android.support.constraint.ConstraintLayout>
+                <EditText
+                    android:id="@+id/level_input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/player_info_wrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+                    android:hint="@string/level"
+                    android:inputType="numberSigned"
 
-            <TextView
-                android:id="@+id/player_stats_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="@id/level_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/level_text"
+                    app:layout_constraintTop_toTopOf="@id/level_text" />
 
-                android:gravity="center"
-                android:text="Player Stats"
-                android:textSize="10pt"
-                android:textStyle="bold"
+                <TextView
+                    android:id="@+id/armor_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
 
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                />
+                    android:text="Armor"
+                    android:textSize="8pt"
 
-            <TextView
-                android:id="@+id/level_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
+                    app:layout_constraintEnd_toStartOf="@id/armor_input"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/level_text" />
 
-                android:text="@string/level"
-                android:textSize="8pt"
+                <EditText
+                    android:id="@+id/armor_input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/player_stats_header"
-                app:layout_constraintEnd_toStartOf="@id/level_input"
-                />
+                    android:hint="Armor"
+                    android:inputType="numberSigned"
 
-
-            <EditText
-                android:id="@+id/level_input"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:hint="@string/level"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toEndOf="@id/level_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/level_text"
-                app:layout_constraintBottom_toBottomOf="@id/level_text"
-                />
-
-            <TextView
-                android:id="@+id/armor_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-
-                android:text="Armor"
-                android:textSize="8pt"
-
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/level_text"
-                app:layout_constraintEnd_toStartOf="@id/armor_input"
-                />
-
-            <EditText
-                android:id="@+id/armor_input"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:hint="Armor"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toEndOf="@id/armor_text"
-                app:layout_constraintTop_toTopOf="@id/armor_text"
-                app:layout_constraintBottom_toBottomOf="@id/armor_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                />
+                    app:layout_constraintBottom_toBottomOf="@id/armor_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/armor_text"
+                    app:layout_constraintTop_toTopOf="@id/armor_text" />
 
 
-            <TextView
-                android:id="@+id/hp_text"
-                android:padding="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                <TextView
+                    android:id="@+id/hp_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
 
-                android:text="@string/max_hp"
-                android:textSize="8pt"
+                    android:text="@string/max_hp"
+                    android:textSize="8pt"
 
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/armor_text"
-                app:layout_constraintEnd_toStartOf="@id/hp_input"
-                />
-
-
-            <EditText
-
-                android:id="@+id/hp_input"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:hint="@string/max_hp"
-                android:inputType="numberSigned"
-
-                app:layout_constraintStart_toEndOf="@id/hp_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/hp_text"
-                app:layout_constraintBottom_toBottomOf="@id/hp_text"
-                />
-
-            <TextView
-                android:id="@+id/speed_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-
-                android:text="@string/speed"
-                android:textSize="8pt"
-
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/hp_text"
-                app:layout_constraintEnd_toStartOf="@id/speed_input"
-                />
+                    app:layout_constraintEnd_toStartOf="@id/hp_input"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/armor_text" />
 
 
-            <EditText
+                <EditText
 
-                android:id="@+id/speed_input"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                    android:id="@+id/hp_input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
-                android:hint="@string/speed"
-                android:inputType="numberSigned"
+                    android:hint="@string/max_hp"
+                    android:inputType="numberSigned"
 
-                app:layout_constraintStart_toEndOf="@id/speed_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/speed_text"
-                app:layout_constraintBottom_toBottomOf="@id/speed_text"
-                />
-        </android.support.constraint.ConstraintLayout>
+                    app:layout_constraintBottom_toBottomOf="@id/hp_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/hp_text"
+                    app:layout_constraintTop_toTopOf="@id/hp_text" />
 
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/player_info_wrapper">
+                <TextView
+                    android:id="@+id/speed_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
 
-            <TextView
-                android:id="@+id/combat_info_text"
+                    android:text="@string/speed"
+                    android:textSize="8pt"
+
+                    app:layout_constraintEnd_toStartOf="@id/speed_input"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/hp_text" />
+
+
+                <EditText
+
+                    android:id="@+id/speed_input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:hint="@string/speed"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintBottom_toBottomOf="@id/speed_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/speed_text"
+                    app:layout_constraintTop_toTopOf="@id/speed_text" />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/player_info_wrapper">
 
-                android:textSize="10pt"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:text="Combat Info"
+                <TextView
+                    android:id="@+id/combat_info_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
 
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                />
+                    android:gravity="center"
+                    android:text="Combat Info"
+                    android:textSize="10pt"
+                    android:textStyle="bold"
 
-            <TextView
-                android:id="@+id/exhaustion_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                android:text="@string/exhaustion"
-                android:gravity="center_horizontal"
-                android:textSize="8pt"
+                <TextView
+                    android:id="@+id/exhaustion_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
 
-                app:layout_constraintTop_toBottomOf="@id/combat_info_text"
-                app:layout_constraintStart_toStartOf="parent"
-                />
+                    android:gravity="center_horizontal"
+                    android:text="@string/exhaustion"
+                    android:textSize="8pt"
+
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/combat_info_text" />
 
                 <RadioGroup
                     android:id="@+id/exhaustion_buttons"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
                     android:checkedButton="@id/exhaustion_0"
+                    android:gravity="center"
+                    android:orientation="horizontal"
 
-                    app:layout_constraintTop_toBottomOf="@id/exhaustion_text"
-                    app:layout_constraintStart_toStartOf="parent">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/exhaustion_text">
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
 
                     <RadioButton
                         android:id="@+id/exhaustion_0"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
 
                     <RadioButton
                         android:id="@+id/exhaustion_1"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
 
                     <RadioButton
                         android:id="@+id/exhaustion_2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
 
                     <RadioButton
                         android:id="@+id/exhaustion_3"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
 
                     <RadioButton
                         android:id="@+id/exhaustion_4"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
 
                     <RadioButton
                         android:id="@+id/exhaustion_5"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        />
+                        android:layout_height="wrap_content" />
 
                     <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1" />
                 </RadioGroup>
 
                 <TextView
@@ -1297,13 +1228,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
 
+                    android:text="No exhaustion"
                     android:textSize="8pt"
                     android:textStyle="italic"
-                    android:text="No exhaustion"
 
-                    app:layout_constraintTop_toBottomOf="@id/exhaustion_buttons"
                     app:layout_constraintStart_toStartOf="parent"
-                    />
-        </android.support.constraint.ConstraintLayout>
-    </LinearLayout>
-</ScrollView>
+                    app:layout_constraintTop_toBottomOf="@id/exhaustion_buttons" />
+            </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

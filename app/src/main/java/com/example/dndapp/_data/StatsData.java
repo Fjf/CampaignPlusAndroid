@@ -12,27 +12,33 @@ public class StatsData {
     private int level;
 
     public void setDexterity(int dexterity) {
-        this.dexterity = dexterity;
+        this.dexterity = fixStatInputRange(dexterity);
     }
 
+
+
     public void setStrength(int strength) {
-        this.strength = strength;
+        this.strength = fixStatInputRange(strength);
     }
 
     public void setConstitution(int constitution) {
-        this.constitution = constitution;
+        this.constitution = fixStatInputRange(constitution);
     }
 
     public void setWisdom(int wisdom) {
-        this.wisdom = wisdom;
+        this.wisdom = fixStatInputRange(wisdom);
     }
 
     public void setIntelligence(int intelligence) {
-        this.intelligence = intelligence;
+        this.intelligence = fixStatInputRange(intelligence);
     }
 
     public void setCharisma(int charisma) {
-        this.charisma = charisma;
+        this.charisma = fixStatInputRange(charisma);
+    }
+
+    private int fixStatInputRange(int stat) {
+        return Math.max(Math.min(stat, 30), 1);
     }
 
     private int dexterity;

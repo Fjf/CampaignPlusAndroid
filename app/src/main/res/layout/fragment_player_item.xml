@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:background="#FFFFFF">
 
+    <include layout="@layout/fragment_toolbar" android:id="@+id/fragment_toolbar"/>
+
     <ScrollView
+        android:id="@+id/fragment_player_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -21,7 +23,8 @@
                 android:id="@+id/constraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp">
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
 
                 <Spinner
                     android:id="@+id/name"

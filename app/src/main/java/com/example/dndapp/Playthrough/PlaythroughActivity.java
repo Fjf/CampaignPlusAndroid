@@ -1,9 +1,11 @@
 package com.example.dndapp.Playthrough;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,7 +24,9 @@ import com.example.dndapp.Playthrough.Adapters.PlayerListAdapter;
 import com.example.dndapp.R;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlaythroughActivity extends AppCompatActivity {
@@ -44,6 +49,7 @@ public class PlaythroughActivity extends AppCompatActivity {
     private int currentSelectedPlayer = -1;
     private String userName;
     private int playthroughId;
+    private View button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,24 +71,15 @@ public class PlaythroughActivity extends AppCompatActivity {
 
         // Attaching the layout to the toolbar object
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Playthrough Overview");
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
     }
 
     private void setHapticFeedback() {
-        View.OnTouchListener vot = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN)
-                    v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-
-                return false;
-            }
-        };
-
-        findViewById(R.id.player_field_reload).setOnTouchListener(vot);
-        findViewById(R.id.player_field_upload).setOnTouchListener(vot);
-        findViewById(R.id.player_delete_button).setOnTouchListener(vot);
+        findViewById(R.id.player_field_reload).setOnTouchListener(new ShortHapticFeedback());
+        findViewById(R.id.player_field_upload).setOnTouchListener(new ShortHapticFeedback());
+        findViewById(R.id.player_delete_button).setOnTouchListener(new ShortHapticFeedback());
     }
 
     @Override
@@ -100,7 +97,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_phb) {
+        if (id == R.id.action_show_phb) {
             Intent intent = new Intent(PlaythroughActivity.this, PdfViewerActivity.class);
             startActivity(intent);
             return true;
@@ -234,10 +231,10 @@ public class PlaythroughActivity extends AppCompatActivity {
         PlayerData pd = getPlayerInfoField();
         JSONObject obj = pd.toJSON();
         StringEntity entity = new StringEntity(obj.toString());
-
         String url = String.format(Locale.ENGLISH, "player/%d", playerId);
 
-        findViewById(R.id.player_field_upload).setEnabled(false);
+        button = findViewById(R.id.player_field_upload);
+        button.setEnabled(false);
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -249,14 +246,15 @@ public class PlaythroughActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                findViewById(R.id.player_field_upload).setEnabled(true);
+                button.setEnabled(true);
 
                 getPlayers();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                // auto-generated stub
+                button.setEnabled(true);
+
             }
         });
     }
@@ -265,7 +263,28 @@ public class PlaythroughActivity extends AppCompatActivity {
         setPlayerInfoField();
     }
 
-    public void deletePlayer(View view) {
+    public void requestDeletePlayer(View view) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        deletePlayer();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
+        builder.setMessage("Are you sure you want to delete this player?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    public void deletePlayer() {
         findViewById(R.id.player_delete_button).setEnabled(false);
 
         String url = String.format(Locale.ENGLISH, "player/%s", playerId);
