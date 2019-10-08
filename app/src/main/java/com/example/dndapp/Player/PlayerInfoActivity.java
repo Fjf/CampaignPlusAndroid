@@ -20,14 +20,18 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.Adapters.DrawerListAdapter;
+import com.example.dndapp.Player.Adapters.DrawerPCListAdapter;
 import com.example.dndapp.Player.Adapters.ItemListAdapter;
 import com.example.dndapp.Player.Adapters.SpellListAdapter;
 import com.example.dndapp.Player.Fragments.PlayerItemFragment;
@@ -35,8 +39,11 @@ import com.example.dndapp.Player.Fragments.PlayerSpellFragment;
 import com.example.dndapp.Player.Fragments.StatsFragment;
 import com.example.dndapp.Player.Listeners.TextOnChangeSaveListener;
 import com.example.dndapp.R;
+import com.example.dndapp._data.DrawerListData;
 import com.example.dndapp._data.ItemData;
 import com.example.dndapp._data.ItemType;
+import com.example.dndapp._data.MyPlayerCharacterList;
+import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerProficiencyData;
 import com.example.dndapp._data.SpellData;
 import com.example.dndapp._data.StatsData;
@@ -108,6 +115,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ListView leftDrawerList;
+    private ListView leftDrawerPCList;
     private View leftDrawerWrapper;
 
     @Override
@@ -128,11 +136,17 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.player_info_drawer_layout);
         leftDrawerList = findViewById(R.id.left_drawer);
+        leftDrawerPCList = findViewById(R.id.left_drawer_pc);
         leftDrawerWrapper = findViewById(R.id.left_drawer_wrapper);
-
 
         leftDrawerList.setAdapter(new DrawerListAdapter(this, R.layout.left_drawer_menu_item, dld));
         leftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        leftDrawerPCList.setOnItemClickListener(new DrawerPCItemClickListener());
+
+        justifyListViewHeightBasedOnChildren(leftDrawerList);
+
+//        leftDrawerPCList.setOnItemClickListener(new DrawerItemClickListener());
 
         preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         edit = preferences.edit();
@@ -140,20 +154,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         playerId = getIntent().getStringExtra("player_id");
 
         // Update sharedpreferences if new playerID gets passed to this activity.
-        if (playerId != null) {
-            edit.putString("player_id", playerId);
-            edit.apply();
-
-            // Get all information and items.
-            getPlayerData();
-            getPlayerItems();
-            getPlayerSpells();
-            getRemotePlayerProficiencies();
-        } else {
-            Toast.makeText(this, "No player character selected.", Toast.LENGTH_SHORT).show();
-//            finish();
-//            return;
-        }
+        updatePlayerInfoViews();
 
         // Set onchange listener for current hp.
         ((EditText) findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
@@ -218,6 +219,33 @@ public class PlayerInfoActivity extends AppCompatActivity {
         );
     }
 
+
+
+    private void updatePlayerInfoViews() {
+        if (playerId != null) {
+            edit.putString("player_id", playerId);
+            edit.apply();
+
+            // Get all information and items.
+            getPlayerData();
+            getPlayerItems();
+            getPlayerSpells();
+            getRemotePlayerProficiencies();
+            MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
+                @Override
+                public void run() {
+                    leftDrawerPCList.setAdapter(new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, MyPlayerCharacterList.playerData));
+                    justifyListViewHeightBasedOnChildren(leftDrawerPCList);
+                }
+            });
+
+
+        } else {
+            Toast.makeText(this, "No player character selected.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
     private ArrayList<DrawerListData> createDrawerListData(String[] leftDrawerItemTitles, TypedArray leftDrawerItemIcons) {
         ArrayList<DrawerListData> dld = new ArrayList<>();
         for (int i = 0; i < leftDrawerItemTitles.length; i++) {
@@ -257,7 +285,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
             return true;
         } else if (id == android.R.id.home) {
             drawerLayout.openDrawer(leftDrawerWrapper);
+        } else if (id == R.id.action_delete_player) {
+            deletePlayer();
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -310,6 +341,30 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Log.d(TAG, "Invalid response: " + response);
+            }
+        });
+    }
+
+    private void deletePlayer() {
+        String url = String.format(Locale.ENGLISH, "player/%s", playerId);
+        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                PlayerData pd = MyPlayerCharacterList.playerData.get(0);
+                if (pd == null) {
+                    // There is no player character to show
+                    Toast.makeText(PlayerInfoActivity.this, "You have no player characters to show.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+
+                playerId = String.valueOf(pd.getId());
+                updatePlayerInfoViews();
             }
 
             @Override
@@ -633,12 +688,21 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public void openSpellFragment(View view) {
         openFragment(2);
     }
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             openFragment(position);
         }
+    }
 
+    private class DrawerPCItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            playerId = String.valueOf(MyPlayerCharacterList.playerData.get(position).getId());
+            drawerLayout.closeDrawer(leftDrawerWrapper);
+            updatePlayerInfoViews();
+        }
     }
 
     private void openFragment(int position) {
@@ -706,5 +770,25 @@ public class PlayerInfoActivity extends AppCompatActivity {
         } else {
             Log.e("MainActivity", "Error in creating fragment");
         }
+    }
+
+    public void justifyListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter adapter = listView.getAdapter();
+
+        if (adapter == null) {
+            return;
+        }
+        ViewGroup vg = listView;
+        int totalHeight = 0;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View listItem = adapter.getView(i, null, vg);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams par = listView.getLayoutParams();
+        par.height = totalHeight + (listView.getDividerHeight() * (adapter.getCount() - 1));
+        listView.setLayoutParams(par);
+        listView.requestLayout();
     }
 }

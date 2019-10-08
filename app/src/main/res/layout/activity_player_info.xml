@@ -196,18 +196,64 @@
         android:fillViewport="true"
         android:layout_gravity="start">
 
-        <ListView
-            android:id="@+id/left_drawer"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
             android:background="@color/colorAccentLight"
+            android:layout_height="wrap_content">
 
-            android:choiceMode="singleChoice"
-            android:focusableInTouchMode="true"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
 
-            android:divider="@color/colorAccent"
-            android:dividerHeight="1px"
-            />
+                android:background="@drawable/bottom_line"
+                android:layout_marginBottom="3dp"
+
+                android:text="Options"
+                android:textStyle="bold"
+                android:textSize="10pt"
+                android:gravity="center"
+                />
+
+            <ListView
+                android:id="@+id/left_drawer"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccentLight"
+
+                android:choiceMode="singleChoice"
+                android:focusableInTouchMode="true"
+
+                android:divider="@color/colorAccent"
+                android:dividerHeight="1px"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+
+                android:background="@drawable/bottom_line"
+                android:layout_marginBottom="3dp"
+
+                android:text="My Player Characters"
+                android:textStyle="bold"
+                android:textSize="10pt"
+                android:gravity="center"
+                />
+
+            <ListView
+                android:id="@+id/left_drawer_pc"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccentLight"
+
+                android:choiceMode="singleChoice"
+                android:focusableInTouchMode="true"
+
+                android:divider="@color/colorAccent"
+                android:dividerHeight="1px"/>
+        </LinearLayout>
     </ScrollView>
 
 </android.support.v4.widget.DrawerLayout>

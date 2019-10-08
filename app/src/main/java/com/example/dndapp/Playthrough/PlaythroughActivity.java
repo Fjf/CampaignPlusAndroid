@@ -22,6 +22,8 @@ import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
 import com.example.dndapp.Playthrough.Adapters.PlayerListAdapter;
 import com.example.dndapp.R;
+import com.example.dndapp._data.MyPlayerCharacterList;
+import com.example.dndapp._data.PlayerCharacterList;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
@@ -66,6 +68,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         playerList = findViewById(R.id.playerList);
 
         getPlayers();
+        getMyPlayerCharacters();
 
         setHapticFeedback();
 
@@ -74,6 +77,10 @@ public class PlaythroughActivity extends AppCompatActivity {
         toolbar.setTitle("Playthrough Overview");
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
+    }
+
+    private void getMyPlayerCharacters() {
+        MyPlayerCharacterList.updatePlayerData(null);
     }
 
     private void setHapticFeedback() {
@@ -123,25 +130,9 @@ public class PlaythroughActivity extends AppCompatActivity {
                     }
 
                     JSONArray array = response.getJSONArray("players");
-                    PlayerData[] entries = new PlayerData[array.length()];
+                    PlayerCharacterList.setPlayerData(array);
 
-                    for (int i = 0; i < array.length(); i++) {
-                        entries[i] = new PlayerData(array.getJSONObject(i));
-
-                        // Store the player's id in sharedpreferences for later information retrieval.
-                        if (entries[i].getUserName().equals(userName)) {
-                            SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = preferences.edit();
-
-                            playerId = entries[i].getId();
-
-                            editor.putString("player_id", String.valueOf(playerId));
-                            editor.apply();
-                        }
-                    }
-
-                    updatePlayerList(entries);
-
+                    updatePlayerList(PlayerCharacterList.playerData);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -171,6 +162,7 @@ public class PlaythroughActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 currentSelectedPlayer = position;
+                playerId = PlayerCharacterList.playerData[currentSelectedPlayer].getId();
 
                 setPlayerInfoField();
             }
@@ -280,21 +272,26 @@ public class PlaythroughActivity extends AppCompatActivity {
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
-        builder.setMessage("Are you sure you want to delete this player?").setPositiveButton("Yes", dialogClickListener)
+        builder.setMessage("Are you sure you want to remove this player from this playthrough?").setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
     public void deletePlayer() {
+        if (currentSelectedPlayer == -1) {
+            Toast.makeText(this, "No player selected.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         findViewById(R.id.player_delete_button).setEnabled(false);
 
-        String url = String.format(Locale.ENGLISH, "player/%s", playerId);
+        String url = String.format(Locale.ENGLISH, "playthrough/%d/players/%s", playthroughId, playerId);
 
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     if (response.getBoolean("success")) {
-                        Toast.makeText(PlaythroughActivity.this, "Player deleted successfully.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PlaythroughActivity.this, "Player removed from playthrough successfully.", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(PlaythroughActivity.this, response.getString("error"), Toast.LENGTH_SHORT).show();
                     }
@@ -308,8 +305,14 @@ public class PlaythroughActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                findViewById(R.id.player_delete_button).setEnabled(true);
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+
+            @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                // auto-generated stub
+                findViewById(R.id.player_delete_button).setEnabled(true);
             }
         });
     }

@@ -1,5 +1,7 @@
 package com.example.dndapp._data;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,7 +45,7 @@ public class PlayerData {
         this.backstory = backstory;
     }
 
-    public PlayerData(int id, String name, String className, String race) {
+    public PlayerData(@NonNull int id, String name, String className, String race) {
         this.id = id;
         this.name = name;
         this.className = className;
@@ -51,9 +53,9 @@ public class PlayerData {
     }
 
     public PlayerData(JSONObject obj) throws JSONException {
+        this.id = obj.getInt("id");
         this.name = obj.getString("name");
         this.userName = obj.getString("user_name");
-        this.id = obj.getInt("id");
         this.className = obj.getString("class");
         this.backstory = getIfNotNullString(obj, "backstory");
         this.race = obj.getString("race");

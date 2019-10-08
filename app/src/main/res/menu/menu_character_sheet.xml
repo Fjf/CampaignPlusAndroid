@@ -7,13 +7,21 @@
 
     <item
         android:id="@+id/action_show_phb"
-        android:orderInCategory="200"
+        android:orderInCategory="100"
         android:title="Show PHB"
         android:icon="@drawable/ic_rule_book_24dp"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_delete_player"
+        android:orderInCategory="200"
+        android:title="Delete PC"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_logout"
         android:orderInCategory="300"
         android:title="Log Out"
         app:showAsAction="never" />
+
 </menu>

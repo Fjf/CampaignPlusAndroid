@@ -1,21 +1,21 @@
 package com.example.dndapp.Player.Adapters;
 
 import android.app.Activity;
-import android.media.Image;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.dndapp.Player.DrawerListData;
+import com.example.dndapp._data.DrawerListData;
 import com.example.dndapp.R;
-import com.example.dndapp._data.ItemData;
-import com.example.dndapp._data.SpellData;
+import com.example.dndapp._data.MyPlayerCharacterList;
+import com.example.dndapp._data.PlayerCharacterList;
+import com.example.dndapp._data.PlayerData;
 
 import java.util.ArrayList;
 
@@ -23,15 +23,15 @@ public class DrawerListAdapter extends ArrayAdapter {
 
     private final Activity context;
     private final int resource;
+    private final ArrayList<DrawerListData> objects;
 
     public DrawerListAdapter(@NonNull Activity context, int resource, @NonNull ArrayList<DrawerListData> objects) {
         super(context, resource, objects);
 
+        this.objects = objects;
         this.resource = resource;
         this.context = context;
     }
-
-
 
     @Override
     public View getView(int position, View rowView, ViewGroup parent) {
@@ -42,11 +42,12 @@ public class DrawerListAdapter extends ArrayAdapter {
         TextView textView = rowView.findViewById(R.id.title);
         ImageView imageView = rowView.findViewById(R.id.icon);
 
-        DrawerListData obj = (DrawerListData) getItem(position);
+        Object obj = getItem(position);
         assert obj != null;
 
-        textView.setText(obj.getTitle());
-        imageView.setImageDrawable(obj.getIcon());
+        DrawerListData data = (DrawerListData) obj;
+        textView.setText(data.getTitle());
+        imageView.setImageDrawable(data.getIcon());
 
         return rowView;
     }
