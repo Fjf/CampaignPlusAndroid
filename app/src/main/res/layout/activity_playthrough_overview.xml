@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:id="@+id/playthrough_content_layout"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Playthrough.PlaythroughOverviewActivity">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
-
-    <include
-        android:layout_below="@id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/content_playthrough_overview" />
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        >
 
-</RelativeLayout>
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/content_playthrough_overview" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

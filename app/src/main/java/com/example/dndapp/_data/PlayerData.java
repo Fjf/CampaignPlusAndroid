@@ -76,4 +76,10 @@ public class PlayerData {
 
         return obj;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return getName() + " / " + getClassName() + " / " + getRace();
+    }
 }

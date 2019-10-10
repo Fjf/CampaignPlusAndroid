@@ -1,17 +1,20 @@
 package com.example.dndapp.Playthrough;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -20,21 +23,22 @@ import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
-import com.example.dndapp.Playthrough.Adapters.SpinnerInitialTextAdapter;
-import com.example.dndapp._data.PlayerData;
-import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp.Playthrough.Adapters.PlaythroughListAdapter;
+import com.example.dndapp.Playthrough.Fragments.SelectPlayerFragment;
 import com.example.dndapp.R;
+import com.example.dndapp._data.MyPlayerCharacterList;
+import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlaythroughOverviewActivity extends AppCompatActivity {
@@ -96,7 +100,7 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_playthrough, menu);
         return true;
     }
 
@@ -158,47 +162,6 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
 
     }
 
-    public void joinPlaythroughButton(View view) {
-        final EditText et = findViewById(R.id.playthrough_code);
-        findViewById(R.id.select_pc_overlay).setVisibility(View.GONE);
-
-        try {
-            joinPlaythrough(et.getText().toString());
-        } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void joinPlaythrough(String code) throws UnsupportedEncodingException, JSONException {
-
-        final JSONObject data = new JSONObject();
-        data.put("playthrough_code", code);
-        StringEntity entity = new StringEntity(data.toString());
-
-        String url = "joinplaythrough";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong joining this playthrough   .");
-                        // TODO: Give user feedback about this.
-                        return;
-                    }
-                    et.setText("");
-                    getJoinedPlaythroughs();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
-            }
-        });
-    }
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == QR_CODE) {
@@ -209,74 +172,100 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
 
                 playthroughCode = playthrough_code;
                 et.setText(playthroughCode);
-                selectPlayerCharacter();
+
+                if (!validateCode(playthroughCode)) {
+                    Toast.makeText(this, "This code is invalid.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                openSelectPlayerFragment();
             }
         }
     }
 
-    private void selectPlayerCharacter() {
+    public void addPlayerPlaythroughButton(View view) {
+        try {
+            joinPlaythrough(playthroughCode);
+        } catch (UnsupportedEncodingException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void joinPlaythrough(String code) throws UnsupportedEncodingException, JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("playthrough_code", code);
+        StringEntity entity = new StringEntity(data.toString());
+
+        String url = "joinplaythrough";
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                // Close fragment.
+                PlaythroughOverviewActivity.this.getFragmentManager().popBackStackImmediate();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Toast.makeText(PlaythroughOverviewActivity.this, "This playthrough does not exist.", Toast.LENGTH_SHORT).show();
+                // Close fragment.
+                PlaythroughOverviewActivity.this.getFragmentManager().popBackStackImmediate();
+            }
+        });
+    }
+
+    public void joinPlaythroughButton(View view) {
+        playthroughCode = et.getText().toString();
+        if (!validateCode(playthroughCode)) {
+            Toast.makeText(this, "This code is invalid.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        openSelectPlayerFragment();
+    }
+
+    private boolean validateCode(String code) {
+        return code.length() == 6;
+    }
+
+    private void openSelectPlayerFragment() {
         progressBar.setVisibility(View.VISIBLE);
 
-        final Context self = this;
         // Load all your player characters from database.
         String url = "user/players";
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
+            public void onPreProcessResponse(ResponseHandlerInterface instance, HttpResponse response) {
+                // Stop the loading bar
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() { progressBar.setVisibility(View.GONE); }
+                });
+                super.onPreProcessResponse(instance, response);
+            }
+
+            @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong obtaining players.");
-                        // TODO: Give user feedback about this.
+                        Toast.makeText(PlaythroughOverviewActivity.this, "Something went wrong obtaining players.", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     JSONArray arr = response.getJSONArray("players");
+                    MyPlayerCharacterList.setPlayerData(arr);
 
-                    // Show or don't show the player dropdown spinner if there is no data yet.
-                    if (arr.length() > 0) {
-                        PlayerData[] items = new PlayerData[arr.length()];
-                        for (int i = 0; i < arr.length(); i++) {
-                            JSONObject obj = arr.getJSONObject(i);
-                            items[i] = new PlayerData(obj);
-                        }
 
-                        ArrayAdapter<PlayerData> arrayAdapter = new ArrayAdapter<>(self, android.R.layout.simple_spinner_item, items);
-                        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(playthroughCode);
+                    fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                    fragment.setExitTransition(new Slide(Gravity.TOP));
 
-                        final SpinnerInitialTextAdapter adapter = new SpinnerInitialTextAdapter(arrayAdapter, R.layout.player_spinner_nothing_selected_row,
-                                // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
-                                self);
-                        playerSpinner.setPrompt("Select your PC");
+                    FragmentManager fragmentManager = getFragmentManager();
+                    FragmentTransaction ft = fragmentManager.beginTransaction();
 
-                        playerSpinner.setAdapter(adapter);
+                    ft.replace(R.id.playthrough_content_layout, fragment);
+                    ft.addToBackStack(null);
+                    ft.commit();
 
-                        playerSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                PlayerData item = (PlayerData) adapter.getItem(position);
-                                if (item == null)
-                                    return;
-
-                                try {
-                                    updatePlayerPlaythrough(item.getId());
-                                } catch (UnsupportedEncodingException | JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
-                        playerSpinner.setVisibility(View.VISIBLE);
-                    } else {
-                        playerSpinner.setVisibility(View.GONE);
-                    }
-
-                    // Show the overlay and stop the loading bar
-                    progressBar.setVisibility(View.GONE);
-                    findViewById(R.id.select_pc_overlay).setVisibility(View.VISIBLE);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -289,39 +278,12 @@ public class PlaythroughOverviewActivity extends AppCompatActivity {
         });
     }
 
-    private void updatePlayerPlaythrough(int id) throws UnsupportedEncodingException, JSONException {
-        findViewById(R.id.select_pc_overlay).setVisibility(View.GONE);
 
-        final JSONObject data = new JSONObject();
-        data.put("playthrough_code", playthroughCode);
-        StringEntity entity = new StringEntity(data.toString());
-
-        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", id);
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Toast.makeText(PlaythroughOverviewActivity.this, "Something went wrong updating your player's playthrough.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    et.setText("");
-
-                    getJoinedPlaythroughs();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
-            }
-        });
-    }
 
     public void startQRScanner(View view) {
         Intent intent = new Intent(PlaythroughOverviewActivity.this, QRCodeScannerActivity.class);
         startActivityForResult(intent, QR_CODE);
     }
+
+    public void eatClickEvent(View view) { }
 }

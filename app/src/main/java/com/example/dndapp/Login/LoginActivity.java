@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -46,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         info.setTypeface(font);
 
         sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        String ip = sharedPreferences.getString("ip_address", getString(R.string.defaultIp));
+        String ip = sharedPreferences.getString("ip_address", getString(R.string.default_ip));
         String userName = sharedPreferences.getString("user_name", "");
         name.setText(userName);
 

@@ -1,153 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content"
+    android:id="@+id/playthrough_content_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Playthrough.PlaythroughActivity">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
-
-    <ListView
-        android:id="@+id/playerList"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-
-        android:fadeScrollbars="false"
-        android:scrollbars="vertical"
-        android:descendantFocusability="blocksDescendants"
-
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <ListView
+            android:id="@+id/playerList"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/player_name_field_wrapper"
-            android:layout_width="0dp"
-            android:layout_toStartOf="@+id/button_wrapper"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
+            android:fadeScrollbars="false"
+            android:scrollbars="vertical"
+            android:descendantFocusability="blocksDescendants"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/player_name_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Name"
-                android:inputType="textPersonName"/>
-        </android.support.design.widget.TextInputLayout>
 
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/player_class_field_wrapper"
-            android:layout_width="0dp"
-            android:layout_toStartOf="@+id/button_wrapper"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/player_name_field_wrapper"
-            android:layout_height="wrap_content">
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/player_class_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Class"
-                android:inputType="textPersonName"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/player_race_field_wrapper"
-            android:layout_width="0dp"
-            android:layout_below="@id/player_class_field_wrapper"
-            android:layout_toStartOf="@+id/button_wrapper"
-            android:layout_alignParentStart="true"
-            android:layout_height="wrap_content">
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/player_race_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Race"
-                android:inputType="textPersonName"/>
-        </android.support.design.widget.TextInputLayout>
-
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/player_backstory_field_wrapper"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/button_wrapper"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/player_race_field_wrapper">
-
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/player_backstory_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Backstory"
-                android:minLines="5"
-                android:inputType="textMultiLine" />
-        </android.support.design.widget.TextInputLayout>
-
-        <LinearLayout
-            android:id="@+id/button_wrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:orientation="vertical"
-            android:layout_centerVertical="true">
-
-            <ImageButton
-                android:id="@+id/player_field_upload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="8dp"
-                android:layout_margin="2dp"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_name_field_wrapper"
+                android:layout_width="0dp"
+                android:layout_toStartOf="@+id/button_wrapper"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:background="@color/colorPrimary"
-                android:hapticFeedbackEnabled="true"
-                android:onClick="updatePlayerInfo"
-                android:src="@android:drawable/ic_menu_upload" />
+                android:layout_height="wrap_content">
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_name_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Name"
+                    android:inputType="textPersonName"/>
+            </android.support.design.widget.TextInputLayout>
 
-            <ImageButton
-                android:id="@+id/player_field_reload"
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_class_field_wrapper"
+                android:layout_width="0dp"
+                android:layout_toStartOf="@+id/button_wrapper"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/player_name_field_wrapper"
+                android:layout_height="wrap_content">
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_class_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Class"
+                    android:inputType="textPersonName"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_race_field_wrapper"
+                android:layout_width="0dp"
+                android:layout_below="@id/player_class_field_wrapper"
+                android:layout_toStartOf="@+id/button_wrapper"
+                android:layout_alignParentStart="true"
+                android:layout_height="wrap_content">
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_race_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Race"
+                    android:inputType="textPersonName"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_backstory_field_wrapper"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@+id/button_wrapper"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/player_race_field_wrapper">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_backstory_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Backstory"
+                    android:minLines="5"
+                    android:inputType="textMultiLine" />
+            </android.support.design.widget.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/button_wrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="8dp"
-                android:layout_margin="2dp"
-                android:layout_below="@id/player_field_upload"
                 android:layout_alignParentEnd="true"
-                android:background="@color/colorPrimary"
-                android:hapticFeedbackEnabled="true"
-                android:onClick="revertPlayerInfo"
-                android:src="@android:drawable/ic_menu_revert" />
+                android:orientation="vertical"
+                android:layout_centerVertical="true">
 
-            <ImageButton
-                android:id="@+id/player_delete_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="8dp"
-                android:layout_margin="2dp"
-                android:layout_below="@id/player_field_reload"
-                android:layout_alignParentEnd="true"
-                android:background="@color/colorPrimary"
-                android:hapticFeedbackEnabled="true"
-                android:onClick="requestDeletePlayer"
-                android:src="@android:drawable/ic_menu_delete" />
-        </LinearLayout>
-    </RelativeLayout>
-    <Button
-        android:id="@+id/player_create_new_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create new character"
-        android:onClick="createNewCharacter"/>
-</LinearLayout>
+                <ImageButton
+                    android:id="@+id/player_field_upload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:layout_margin="2dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/colorPrimary"
+                    android:hapticFeedbackEnabled="true"
+                    android:onClick="updatePlayerInfo"
+                    android:src="@android:drawable/ic_menu_upload" />
+
+                <ImageButton
+                    android:id="@+id/player_field_reload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:layout_margin="2dp"
+                    android:layout_below="@id/player_field_upload"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/colorPrimary"
+                    android:hapticFeedbackEnabled="true"
+                    android:onClick="revertPlayerInfo"
+                    android:src="@android:drawable/ic_menu_revert" />
+
+                <ImageButton
+                    android:id="@+id/player_delete_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8dp"
+                    android:layout_margin="2dp"
+                    android:layout_below="@id/player_field_reload"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/colorPrimary"
+                    android:hapticFeedbackEnabled="true"
+                    android:onClick="requestDeletePlayer"
+                    android:src="@android:drawable/ic_menu_delete" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/player_create_new_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create new character"
+            android:onClick="createNewCharacter"/>
+
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

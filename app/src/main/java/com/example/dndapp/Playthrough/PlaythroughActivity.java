@@ -1,5 +1,7 @@
 package com.example.dndapp.Playthrough;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,11 +10,11 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
 import android.util.Log;
-import android.view.HapticFeedbackConstants;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.Player.PlayerInfoActivity;
 import com.example.dndapp.Playthrough.Adapters.PlayerListAdapter;
+import com.example.dndapp.Playthrough.Fragments.ShowQRFragment;
 import com.example.dndapp.R;
 import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._data.PlayerCharacterList;
@@ -28,7 +31,6 @@ import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +40,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlaythroughActivity extends AppCompatActivity {
@@ -52,6 +53,7 @@ public class PlaythroughActivity extends AppCompatActivity {
     private String userName;
     private int playthroughId;
     private View button;
+    private String playthroughCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class PlaythroughActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         userName = preferences.getString("name", null);
         playthroughId = preferences.getInt("playthrough_id", -1);
+        playthroughCode = preferences.getString("playthrough_code", null);
 
         playerList = findViewById(R.id.playerList);
 
@@ -92,7 +95,7 @@ public class PlaythroughActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_playthrough, menu);
         return true;
     }
 
@@ -112,9 +115,23 @@ public class PlaythroughActivity extends AppCompatActivity {
             Intent intent = new Intent(PlaythroughActivity.this, PlayerInfoActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_show_qr) {
+            openFragment(ShowQRFragment.newInstance(playthroughCode));
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openFragment(ShowQRFragment fragment) {
+        fragment.setEnterTransition(new Slide(Gravity.TOP));
+        fragment.setExitTransition(new Slide(Gravity.BOTTOM));
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+
+        ft.replace(R.id.playthrough_content_layout, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     private void getPlayers() {
