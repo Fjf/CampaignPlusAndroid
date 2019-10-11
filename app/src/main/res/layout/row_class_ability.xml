@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/class_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+
+        android:textSize="8pt"
+        android:textStyle="bold"
+        android:text="Barbarian"
+        />
+
+    <TextView
+        android:id="@+id/subclass_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_toEndOf="@id/class_name"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+
+        android:gravity="end"
+        android:textSize="6pt"
+        android:textStyle="bold|italic"
+        android:text="Path of the Totem Warrior"
+        />
+
+    <TextView
+        android:id="@+id/class_ability"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@id/class_name"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+
+        android:gravity="center_horizontal"
+        android:textSize="7pt"
+        android:text="This ability helps you doing this stuff."
+        />
+
+</RelativeLayout>

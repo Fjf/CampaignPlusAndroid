@@ -3,7 +3,7 @@ package com.example.dndapp.Playthrough.Listeners;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.example.dndapp.Player.FunctionCall;
+import com.example.dndapp._utils.FunctionCall;
 
 public class SwipeDismissListener implements View.OnTouchListener {
     private final FunctionCall f;

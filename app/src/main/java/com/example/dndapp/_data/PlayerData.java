@@ -1,11 +1,24 @@
 package com.example.dndapp._data;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
+import com.example.dndapp._data.classinfo.ClassAbility;
+import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._data.classinfo.MainClassInfo;
+import com.example.dndapp._data.classinfo.SubClassInfo;
+import com.example.dndapp._utils.HttpUtils;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.msebera.android.httpclient.entity.StringEntity;
+import java.util.ArrayList;
+import java.util.Locale;
+
+import cz.msebera.android.httpclient.Header;
 
 public class PlayerData {
     private int id;
@@ -16,6 +29,9 @@ public class PlayerData {
     private String race;
 
     private String backstory = "";
+
+    private MainClassInfo[] mainClassInfos = null;
+    private SubClassInfo[] subClassInfos = null;
 
     public int getId() {
         return id;
@@ -43,6 +59,24 @@ public class PlayerData {
 
     public void setBackstory(String backstory) {
         this.backstory = backstory;
+    }
+
+    public MainClassInfo[] getMainClassInfos() {
+        return mainClassInfos;
+    }
+
+    public ArrayList<ClassAbility> getAllAbilities() {
+        ArrayList<ClassAbility> arrayList = new ArrayList<>();
+
+        for (MainClassInfo mainClassInfo : mainClassInfos) {
+            arrayList.addAll(mainClassInfo.getAbilities());
+        }
+
+        return arrayList;
+    }
+
+    public SubClassInfo[] getSubClassInfos() {
+        return subClassInfos;
     }
 
     public PlayerData(@NonNull int id, String name, String className, String race) {
@@ -75,6 +109,63 @@ public class PlayerData {
         obj.put("backstory", this.getBackstory());
 
         return obj;
+    }
+
+    private void setMainClassInfos(JSONObject response) throws JSONException {
+        JSONArray jsonArray = response.getJSONArray("classes");
+        mainClassInfos = new MainClassInfo[jsonArray.length()];
+        for (int i = 0; i < jsonArray.length(); i++) {
+            mainClassInfos[i] = new MainClassInfo(jsonArray.getJSONObject(i));
+        }
+    }
+
+    public void updateMainClassInfos(final Context context, final FunctionCall call) {
+        String url = String.format(Locale.ENGLISH, "player/%d/classes", this.getId());
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    setMainClassInfos(response);
+                    call.run();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Toast.makeText(context, "Something went wrong retrieving class information from the server.", Toast.LENGTH_SHORT).show();
+                super.onFailure(statusCode, headers, responseString, throwable);
+            }
+        });
+    }
+
+    private void setSubClassInfos(JSONObject response) throws JSONException {
+        JSONArray jsonArray = response.getJSONArray("class");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            subClassInfos[i] = new SubClassInfo(jsonArray.getJSONObject(i));
+        }
+    }
+
+    public void updateSubClassInfos(final Context context, final FunctionCall call) {
+        String url = String.format(Locale.ENGLISH, "/player/%d/subclasses", this.getId());
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    setSubClassInfos(response);
+                    call.run();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Toast.makeText(context, "Something went wrong retrieving class information from the server.", Toast.LENGTH_SHORT).show();
+                super.onFailure(statusCode, headers, responseString, throwable);
+            }
+        });
     }
 
     @NonNull

@@ -24,4 +24,10 @@
         android:title="Log Out"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_show_abilities"
+        android:orderInCategory="400"
+        android:title="Show Abilities"
+        app:showAsAction="never" />
+
 </menu>

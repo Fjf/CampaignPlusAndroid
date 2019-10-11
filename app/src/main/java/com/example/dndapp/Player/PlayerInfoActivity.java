@@ -33,6 +33,7 @@ import com.example.dndapp.Player.Adapters.DrawerListAdapter;
 import com.example.dndapp.Player.Adapters.DrawerPCListAdapter;
 import com.example.dndapp.Player.Adapters.ItemListAdapter;
 import com.example.dndapp.Player.Adapters.SpellListAdapter;
+import com.example.dndapp.Player.Fragments.ClassInformationFragment;
 import com.example.dndapp.Player.Fragments.PlayerItemFragment;
 import com.example.dndapp.Player.Fragments.PlayerSpellFragment;
 import com.example.dndapp.Player.Fragments.StatsFragment;
@@ -46,6 +47,7 @@ import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerProficiencyData;
 import com.example.dndapp._data.SpellData;
 import com.example.dndapp._data.StatsData;
+import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -286,6 +288,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
             drawerLayout.openDrawer(leftDrawerWrapper);
         } else if (id == R.id.action_delete_player) {
             deletePlayer();
+        } else if (id == R.id.action_show_abilities) {
+            Fragment fragment = ClassInformationFragment.newInstance(0);
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+
+            ft.replace(R.id.player_info_drawer_layout, fragment);
+            ft.addToBackStack(null);
+            ft.commit();
         }
 
 

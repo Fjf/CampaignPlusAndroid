@@ -1,10 +1,6 @@
 package com.example.dndapp._data;
 
-import android.arch.core.util.Function;
-import android.widget.Toast;
-
-import com.example.dndapp.Player.FunctionCall;
-import com.example.dndapp.Playthrough.PlaythroughActivity;
+import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 

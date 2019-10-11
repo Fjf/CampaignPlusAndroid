@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.dndapp.Player.FunctionCall;
+import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp.Playthrough.Listeners.SwipeDismissListener;
 import com.example.dndapp.R;
 import com.squareup.picasso.Callback;
