@@ -231,10 +231,34 @@ public class StatsFragment extends android.app.Fragment {
             public void onClick(View view) {
                 // Remove current fragment
                 savePlayerData();
+                savePlayerProficiencies();
+
                 getActivity().getFragmentManager().popBackStackImmediate();
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
+    }
+
+    private void savePlayerProficiencies() {
+        try {
+            JSONObject obj = getPlayerProficiencies();
+            String url = String.format("player/%s/proficiencies", playerId);
+            StringEntity entity = new StringEntity(obj.toString());
+            // Upload changed data to the server.
+            HttpUtils.put(url, entity, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    Toast.makeText(view.getContext(), "Successfully uploaded player proficiencies.", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    Toast.makeText(view.getContext(), "Something went wrong uploading player proficiencies.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (UnsupportedEncodingException | JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -327,12 +351,12 @@ public class StatsFragment extends android.app.Fragment {
     }
 
     public void getPlayerSavingThrows() {
-        playerStatsData.setSaveCharisma(((CheckBox) view.findViewById(R.id.saving_throws_cha)).isChecked());
-        playerStatsData.setSaveDexterity(((CheckBox) view.findViewById(R.id.saving_throws_dex)).isChecked());
-        playerStatsData.setSaveConstitution(((CheckBox) view.findViewById(R.id.saving_throws_con)).isChecked());
-        playerStatsData.setSaveStrength(((CheckBox) view.findViewById(R.id.saving_throws_str)).isChecked());
-        playerStatsData.setSaveWisdom(((CheckBox) view.findViewById(R.id.saving_throws_wis)).isChecked());
-        playerStatsData.setSaveIntelligence(((CheckBox) view.findViewById(R.id.saving_throws_int)).isChecked());
+        playerStatsData.chaSave = (((CheckBox) view.findViewById(R.id.saving_throws_cha)).isChecked());
+        playerStatsData.dexSave = (((CheckBox) view.findViewById(R.id.saving_throws_dex)).isChecked());
+        playerStatsData.conSave = (((CheckBox) view.findViewById(R.id.saving_throws_con)).isChecked());
+        playerStatsData.strSave = (((CheckBox) view.findViewById(R.id.saving_throws_str)).isChecked());
+        playerStatsData.wisSave = (((CheckBox) view.findViewById(R.id.saving_throws_wis)).isChecked());
+        playerStatsData.intSave = (((CheckBox) view.findViewById(R.id.saving_throws_int)).isChecked());
     }
 
     public JSONObject getPlayerProficiencies() throws JSONException {
@@ -382,12 +406,12 @@ public class StatsFragment extends android.app.Fragment {
         ((CheckBox) view.findViewById(R.id.proficiency_sur)).setChecked(playerProficiencyData.isSurvival());
 
 
-        ((CheckBox) view.findViewById(R.id.saving_throws_cha)).setChecked(playerStatsData.isSaveCharisma());
-        ((CheckBox) view.findViewById(R.id.saving_throws_dex)).setChecked(playerStatsData.isSaveDexterity());
-        ((CheckBox) view.findViewById(R.id.saving_throws_str)).setChecked(playerStatsData.isSaveStrength());
-        ((CheckBox) view.findViewById(R.id.saving_throws_con)).setChecked(playerStatsData.isSaveConstitution());
-        ((CheckBox) view.findViewById(R.id.saving_throws_int)).setChecked(playerStatsData.isSaveIntelligence());
-        ((CheckBox) view.findViewById(R.id.saving_throws_wis)).setChecked(playerStatsData.isSaveWisdom());
+        ((CheckBox) view.findViewById(R.id.saving_throws_cha)).setChecked(playerStatsData.chaSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_dex)).setChecked(playerStatsData.dexSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_str)).setChecked(playerStatsData.strSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_con)).setChecked(playerStatsData.conSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_int)).setChecked(playerStatsData.intSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_wis)).setChecked(playerStatsData.wisSave);
     }
 
     public void setPlayerProficiencyBonus() {

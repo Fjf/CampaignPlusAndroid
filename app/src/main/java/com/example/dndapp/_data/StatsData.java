@@ -16,7 +16,6 @@ public class StatsData {
     }
 
 
-
     public void setStrength(int strength) {
         this.strength = fixStatInputRange(strength);
     }
@@ -48,61 +47,12 @@ public class StatsData {
     private int intelligence;
     private int charisma;
 
-    private boolean saveDexterity;
-    private boolean saveConstitution;
-    private boolean saveWisdom;
-    private boolean saveStrength;
-    private boolean saveIntelligence;
-    private boolean saveCharisma;
-
-    public void setSaveDexterity(boolean saveDexterity) {
-        this.saveDexterity = saveDexterity;
-    }
-
-    public void setSaveConstitution(boolean saveConstitution) {
-        this.saveConstitution = saveConstitution;
-    }
-
-    public void setSaveWisdom(boolean saveWisdom) {
-        this.saveWisdom = saveWisdom;
-    }
-
-    public void setSaveStrength(boolean saveStrength) {
-        this.saveStrength = saveStrength;
-    }
-
-    public void setSaveIntelligence(boolean saveIntelligence) {
-        this.saveIntelligence = saveIntelligence;
-    }
-
-    public void setSaveCharisma(boolean saveCharisma) {
-        this.saveCharisma = saveCharisma;
-    }
-
-    public boolean isSaveDexterity() {
-        return saveDexterity;
-    }
-
-    public boolean isSaveConstitution() {
-        return saveConstitution;
-    }
-
-    public boolean isSaveWisdom() {
-        return saveWisdom;
-    }
-
-    public boolean isSaveStrength() {
-        return saveStrength;
-    }
-
-    public boolean isSaveIntelligence() {
-        return saveIntelligence;
-    }
-
-    public boolean isSaveCharisma() {
-        return saveCharisma;
-    }
-
+    public boolean dexSave;
+    public boolean conSave;
+    public boolean wisSave;
+    public boolean strSave;
+    public boolean intSave;
+    public boolean chaSave;
 
     public void setSpeed(int speed) {
         this.speed = speed;
@@ -176,12 +126,12 @@ public class StatsData {
         this.intelligence = obj.getInt("intelligence");
         this.charisma = obj.getInt("charisma");
 
-        this.saveDexterity = obj.getBoolean("saving_throws_dex");
-        this.saveConstitution = obj.getBoolean("saving_throws_con");
-        this.saveWisdom = obj.getBoolean("saving_throws_wis");
-        this.saveStrength = obj.getBoolean("saving_throws_str");
-        this.saveIntelligence = obj.getBoolean("saving_throws_int");
-        this.saveCharisma = obj.getBoolean("saving_throws_cha");
+        this.dexSave = obj.getBoolean("saving_throws_dex");
+        this.conSave = obj.getBoolean("saving_throws_con");
+        this.wisSave = obj.getBoolean("saving_throws_wis");
+        this.strSave = obj.getBoolean("saving_throws_str");
+        this.intSave = obj.getBoolean("saving_throws_int");
+        this.chaSave = obj.getBoolean("saving_throws_cha");
 
         this.speed = obj.getInt("speed");
         this.armorClass = obj.getInt("armor_class");
@@ -244,29 +194,32 @@ public class StatsData {
     }
 
     public String getSavingThrowsCha() {
-        int val = (saveCharisma ? getProficiencyModifier() : 0) + getIntModifier(charisma);
+        int val = (chaSave ? getProficiencyModifier() : 0) + getIntModifier(charisma);
         return formatBonus(val);
     }
 
     public String getSavingThrowsInt() {
-        int val = (saveIntelligence ? getProficiencyModifier() : 0) + getIntModifier(intelligence);
+        int val = (intSave ? getProficiencyModifier() : 0) + getIntModifier(intelligence);
         return formatBonus(val);
     }
 
     public String getSavingThrowsDex() {
-        int val = (saveDexterity ? getProficiencyModifier() : 0) + getIntModifier(dexterity);
+        int val = (dexSave ? getProficiencyModifier() : 0) + getIntModifier(dexterity);
         return formatBonus(val);
     }
+
     public String getSavingThrowsStr() {
-        int val = (saveStrength ? getProficiencyModifier() : 0) + getIntModifier(strength);
+        int val = (strSave ? getProficiencyModifier() : 0) + getIntModifier(strength);
         return formatBonus(val);
     }
+
     public String getSavingThrowsCon() {
-        int val = (saveConstitution ? getProficiencyModifier() : 0) + getIntModifier(constitution);
+        int val = (conSave ? getProficiencyModifier() : 0) + getIntModifier(constitution);
         return formatBonus(val);
     }
+
     public String getSavingThrowsWis() {
-        int val = (saveWisdom ? getProficiencyModifier() : 0) + getIntModifier(wisdom);
+        int val = (wisSave ? getProficiencyModifier() : 0) + getIntModifier(wisdom);
         return formatBonus(val);
     }
 }
