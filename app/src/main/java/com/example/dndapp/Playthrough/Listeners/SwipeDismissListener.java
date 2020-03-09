@@ -27,7 +27,7 @@ public class SwipeDismissListener implements View.OnTouchListener {
             if (Math.abs(x1 - x2) < 100 &&
                     y1 - y2 > 100) {
                 // Do callback
-                f.run();
+                f.success();
             }
         }
 

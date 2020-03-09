@@ -38,6 +38,7 @@ public class ClassAbilityAdapter extends ArrayAdapter {
 
         TextView className = rowView.findViewById(R.id.class_name);
         TextView subclassName  = rowView.findViewById(R.id.subclass_name);
+        TextView abilityName = rowView.findViewById(R.id.class_ability_name);
         TextView abilityInfo = rowView.findViewById(R.id.class_ability);
 
         ClassAbility data = (ClassAbility) getItem(position);
@@ -46,12 +47,12 @@ public class ClassAbilityAdapter extends ArrayAdapter {
         if (data.getMainClass() != null) {
             className.setText(data.getMainClass().getName());
             subclassName.setText(""); // A main class has no subclass text.
-            abilityInfo.setText(data.getInfo());
         } else {
             className.setText(data.getSubClass().getName());
-            subclassName.setText(data.getSubClass().getMainClassName()); // A main class has no subclass text.
-            abilityInfo.setText(data.getInfo());
+            subclassName.setText(data.getSubClass().getMainClassName());
         }
+        abilityName.setText(data.getName());
+        abilityInfo.setText(data.getInfo());
 
         return rowView;
     }

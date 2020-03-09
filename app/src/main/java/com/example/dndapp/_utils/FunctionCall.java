@@ -1,5 +1,8 @@
 package com.example.dndapp._utils;
 
 public interface FunctionCall {
-    void run();
+    void success();
+
+    void error(String errorMessage);
 }
+

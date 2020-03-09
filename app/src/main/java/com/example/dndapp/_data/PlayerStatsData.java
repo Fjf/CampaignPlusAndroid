@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
-public class StatsData {
+public class PlayerStatsData {
     private int speed;
     private int armorClass;
     private int maxHP;
@@ -118,7 +118,7 @@ public class StatsData {
         return getModifier(wisdom);
     }
 
-    public StatsData(JSONObject obj) throws JSONException {
+    public PlayerStatsData(JSONObject obj) throws JSONException {
         this.dexterity = obj.getInt("dexterity");
         this.constitution = obj.getInt("constitution");
         this.wisdom = obj.getInt("wisdom");

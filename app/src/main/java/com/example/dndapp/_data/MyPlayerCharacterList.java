@@ -42,8 +42,16 @@ public class MyPlayerCharacterList {
                 }
 
                 if (fn != null)
-                    fn.run();
+                    fn.success();
             }
         });
+    }
+
+    public static PlayerData getPlayer(int playerId) {
+        for (PlayerData pd : playerData) {
+            if (pd.getId() == playerId)
+                return pd;
+        }
+        return null;
     }
 }

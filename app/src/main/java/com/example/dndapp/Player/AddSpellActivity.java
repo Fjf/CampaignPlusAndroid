@@ -35,7 +35,7 @@ public class AddSpellActivity extends AppCompatActivity {
     private ArrayList<SpellData> spellDataArray;
     private SpellInstantAutoCompleteAdapter arrayAdapter;
     private int playthroughId;
-    private String playerId;
+    private int playerId;
 
     private AutoCompleteTextView spellInput;
 
@@ -47,7 +47,7 @@ public class AddSpellActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        playerId = preferences.getString("player_id", "-1");
+        playerId = preferences.getInt("player_id", -1);
         playthroughId = preferences.getInt("playthrough_id", -1);
 
         spellInput = findViewById(R.id.autocomplete_spells);

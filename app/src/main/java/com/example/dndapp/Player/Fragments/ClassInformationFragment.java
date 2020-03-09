@@ -7,12 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.dndapp.Player.Adapters.ClassAbilityAdapter;
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp.R;
 import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._data.PlayerData;
+
+import static com.example.dndapp.Player.PlayerInfoActivity.selectedPlayer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,9 +25,7 @@ import com.example.dndapp._data.PlayerData;
 public class ClassInformationFragment extends Fragment {
     private static final String ARG_PLAYER_IDX = "playerIdx";
 
-    private int playerIdx;
     private View view;
-    private PlayerData playerData;
 
     public ClassInformationFragment() {
         // Required empty public constructor
@@ -49,9 +50,6 @@ public class ClassInformationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            playerIdx = getArguments().getInt(ARG_PLAYER_IDX);
-        }
     }
 
     @Override
@@ -65,11 +63,16 @@ public class ClassInformationFragment extends Fragment {
         Toolbar tb = view.findViewById(R.id.toolbar);
         tb.setTitle("Class Abilities");
 
-        playerData = MyPlayerCharacterList.playerData.get(playerIdx);
+        final PlayerData playerData = selectedPlayer;
         playerData.updateMainClassInfos(this.getContext(), new FunctionCall() {
             @Override
-            public void run() {
+            public void success() {
                 lv.setAdapter(new ClassAbilityAdapter(getActivity(), playerData.getAllAbilities()));
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                // TODO: Maybe something here I currently dont care.
             }
         });
 

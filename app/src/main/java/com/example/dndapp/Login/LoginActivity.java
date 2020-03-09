@@ -18,8 +18,12 @@ import com.example.dndapp.Playthrough.PlaythroughOverviewActivity;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp.R;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
+
 import org.json.*;
+
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
@@ -36,10 +40,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        name = (TextInputEditText) findViewById(R.id.usernameField);
-        password = (TextInputEditText) findViewById(R.id.passwordField);
-        info = (TextView) findViewById(R.id.attemptsField);
-        login = (Button) findViewById(R.id.loginButton);
+        name = findViewById(R.id.usernameField);
+        password = findViewById(R.id.passwordField);
+        info = findViewById(R.id.attemptsField);
+        login = findViewById(R.id.loginButton);
 
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
         info.setTypeface(font);
@@ -62,9 +66,25 @@ public class LoginActivity extends AppCompatActivity {
                 return handled;
             }
         });
+
+        tryAutomaticLogin();
     }
 
+    private void tryAutomaticLogin() {
+        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+        String username = preferences.getString("username", null);
+        String password = preferences.getString("password", null);
 
+        if (username == null || password == null)
+            return;
+
+        try {
+            validate(username, password);
+        } catch (JSONException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            // We don't really care about the result of this, as it's just to try automatic login.
+        }
+    }
 
     public void validateRegisterTransition(View view) {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -76,9 +96,9 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void validateLoginButton(View view){
+    public void validateLoginButton(View view) {
         try {
-            validate(name.getText().toString(), password.getText().toString());
+            validate(Objects.requireNonNull(name.getText()).toString(), Objects.requireNonNull(password.getText()).toString());
         } catch (JSONException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -89,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void validate(final String userName, String userPassword) throws JSONException, UnsupportedEncodingException {
+    private void validate(final String userName, final String userPassword) throws JSONException, UnsupportedEncodingException {
         // Disable button
         login.setEnabled(false);
 
@@ -111,9 +131,11 @@ public class LoginActivity extends AppCompatActivity {
                         edit.putString("name", userName);
                         edit.apply();
 
-                        // Store username in sharedpreferences for next login.
-                        edit = sharedPreferences.edit();
-                        edit.putString("user_name", userName);
+                        // Store username/pw in SharedPreferences for next login to be automatic.
+                        preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+                        edit = preferences.edit();
+                        edit.putString("username", userName);
+                        edit.putString("password", userPassword);
                         edit.apply();
 
                         Intent intent = new Intent(LoginActivity.this, PlaythroughOverviewActivity.class);

@@ -44,7 +44,7 @@ public class PlayerListAdapter extends ArrayAdapter {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, PlayerInfoActivity.class);
-                    intent.putExtra("player_id", String.valueOf(pae.getId()));
+                    intent.putExtra("player_id", pae.getId());
                     context.startActivity(intent);
                 }
             });

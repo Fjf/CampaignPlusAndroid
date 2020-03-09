@@ -66,8 +66,13 @@ public class ShowQRFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_show_qr, container, false);
         view.setOnTouchListener(new SwipeDismissListener(new FunctionCall() {
             @Override
-            public void run() {
+            public void success() {
                 getActivity().getFragmentManager().popBackStackImmediate();
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                // TODO: maybe user feedback idk now.
             }
         }));
         return view;

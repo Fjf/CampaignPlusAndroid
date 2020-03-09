@@ -1,9 +1,9 @@
 package com.example.dndapp._data;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static com.example.dndapp.Player.PlayerInfoActivity.playerStatsData;
 
 public class PlayerProficiencyData {
     private boolean arcana;
@@ -24,6 +24,7 @@ public class PlayerProficiencyData {
     private boolean survival;
     private boolean acrobatics;
     private boolean animalHandling;
+    private PlayerStatsData playerStatsData;
 
     public boolean isArcana() {
         return arcana;
@@ -99,6 +100,10 @@ public class PlayerProficiencyData {
 
     public PlayerProficiencyData(JSONObject obj) throws JSONException {
         this.setData(obj);
+    }
+
+    public void setSelectedPlayerData(PlayerData psd) {
+        this.playerStatsData = psd.statsData;
     }
 
     public void setData(JSONObject obj) throws JSONException {
@@ -219,7 +224,32 @@ public class PlayerProficiencyData {
         return toBonus(value);
     }
 
-    public String toJSON() {
-        return "";
+    public JSONObject toJSON() throws JSONException {
+        JSONObject obj = new JSONObject();
+
+        obj.put("athletics", this.athletics);
+
+        obj.put("acrobatics", this.acrobatics);
+        obj.put("sleight_of_hand", this.sleightOfHand);
+        obj.put("stealth", this.stealth);
+
+        obj.put("arcana", this.arcana);
+        obj.put("history", this.history);
+        obj.put("investigation", this.investigation);
+        obj.put("nature", this.nature);
+        obj.put("religion", this.religion);
+
+        obj.put("deception", this.deception);
+        obj.put("intimidation", this.intimidation);
+        obj.put("performance", this.performance);
+        obj.put("persuasion", this.persuasion);
+
+        obj.put("animal_handling", this.animalHandling);
+        obj.put("insight", this.insight);
+        obj.put("medicine", this.medicine);
+        obj.put("perception", this.perception);
+        obj.put("survival", this.survival);
+
+        return obj;
     }
 }

@@ -7,10 +7,10 @@ import android.widget.EditText;
 
 public class TextOnChangeSaveListener implements View.OnKeyListener {
     private final String entry;
-    SharedPreferences.Editor editor;
+    SharedPreferences preferences;
 
-    public TextOnChangeSaveListener(SharedPreferences.Editor editor, String entry) {
-        this.editor = editor;
+    public TextOnChangeSaveListener(SharedPreferences preferences, String entry) {
+        this.preferences = preferences;
         this.entry = entry;
     }
 
@@ -19,8 +19,9 @@ public class TextOnChangeSaveListener implements View.OnKeyListener {
         EditText et = (EditText) v;
         String value = et.getText().toString();
 
-        editor.putString(entry, value);
-        editor.apply();
+        SharedPreferences.Editor edit = preferences.edit();
+        edit.putString(entry, value);
+        edit.apply();
         return false;
     }
 }

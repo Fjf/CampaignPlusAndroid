@@ -35,7 +35,7 @@ public class AddItemActivity extends AppCompatActivity {
 
     private String[] items;
     private int[] ids;
-    private String playerId;
+    private int playerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class AddItemActivity extends AppCompatActivity {
         spinner.setAdapter(spinnerArrayAdapter);
 
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        playerId = preferences.getString("player_id", null);
+        playerId = preferences.getInt("player_id", -1);
 
         try {
             getAllItems(playerId);
@@ -65,7 +65,7 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-    private void getAllItems(String playerId) throws UnsupportedEncodingException, JSONException {
+    private void getAllItems(int playerId) throws UnsupportedEncodingException, JSONException {
         final AddItemActivity self = this;
 
         // Store all parameters in json object.
@@ -129,7 +129,7 @@ public class AddItemActivity extends AppCompatActivity {
         if (!isWeapon) {
             pid = new PlayerItemData(name, info, Integer.parseInt(amount));
         } else {
-            Spinner spinner = ((Spinner) findViewById(R.id.dice_selection));
+            Spinner spinner = findViewById(R.id.dice_selection);
             if (spinner.getSelectedItemPosition() == 0) return; // Not a selection.
             // TODO: Highlight in red all unfilled input fields.
 
@@ -209,7 +209,7 @@ public class AddItemActivity extends AppCompatActivity {
 
     private void addItem(PlayerItemData pid) throws UnsupportedEncodingException, JSONException {
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        String playerId = preferences.getString("player_id", "-1");
+        int playerId = preferences.getInt("player_id", -1);
 
         // Store all parameters in json object.
         JSONObject data = new JSONObject();

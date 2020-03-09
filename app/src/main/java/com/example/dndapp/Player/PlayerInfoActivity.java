@@ -44,23 +44,21 @@ import com.example.dndapp._data.ItemData;
 import com.example.dndapp._data.ItemType;
 import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._data.PlayerData;
-import com.example.dndapp._data.PlayerProficiencyData;
+import com.example.dndapp._data.PlayerStatsData;
 import com.example.dndapp._data.SpellData;
-import com.example.dndapp._data.StatsData;
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp._utils.IgnoreFunctionCall;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlayerInfoActivity extends AppCompatActivity {
     private static final String TAG = "PlayerInfoActivity";
@@ -98,9 +96,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public static int selectedSpellId;
     public static int selectedItemId;
 
-    public static PlayerProficiencyData playerProficiencyData;
-    public static StatsData playerStatsData;
-    public static String playerId;
+    public static PlayerData selectedPlayer;
+    public static int playerId;
 
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
@@ -112,7 +109,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private float x2;
 
     private SharedPreferences preferences;
-    private SharedPreferences.Editor edit;
 
     private DrawerLayout drawerLayout;
     private ListView leftDrawerList;
@@ -149,21 +145,23 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
 //        leftDrawerPCList.setOnItemClickListener(new DrawerItemClickListener());
 
+        /*
+         *  Get player information and try to load the correct player object into local storage.
+         */
         preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        edit = preferences.edit();
-
-        playerId = getIntent().getStringExtra("player_id");
+        playerId = getIntent().getIntExtra("player_id", -1);
+        trySelectingPlayer();
 
         // Update sharedpreferences if new playerID gets passed to this activity.
         updatePlayerInfoViews();
 
         // Set onchange listener for current hp.
         ((EditText) findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
-        findViewById(R.id.statCurrentHP).setOnKeyListener(new TextOnChangeSaveListener(edit, "current_hp"));
+        findViewById(R.id.statCurrentHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "current_hp"));
 
         // Set onchange listener for bonus hp.
         ((EditText) findViewById(R.id.statTemporaryHP)).setText(preferences.getString("temporary_hp", "0"));
-        findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(edit, "temporary_hp"));
+        findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "temporary_hp"));
 
         itemRecyclerView = findViewById(R.id.player_item_list);
 
@@ -220,31 +218,56 @@ public class PlayerInfoActivity extends AppCompatActivity {
         );
     }
 
-
-
-    private void updatePlayerInfoViews() {
-        if (playerId != null) {
-            edit.putString("player_id", playerId);
-            edit.apply();
-
-            // Get all information and items.
-            getPlayerData();
-            getPlayerItems();
-            getPlayerSpells();
-            getRemotePlayerProficiencies();
-            MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
+    private void trySelectingPlayer() {
+        if (playerId != -1) {
+            selectedPlayer = MyPlayerCharacterList.getPlayer(playerId);
+            if (selectedPlayer == null) {
+                Toast.makeText(this, "The selected player does not exist.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            selectedPlayer.updatePlayerData(playerId, new FunctionCall() {
                 @Override
-                public void run() {
-                    leftDrawerPCList.setAdapter(new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, MyPlayerCharacterList.playerData));
-                    justifyListViewHeightBasedOnChildren(leftDrawerPCList);
+                public void success() {
+                    setStatsFields();
+                }
+
+                @Override
+                public void error(String errorMessage) {
+                    Toast.makeText(PlayerInfoActivity.this, "Something went wrong trying to select a player.", Toast.LENGTH_SHORT).show();
                 }
             });
-
-
-        } else {
-            Toast.makeText(this, "No player character selected.", Toast.LENGTH_SHORT).show();
         }
+    }
 
+    private void updatePlayerInfoViews() {
+        // Get all information and items.
+        selectedPlayer.updatePlayerData(playerId, new FunctionCall() {
+            @Override
+            public void success() {
+
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                Toast.makeText(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        getPlayerItems();
+        getPlayerSpells();
+
+        MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
+            @Override
+            public void success() {
+                leftDrawerPCList.setAdapter(new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, MyPlayerCharacterList.playerData));
+                justifyListViewHeightBasedOnChildren(leftDrawerPCList);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                Toast.makeText(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private ArrayList<DrawerListData> createDrawerListData(String[] leftDrawerItemTitles, TypedArray leftDrawerItemIcons) {
@@ -309,7 +332,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             getPlayerItems();
         } else if (requestCode == UPDATE_STATS) {
             // After updating your stats, update player stats.
-            getPlayerData();
+            selectedPlayer.updatePlayerData(playerId, new IgnoreFunctionCall());
         } else if (requestCode == UPDATE_SPELL) {
             // After creating a spell, update spells list.
             getPlayerSpells();
@@ -372,7 +395,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     return;
                 }
 
-                playerId = String.valueOf(pd.getId());
+                playerId = pd.getId();
                 updatePlayerInfoViews();
             }
 
@@ -389,29 +412,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         // Fallback.
         return ItemType.ITEM;
-    }
-
-    private void getPlayerData() {
-        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
-
-                try {
-                    playerStatsData = new StatsData(response.getJSONObject("info"));
-
-                    setStatsFields();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
-            }
-        });
     }
 
     private void registerStatViews() {
@@ -435,7 +435,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     public static void setStatsFields() {
-        StatsData sd = playerStatsData;
+        PlayerStatsData sd = selectedPlayer.statsData;
         TextView tv;
 
         // Base stats.
@@ -596,61 +596,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
-
-    public void getRemotePlayerProficiencies() {
-        String url = String.format(Locale.ENGLISH, "player/%s/proficiencies", playerId);
-
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Toast.makeText(PlayerInfoActivity.this, response.getString("error"), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    playerProficiencyData = new PlayerProficiencyData(response.getJSONObject("proficiencies"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
-            }
-        });
-    }
-
-    public void updatePlayerProficiencies(View view) throws UnsupportedEncodingException {
-        findViewById(R.id.loading_bar).setVisibility(View.VISIBLE);
-
-        StringEntity entity = new StringEntity(playerProficiencyData.toJSON());
-        String url = String.format(Locale.ENGLISH, "player/%s/proficiencies", playerId);
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
-            @Override
-            public void onFinish() {
-                findViewById(R.id.loading_bar).setVisibility(View.GONE);
-                super.onFinish();
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success"))
-                        Toast.makeText(PlayerInfoActivity.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d(TAG, errorResponse.toString());
-            }
-        });
-    }
-
     private void closeMenus() {
         findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.GONE);
         findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.GONE);
@@ -708,7 +653,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private class DrawerPCItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            playerId = String.valueOf(MyPlayerCharacterList.playerData.get(position).getId());
+            playerId = MyPlayerCharacterList.playerData.get(position).getId();
             drawerLayout.closeDrawer(leftDrawerWrapper);
             updatePlayerInfoViews();
         }

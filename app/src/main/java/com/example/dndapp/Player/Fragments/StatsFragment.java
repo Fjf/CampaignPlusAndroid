@@ -32,8 +32,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.dndapp.Player.PlayerInfoActivity.playerId;
-import static com.example.dndapp.Player.PlayerInfoActivity.playerProficiencyData;
-import static com.example.dndapp.Player.PlayerInfoActivity.playerStatsData;
+import static com.example.dndapp.Player.PlayerInfoActivity.selectedPlayer;
 
 public class StatsFragment extends android.app.Fragment {
     private String[] arr;
@@ -84,16 +83,16 @@ public class StatsFragment extends android.app.Fragment {
         String in = ((TextView)view.findViewById(R.id.totInt)).getText().toString();
         String ch = ((TextView)view.findViewById(R.id.totCha)).getText().toString();
 
-        playerStatsData.setStrength(Integer.valueOf(st));
-        playerStatsData.setDexterity(Integer.valueOf(de));
-        playerStatsData.setConstitution(Integer.valueOf(co));
-        playerStatsData.setWisdom(Integer.valueOf(wi));
-        playerStatsData.setIntelligence(Integer.valueOf(in));
-        playerStatsData.setCharisma(Integer.valueOf(ch));
+        selectedPlayer.statsData.setStrength(Integer.valueOf(st));
+        selectedPlayer.statsData.setDexterity(Integer.valueOf(de));
+        selectedPlayer.statsData.setConstitution(Integer.valueOf(co));
+        selectedPlayer.statsData.setWisdom(Integer.valueOf(wi));
+        selectedPlayer.statsData.setIntelligence(Integer.valueOf(in));
+        selectedPlayer.statsData.setCharisma(Integer.valueOf(ch));
 
         try {
             String url = String.format("player/%s/data", playerId);
-            StringEntity entity = new StringEntity(playerStatsData.toJSON().toString());
+            StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
             // Upload changed data to the server.
             HttpUtils.put(url, entity, new AsyncHttpResponseHandler() {
                 @Override
@@ -231,34 +230,11 @@ public class StatsFragment extends android.app.Fragment {
             public void onClick(View view) {
                 // Remove current fragment
                 savePlayerData();
-                savePlayerProficiencies();
 
                 getActivity().getFragmentManager().popBackStackImmediate();
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
-    }
-
-    private void savePlayerProficiencies() {
-        try {
-            JSONObject obj = getPlayerProficiencies();
-            String url = String.format("player/%s/proficiencies", playerId);
-            StringEntity entity = new StringEntity(obj.toString());
-            // Upload changed data to the server.
-            HttpUtils.put(url, entity, new AsyncHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    Toast.makeText(view.getContext(), "Successfully uploaded player proficiencies.", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    Toast.makeText(view.getContext(), "Something went wrong uploading player proficiencies.", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -267,10 +243,10 @@ public class StatsFragment extends android.app.Fragment {
     }
 
     private void setDefaultValues() {
-        ((EditText) view.findViewById(R.id.level_input)).setText(playerStatsData.getLevel());
-        ((EditText) view.findViewById(R.id.hp_input)).setText(playerStatsData.getMaxHP());
-        ((EditText) view.findViewById(R.id.armor_input)).setText(playerStatsData.getArmorClass());
-        ((EditText) view.findViewById(R.id.speed_input)).setText(playerStatsData.getSpeed());
+        ((EditText) view.findViewById(R.id.level_input)).setText(selectedPlayer.statsData.getLevel());
+        ((EditText) view.findViewById(R.id.hp_input)).setText(selectedPlayer.statsData.getMaxHP());
+        ((EditText) view.findViewById(R.id.armor_input)).setText(selectedPlayer.statsData.getArmorClass());
+        ((EditText) view.findViewById(R.id.speed_input)).setText(selectedPlayer.statsData.getSpeed());
     }
 
 
@@ -283,7 +259,7 @@ public class StatsFragment extends android.app.Fragment {
                 EditText et = (EditText) v;
                 String text = et.getText().toString();
                 if (text.length() > 0) {
-                    playerStatsData.setLevel(Integer.valueOf(text));
+                    selectedPlayer.statsData.setLevel(Integer.valueOf(text));
                     setPlayerProficiencyBonus();
                 }
                 return false;
@@ -297,7 +273,7 @@ public class StatsFragment extends android.app.Fragment {
 
                 String text = et.getText().toString();
                 if (text.length() > 0)
-                    playerStatsData.setMaxHP(Integer.valueOf(text));
+                    selectedPlayer.statsData.setMaxHP(Integer.valueOf(text));
                 return false;
             }
         });
@@ -308,7 +284,7 @@ public class StatsFragment extends android.app.Fragment {
                 EditText et = (EditText) v;
                 String text = et.getText().toString();
                 if (text.length() > 0)
-                    playerStatsData.setArmorClass(Integer.valueOf(text));
+                    selectedPlayer.statsData.setArmorClass(Integer.valueOf(text));
                 return false;
             }
         });
@@ -319,7 +295,7 @@ public class StatsFragment extends android.app.Fragment {
                 EditText et = (EditText) v;
                 String text = et.getText().toString();
                 if (text.length() > 0)
-                    playerStatsData.setSpeed(Integer.valueOf(text));
+                    selectedPlayer.statsData.setSpeed(Integer.valueOf(text));
                 return false;
             }
         });
@@ -341,22 +317,22 @@ public class StatsFragment extends android.app.Fragment {
 
     public void getPlayerStats() {
         try {
-            playerStatsData.setDexterity(Integer.valueOf(((EditText) view.findViewById(R.id.totDex)).getText().toString()));
-            playerStatsData.setStrength(Integer.valueOf(((EditText) view.findViewById(R.id.totStr)).getText().toString()));
-            playerStatsData.setConstitution(Integer.valueOf(((EditText) view.findViewById(R.id.totCon)).getText().toString()));
-            playerStatsData.setCharisma(Integer.valueOf(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
-            playerStatsData.setIntelligence(Integer.valueOf(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
-            playerStatsData.setWisdom(Integer.valueOf(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
+            selectedPlayer.statsData.setDexterity(Integer.valueOf(((EditText) view.findViewById(R.id.totDex)).getText().toString()));
+            selectedPlayer.statsData.setStrength(Integer.valueOf(((EditText) view.findViewById(R.id.totStr)).getText().toString()));
+            selectedPlayer.statsData.setConstitution(Integer.valueOf(((EditText) view.findViewById(R.id.totCon)).getText().toString()));
+            selectedPlayer.statsData.setCharisma(Integer.valueOf(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
+            selectedPlayer.statsData.setIntelligence(Integer.valueOf(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
+            selectedPlayer.statsData.setWisdom(Integer.valueOf(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
         } catch (NumberFormatException ignored) { }
     }
 
     public void getPlayerSavingThrows() {
-        playerStatsData.chaSave = (((CheckBox) view.findViewById(R.id.saving_throws_cha)).isChecked());
-        playerStatsData.dexSave = (((CheckBox) view.findViewById(R.id.saving_throws_dex)).isChecked());
-        playerStatsData.conSave = (((CheckBox) view.findViewById(R.id.saving_throws_con)).isChecked());
-        playerStatsData.strSave = (((CheckBox) view.findViewById(R.id.saving_throws_str)).isChecked());
-        playerStatsData.wisSave = (((CheckBox) view.findViewById(R.id.saving_throws_wis)).isChecked());
-        playerStatsData.intSave = (((CheckBox) view.findViewById(R.id.saving_throws_int)).isChecked());
+        selectedPlayer.statsData.chaSave = (((CheckBox) view.findViewById(R.id.saving_throws_cha)).isChecked());
+        selectedPlayer.statsData.dexSave = (((CheckBox) view.findViewById(R.id.saving_throws_dex)).isChecked());
+        selectedPlayer.statsData.conSave = (((CheckBox) view.findViewById(R.id.saving_throws_con)).isChecked());
+        selectedPlayer.statsData.strSave = (((CheckBox) view.findViewById(R.id.saving_throws_str)).isChecked());
+        selectedPlayer.statsData.wisSave = (((CheckBox) view.findViewById(R.id.saving_throws_wis)).isChecked());
+        selectedPlayer.statsData.intSave = (((CheckBox) view.findViewById(R.id.saving_throws_int)).isChecked());
     }
 
     public JSONObject getPlayerProficiencies() throws JSONException {
@@ -381,88 +357,90 @@ public class StatsFragment extends android.app.Fragment {
         obj.put("stealth", ((CheckBox) view.findViewById(R.id.proficiency_ste)).isChecked());
         obj.put("survival", ((CheckBox) view.findViewById(R.id.proficiency_sur)).isChecked());
 
-        playerProficiencyData.setData(obj);
+        selectedPlayer.proficiencies.setData(obj);
         return obj;
     }
 
     public void setPlayerProficiencies() {
-        ((CheckBox) view.findViewById(R.id.proficiency_acr)).setChecked(playerProficiencyData.isAcrobatics());
-        ((CheckBox) view.findViewById(R.id.proficiency_anh)).setChecked(playerProficiencyData.isAnimalHandling());
-        ((CheckBox) view.findViewById(R.id.proficiency_arc)).setChecked(playerProficiencyData.isArcana());
-        ((CheckBox) view.findViewById(R.id.proficiency_ath)).setChecked(playerProficiencyData.isAthletics());
-        ((CheckBox) view.findViewById(R.id.proficiency_dec)).setChecked(playerProficiencyData.isDeception());
-        ((CheckBox) view.findViewById(R.id.proficiency_his)).setChecked(playerProficiencyData.isHistory());
-        ((CheckBox) view.findViewById(R.id.proficiency_ins)).setChecked(playerProficiencyData.isInsight());
-        ((CheckBox) view.findViewById(R.id.proficiency_intimidation)).setChecked(playerProficiencyData.isIntimidation());
-        ((CheckBox) view.findViewById(R.id.proficiency_inv)).setChecked(playerProficiencyData.isInvestigation());
-        ((CheckBox) view.findViewById(R.id.proficiency_med)).setChecked(playerProficiencyData.isMedicine());
-        ((CheckBox) view.findViewById(R.id.proficiency_nat)).setChecked(playerProficiencyData.isNature());
-        ((CheckBox) view.findViewById(R.id.proficiency_perception)).setChecked(playerProficiencyData.isPerception());
-        ((CheckBox) view.findViewById(R.id.proficiency_per)).setChecked(playerProficiencyData.isPerformance());
-        ((CheckBox) view.findViewById(R.id.proficiency_persuasion)).setChecked(playerProficiencyData.isPersuasion());
-        ((CheckBox) view.findViewById(R.id.proficiency_rel)).setChecked(playerProficiencyData.isReligion());
-        ((CheckBox) view.findViewById(R.id.proficiency_soh)).setChecked(playerProficiencyData.isSleightOfHand());
-        ((CheckBox) view.findViewById(R.id.proficiency_ste)).setChecked(playerProficiencyData.isStealth());
-        ((CheckBox) view.findViewById(R.id.proficiency_sur)).setChecked(playerProficiencyData.isSurvival());
+        ((CheckBox) view.findViewById(R.id.proficiency_acr)).setChecked(selectedPlayer.proficiencies.isAcrobatics());
+        ((CheckBox) view.findViewById(R.id.proficiency_anh)).setChecked(selectedPlayer.proficiencies.isAnimalHandling());
+        ((CheckBox) view.findViewById(R.id.proficiency_arc)).setChecked(selectedPlayer.proficiencies.isArcana());
+        ((CheckBox) view.findViewById(R.id.proficiency_ath)).setChecked(selectedPlayer.proficiencies.isAthletics());
+        ((CheckBox) view.findViewById(R.id.proficiency_dec)).setChecked(selectedPlayer.proficiencies.isDeception());
+        ((CheckBox) view.findViewById(R.id.proficiency_his)).setChecked(selectedPlayer.proficiencies.isHistory());
+        ((CheckBox) view.findViewById(R.id.proficiency_ins)).setChecked(selectedPlayer.proficiencies.isInsight());
+        ((CheckBox) view.findViewById(R.id.proficiency_intimidation)).setChecked(selectedPlayer.proficiencies.isIntimidation());
+        ((CheckBox) view.findViewById(R.id.proficiency_inv)).setChecked(selectedPlayer.proficiencies.isInvestigation());
+        ((CheckBox) view.findViewById(R.id.proficiency_med)).setChecked(selectedPlayer.proficiencies.isMedicine());
+        ((CheckBox) view.findViewById(R.id.proficiency_nat)).setChecked(selectedPlayer.proficiencies.isNature());
+        ((CheckBox) view.findViewById(R.id.proficiency_perception)).setChecked(selectedPlayer.proficiencies.isPerception());
+        ((CheckBox) view.findViewById(R.id.proficiency_per)).setChecked(selectedPlayer.proficiencies.isPerformance());
+        ((CheckBox) view.findViewById(R.id.proficiency_persuasion)).setChecked(selectedPlayer.proficiencies.isPersuasion());
+        ((CheckBox) view.findViewById(R.id.proficiency_rel)).setChecked(selectedPlayer.proficiencies.isReligion());
+        ((CheckBox) view.findViewById(R.id.proficiency_soh)).setChecked(selectedPlayer.proficiencies.isSleightOfHand());
+        ((CheckBox) view.findViewById(R.id.proficiency_ste)).setChecked(selectedPlayer.proficiencies.isStealth());
+        ((CheckBox) view.findViewById(R.id.proficiency_sur)).setChecked(selectedPlayer.proficiencies.isSurvival());
 
 
-        ((CheckBox) view.findViewById(R.id.saving_throws_cha)).setChecked(playerStatsData.chaSave);
-        ((CheckBox) view.findViewById(R.id.saving_throws_dex)).setChecked(playerStatsData.dexSave);
-        ((CheckBox) view.findViewById(R.id.saving_throws_str)).setChecked(playerStatsData.strSave);
-        ((CheckBox) view.findViewById(R.id.saving_throws_con)).setChecked(playerStatsData.conSave);
-        ((CheckBox) view.findViewById(R.id.saving_throws_int)).setChecked(playerStatsData.intSave);
-        ((CheckBox) view.findViewById(R.id.saving_throws_wis)).setChecked(playerStatsData.wisSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_cha)).setChecked(selectedPlayer.statsData.chaSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_dex)).setChecked(selectedPlayer.statsData.dexSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_str)).setChecked(selectedPlayer.statsData.strSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_con)).setChecked(selectedPlayer.statsData.conSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_int)).setChecked(selectedPlayer.statsData.intSave);
+        ((CheckBox) view.findViewById(R.id.saving_throws_wis)).setChecked(selectedPlayer.statsData.wisSave);
     }
 
     public void setPlayerProficiencyBonus() {
-        ((TextView) view.findViewById(R.id.proficiency_acr_bon)).setText(playerProficiencyData.getAcrobaticBonus());
-        ((TextView) view.findViewById(R.id.proficiency_anh_bon)).setText(playerProficiencyData.getAnimalHandlingBonus());
-        ((TextView) view.findViewById(R.id.proficiency_arc_bon)).setText(playerProficiencyData.getArcanaBonus());
-        ((TextView) view.findViewById(R.id.proficiency_ath_bon)).setText(playerProficiencyData.getAthleticsBonus());
-        ((TextView) view.findViewById(R.id.proficiency_dec_bon)).setText(playerProficiencyData.getDeceptionBonus());
-        ((TextView) view.findViewById(R.id.proficiency_his_bon)).setText(playerProficiencyData.getHistoryBonus());
-        ((TextView) view.findViewById(R.id.proficiency_ins_bon)).setText(playerProficiencyData.getInsightBonus());
-        ((TextView) view.findViewById(R.id.proficiency_intimidation_bon)).setText(playerProficiencyData.getIntimidationBonus());
-        ((TextView) view.findViewById(R.id.proficiency_inv_bon)).setText(playerProficiencyData.getInvestigationBonus());
-        ((TextView) view.findViewById(R.id.proficiency_med_bon)).setText(playerProficiencyData.getMedicineBonus());
-        ((TextView) view.findViewById(R.id.proficiency_nat_bon)).setText(playerProficiencyData.getNatureBonus());
-        ((TextView) view.findViewById(R.id.proficiency_perception_bon)).setText(playerProficiencyData.getPerceptionBonus());
-        ((TextView) view.findViewById(R.id.proficiency_per_bon)).setText(playerProficiencyData.getPerformanceBonus());
-        ((TextView) view.findViewById(R.id.proficiency_persuasion_bon)).setText(playerProficiencyData.getPersuasionBonus());
-        ((TextView) view.findViewById(R.id.proficiency_rel_bon)).setText(playerProficiencyData.getReligionBonus());
-        ((TextView) view.findViewById(R.id.proficiency_soh_bon)).setText(playerProficiencyData.getSleightOfHandBonus());
-        ((TextView) view.findViewById(R.id.proficiency_ste_bon)).setText(playerProficiencyData.getStealthBonus());
-        ((TextView) view.findViewById(R.id.proficiency_sur_bon)).setText(playerProficiencyData.getSurvivalBonus());
+        selectedPlayer.proficiencies.setSelectedPlayerData(selectedPlayer);
+
+        ((TextView) view.findViewById(R.id.proficiency_acr_bon)).setText(selectedPlayer.proficiencies.getAcrobaticBonus());
+        ((TextView) view.findViewById(R.id.proficiency_anh_bon)).setText(selectedPlayer.proficiencies.getAnimalHandlingBonus());
+        ((TextView) view.findViewById(R.id.proficiency_arc_bon)).setText(selectedPlayer.proficiencies.getArcanaBonus());
+        ((TextView) view.findViewById(R.id.proficiency_ath_bon)).setText(selectedPlayer.proficiencies.getAthleticsBonus());
+        ((TextView) view.findViewById(R.id.proficiency_dec_bon)).setText(selectedPlayer.proficiencies.getDeceptionBonus());
+        ((TextView) view.findViewById(R.id.proficiency_his_bon)).setText(selectedPlayer.proficiencies.getHistoryBonus());
+        ((TextView) view.findViewById(R.id.proficiency_ins_bon)).setText(selectedPlayer.proficiencies.getInsightBonus());
+        ((TextView) view.findViewById(R.id.proficiency_intimidation_bon)).setText(selectedPlayer.proficiencies.getIntimidationBonus());
+        ((TextView) view.findViewById(R.id.proficiency_inv_bon)).setText(selectedPlayer.proficiencies.getInvestigationBonus());
+        ((TextView) view.findViewById(R.id.proficiency_med_bon)).setText(selectedPlayer.proficiencies.getMedicineBonus());
+        ((TextView) view.findViewById(R.id.proficiency_nat_bon)).setText(selectedPlayer.proficiencies.getNatureBonus());
+        ((TextView) view.findViewById(R.id.proficiency_perception_bon)).setText(selectedPlayer.proficiencies.getPerceptionBonus());
+        ((TextView) view.findViewById(R.id.proficiency_per_bon)).setText(selectedPlayer.proficiencies.getPerformanceBonus());
+        ((TextView) view.findViewById(R.id.proficiency_persuasion_bon)).setText(selectedPlayer.proficiencies.getPersuasionBonus());
+        ((TextView) view.findViewById(R.id.proficiency_rel_bon)).setText(selectedPlayer.proficiencies.getReligionBonus());
+        ((TextView) view.findViewById(R.id.proficiency_soh_bon)).setText(selectedPlayer.proficiencies.getSleightOfHandBonus());
+        ((TextView) view.findViewById(R.id.proficiency_ste_bon)).setText(selectedPlayer.proficiencies.getStealthBonus());
+        ((TextView) view.findViewById(R.id.proficiency_sur_bon)).setText(selectedPlayer.proficiencies.getSurvivalBonus());
 
         // Saving throws
-        ((TextView) view.findViewById(R.id.saving_throws_cha_bon)).setText(playerStatsData.getSavingThrowsCha());
-        ((TextView) view.findViewById(R.id.saving_throws_dex_bon)).setText(playerStatsData.getSavingThrowsDex());
-        ((TextView) view.findViewById(R.id.saving_throws_str_bon)).setText(playerStatsData.getSavingThrowsStr());
-        ((TextView) view.findViewById(R.id.saving_throws_con_bon)).setText(playerStatsData.getSavingThrowsCon());
-        ((TextView) view.findViewById(R.id.saving_throws_int_bon)).setText(playerStatsData.getSavingThrowsInt());
-        ((TextView) view.findViewById(R.id.saving_throws_wis_bon)).setText(playerStatsData.getSavingThrowsWis());
+        ((TextView) view.findViewById(R.id.saving_throws_cha_bon)).setText(selectedPlayer.statsData.getSavingThrowsCha());
+        ((TextView) view.findViewById(R.id.saving_throws_dex_bon)).setText(selectedPlayer.statsData.getSavingThrowsDex());
+        ((TextView) view.findViewById(R.id.saving_throws_str_bon)).setText(selectedPlayer.statsData.getSavingThrowsStr());
+        ((TextView) view.findViewById(R.id.saving_throws_con_bon)).setText(selectedPlayer.statsData.getSavingThrowsCon());
+        ((TextView) view.findViewById(R.id.saving_throws_int_bon)).setText(selectedPlayer.statsData.getSavingThrowsInt());
+        ((TextView) view.findViewById(R.id.saving_throws_wis_bon)).setText(selectedPlayer.statsData.getSavingThrowsWis());
     }
 
     private void setStats() {
         EditText et;
 
         et = view.findViewById(R.id.totCha);
-        et.setText(playerStatsData.getCharisma());
+        et.setText(selectedPlayer.statsData.getCharisma());
 
         et = view.findViewById(R.id.totDex);
-        et.setText(playerStatsData.getDexterity());
+        et.setText(selectedPlayer.statsData.getDexterity());
 
         et = view.findViewById(R.id.totStr);
-        et.setText(playerStatsData.getStrength());
+        et.setText(selectedPlayer.statsData.getStrength());
 
         et = view.findViewById(R.id.totInt);
-        et.setText(playerStatsData.getIntelligence());
+        et.setText(selectedPlayer.statsData.getIntelligence());
 
         et = view.findViewById(R.id.totWis);
-        et.setText(playerStatsData.getWisdom());
+        et.setText(selectedPlayer.statsData.getWisdom());
 
         et = view.findViewById(R.id.totCon);
-        et.setText(playerStatsData.getConstitution());
+        et.setText(selectedPlayer.statsData.getConstitution());
 
     }
 

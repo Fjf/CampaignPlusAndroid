@@ -2,6 +2,7 @@ package com.example.dndapp._data;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dndapp._data.classinfo.ClassAbility;
@@ -29,6 +30,9 @@ public class PlayerData {
     private String race;
 
     private String backstory = "";
+
+    public PlayerStatsData statsData = null;
+    public PlayerProficiencyData proficiencies = null;
 
     private MainClassInfo[] mainClassInfos = null;
     private SubClassInfo[] subClassInfos = null;
@@ -91,12 +95,19 @@ public class PlayerData {
         this.name = obj.getString("name");
         this.userName = obj.getString("user_name");
         this.className = obj.getString("class");
-        this.backstory = getIfNotNullString(obj, "backstory");
         this.race = obj.getString("race");
-    }
 
-    private String getIfNotNullString(final JSONObject json, final String key) {
-        return json.isNull(key) ? null : json.optString(key);
+        if (!obj.isNull("backstory")) {
+            this.backstory = obj.getString("backstory");
+        }
+
+        if (!obj.isNull("stats")) {
+            this.statsData = new PlayerStatsData(obj.getJSONObject("stats"));
+        }
+
+        if (!obj.isNull("proficiencies")) {
+            this.proficiencies = new PlayerProficiencyData(obj.getJSONObject("proficiencies"));
+        }
     }
 
     public JSONObject toJSON() throws JSONException {
@@ -107,6 +118,9 @@ public class PlayerData {
         obj.put("id", this.id);
         obj.put("race", this.race);
         obj.put("backstory", this.getBackstory());
+
+        obj.put("stats", this.statsData.toJSON());
+        obj.put("proficiencies", this.proficiencies.toJSON());
 
         return obj;
     }
@@ -126,7 +140,7 @@ public class PlayerData {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     setMainClassInfos(response);
-                    call.run();
+                    call.success();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -134,7 +148,7 @@ public class PlayerData {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(context, "Something went wrong retrieving class information from the server.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Something went wrong retrieving main class information from the server.", Toast.LENGTH_SHORT).show();
                 super.onFailure(statusCode, headers, responseString, throwable);
             }
         });
@@ -154,7 +168,7 @@ public class PlayerData {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     setSubClassInfos(response);
-                    call.run();
+                    call.success();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -162,8 +176,29 @@ public class PlayerData {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(context, "Something went wrong retrieving class information from the server.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Something went wrong retrieving subclass information from the server.", Toast.LENGTH_SHORT).show();
                 super.onFailure(statusCode, headers, responseString, throwable);
+            }
+        });
+    }
+
+    public void updatePlayerData(int playerId, final FunctionCall func) {
+        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    statsData = new PlayerStatsData(response.getJSONObject("info"));
+                    proficiencies = new PlayerProficiencyData(response.getJSONObject("proficiencies"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                func.success();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                func.error(response);
             }
         });
     }
@@ -174,3 +209,6 @@ public class PlayerData {
         return getName() + " / " + getClassName() + " / " + getRace();
     }
 }
+
+
+
