@@ -50,7 +50,6 @@
         android:gravity="center"
         android:text="Sheet"
         android:focusable="false"
-        android:onClick="openPlayerInfoActivity"
         android:textAlignment="gravity"
          />
 

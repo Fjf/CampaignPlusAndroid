@@ -1,6 +1,5 @@
 package com.example.dndapp._data;
 
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;

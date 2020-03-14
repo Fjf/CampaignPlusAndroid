@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/player_info_drawer_layout"
-    tools:context=".Player.PlayerInfoActivity">
+    tools:context=".player.PlayerInfoActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

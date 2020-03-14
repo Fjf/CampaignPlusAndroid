@@ -10,7 +10,7 @@
     android:layout_marginBottom="10dp"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Player.AddItemActivity"
+    tools:context=".player.AddItemActivity"
     tools:showIn="@layout/activity_add_item">
 
     <TextView

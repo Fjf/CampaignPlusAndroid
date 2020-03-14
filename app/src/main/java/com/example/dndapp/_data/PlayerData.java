@@ -1,7 +1,9 @@
 package com.example.dndapp._data;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +19,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
@@ -34,7 +38,7 @@ public class PlayerData {
     public PlayerStatsData statsData = null;
     public PlayerProficiencyData proficiencies = null;
 
-    private MainClassInfo[] mainClassInfos = null;
+    private List<MainClassInfo> mainClassInfos = new ArrayList<>();
     private SubClassInfo[] subClassInfos = null;
 
     public int getId() {
@@ -65,7 +69,7 @@ public class PlayerData {
         this.backstory = backstory;
     }
 
-    public MainClassInfo[] getMainClassInfos() {
+    public List<MainClassInfo> getMainClassInfos() {
         return mainClassInfos;
     }
 
@@ -79,14 +83,26 @@ public class PlayerData {
         return arrayList;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public ArrayList<ClassAbility> getSortedAbilities() {
+        ArrayList<ClassAbility> abilities = getAllAbilities();
+
+        abilities.sort(new Comparator<ClassAbility>() {
+            @Override
+            public int compare(ClassAbility classAbility, ClassAbility t1) {
+                return classAbility.getLevel() - t1.getLevel();
+            }
+        });
+        return abilities;
+    }
+
     public SubClassInfo[] getSubClassInfos() {
         return subClassInfos;
     }
 
-    public PlayerData(@NonNull int id, String name, String className, String race) {
+    public PlayerData(@NonNull int id, String name, String race) {
         this.id = id;
         this.name = name;
-        this.className = className;
         this.race = race;
     }
 
@@ -110,26 +126,38 @@ public class PlayerData {
         }
     }
 
+    public void addMainClasses(List<MainClassInfo> mcis) {
+        mainClassInfos.addAll(mcis);
+    }
+
     public JSONObject toJSON() throws JSONException {
         JSONObject obj = new JSONObject();
 
         obj.put("name", this.name);
-        obj.put("class", this.className);
+
+        // Fill array with all ids for this user.
+        int[] classIds = new int[mainClassInfos.size()];
+        for (int i = 0; i < mainClassInfos.size(); i++) {
+            classIds[i] = mainClassInfos.get(i).getId();
+        }
+
+        obj.put("class_ids", new JSONArray(classIds));
         obj.put("id", this.id);
         obj.put("race", this.race);
         obj.put("backstory", this.getBackstory());
 
-        obj.put("stats", this.statsData.toJSON());
-        obj.put("proficiencies", this.proficiencies.toJSON());
+        if (this.statsData != null)
+            obj.put("stats", this.statsData.toJSON());
+        if (this.proficiencies != null)
+            obj.put("proficiencies", this.proficiencies.toJSON());
 
         return obj;
     }
 
     private void setMainClassInfos(JSONObject response) throws JSONException {
         JSONArray jsonArray = response.getJSONArray("classes");
-        mainClassInfos = new MainClassInfo[jsonArray.length()];
         for (int i = 0; i < jsonArray.length(); i++) {
-            mainClassInfos[i] = new MainClassInfo(jsonArray.getJSONObject(i));
+            mainClassInfos.add(new MainClassInfo(jsonArray.getJSONObject(i)));
         }
     }
 
@@ -182,8 +210,8 @@ public class PlayerData {
         });
     }
 
-    public void updatePlayerData(int playerId, final FunctionCall func) {
-        String url = String.format(Locale.ENGLISH, "player/%s/data", playerId);
+    public void updatePlayerData(final FunctionCall func) {
+        String url = String.format(Locale.ENGLISH, "player/%s/data", this.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

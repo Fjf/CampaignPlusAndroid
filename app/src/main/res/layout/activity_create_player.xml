@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".player.CreatePlayerActivity">
+
+    <include
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <ScrollView
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_name_field_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_name_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Name"
+                    android:inputType="textPersonName" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_race_field_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/player_name_field_wrapper"
+                android:layout_alignParentStart="true">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_race_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Race"
+                    android:inputType="textPersonName" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/player_class_field_wrapper"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/player_race_field_wrapper"
+                android:layout_alignParentStart="true">
+
+                <Spinner
+                    android:id="@+id/player_class_field"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+
+                    android:spinnerMode="dialog"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/player_class_add"
+                    />
+                <ImageButton
+                    android:id="@+id/player_class_add"
+                    android:layout_width="24pt"
+                    android:layout_height="24pt"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:src="@android:drawable/ic_menu_add"
+                    android:backgroundTint="@color/colorPrimary"
+                    />
+            </android.support.constraint.ConstraintLayout>
+
+            <com.example.dndapp._utils.ExpandedListView
+                android:id="@+id/player_class_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/player_class_field_wrapper"
+                />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/player_backstory_field_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/player_class_list"
+                android:layout_alignParentStart="true">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/player_backstory_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Backstory"
+                    android:inputType="textMultiLine"
+                    android:minLines="5" />
+            </android.support.design.widget.TextInputLayout>
+            <Button
+                android:id="@+id/player_create_new_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/player_backstory_field_wrapper"
+                android:onClick="createNewCharacter"
+                android:text="Create new character" />
+        </RelativeLayout>
+
+
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>

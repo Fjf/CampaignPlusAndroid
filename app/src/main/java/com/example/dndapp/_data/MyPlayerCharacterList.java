@@ -14,6 +14,8 @@ import cz.msebera.android.httpclient.Header;
 
 public class MyPlayerCharacterList {
     public static ArrayList<PlayerData> playerData = new ArrayList<>();
+    // This variable tracks whether or not the initial request has gone through yet.
+    public static boolean hasInitialized = false;
 
     public MyPlayerCharacterList () { /* Nothing for static class */ }
 
@@ -29,6 +31,7 @@ public class MyPlayerCharacterList {
     }
 
     public static void updatePlayerData(final FunctionCall fn) {
+        hasInitialized = true;
         String url = "user/players";
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override

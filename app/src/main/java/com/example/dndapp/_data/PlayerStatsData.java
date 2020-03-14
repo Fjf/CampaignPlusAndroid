@@ -172,7 +172,7 @@ public class PlayerStatsData {
     }
 
     public int getProficiencyModifier() {
-        return this.level / 5 + 2;
+        return (this.level - 1) / 4 + 2;
     }
 
     public JSONObject toJSON() throws JSONException {

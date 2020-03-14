@@ -24,7 +24,7 @@
     <string name="charisma">Charisma</string>
     <string name="wisdom">Wisdom</string>
 
-    <string name="default_ip">217.102.162.137</string>
+    <string name="default_ip">192.168.0.227</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="select_pc_info_text">Select an existing character for this playthrough. Selecting a character which is already used in one playthrough will remove it from there, and add it to this playthrough.</string>
