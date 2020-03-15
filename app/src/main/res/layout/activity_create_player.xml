@@ -17,13 +17,16 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            >
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/player_name_field_wrapper"
@@ -115,10 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/player_backstory_field_wrapper"
-                android:onClick="createNewCharacter"
-                android:text="Create new character" />
+                android:text="Save" />
         </RelativeLayout>
-
-
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

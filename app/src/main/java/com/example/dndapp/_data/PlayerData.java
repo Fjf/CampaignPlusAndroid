@@ -110,8 +110,23 @@ public class PlayerData {
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
         this.userName = obj.getString("user_name");
-        this.className = obj.getString("class");
         this.race = obj.getString("race");
+
+        // Find the class with the correct id from the available classes.
+        if (!obj.isNull("class_ids")) {
+            JSONArray ids = obj.getJSONArray("class_ids");
+            for (int i = 0; i < ids.length(); i++) {
+                int id = ids.getInt(i);
+
+                // Locate class from list and add to this PlayerData.
+                MainClassInfo mci = MyPlayerCharacterList.findClass(id);
+                if (mci == null) {
+                    System.err.println("Unable to find class with id; " + id);
+                    continue;
+                }
+                this.mainClassInfos.add(mci);
+            }
+        }
 
         if (!obj.isNull("backstory")) {
             this.backstory = obj.getString("backstory");
@@ -128,6 +143,11 @@ public class PlayerData {
 
     public void addMainClasses(List<MainClassInfo> mcis) {
         mainClassInfos.addAll(mcis);
+    }
+
+    public void setMainClasses(List<MainClassInfo> mcis) {
+        mainClassInfos.clear();
+        addMainClasses(mcis);
     }
 
     public JSONObject toJSON() throws JSONException {

@@ -40,6 +40,10 @@ public class LoginActivity extends AppCompatActivity {
         info = findViewById(R.id.attemptsField);
         login = findViewById(R.id.loginButton);
 
+        // Load previously stored username. (if exists)
+        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+        name.setText(preferences.getString("username", ""));
+
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
         info.setTypeface(font);
 

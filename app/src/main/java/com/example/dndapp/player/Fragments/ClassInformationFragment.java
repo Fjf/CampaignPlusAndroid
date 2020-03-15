@@ -8,8 +8,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.example.dndapp._data.classinfo.ClassAbility;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
@@ -99,6 +101,20 @@ public class ClassInformationFragment extends Fragment {
             }
         });
 
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView ability = view.findViewById(R.id.class_ability);
+                // Toggle info visibility
+                int current = ability.getVisibility();
+                if (current == View.GONE) {
+                    ability.setVisibility(View.VISIBLE);
+                } else {
+                    ability.setVisibility(View.GONE);
+                }
+            }
+        });
+
         SearchView searchView = view.findViewById(R.id.search_fragment_button);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -122,7 +138,8 @@ public class ClassInformationFragment extends Fragment {
         ArrayList<ClassAbility> d = new ArrayList<>();
 
         for (ClassAbility ability : abilities) {
-            if (ability.getInfo().contains(s)) {
+            if (ability.getInfo().toLowerCase().contains(s.toLowerCase()) ||
+                ability.getName().toLowerCase().contains(s.toLowerCase())) {
                 d.add(ability);
             }
         }

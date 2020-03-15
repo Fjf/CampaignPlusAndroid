@@ -16,7 +16,9 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".player.CreatePlayerActivity" />
+        <activity
+            android:name=".player.CreatePlayerActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".login.LandingActivity"
             android:exported="true">

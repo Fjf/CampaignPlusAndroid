@@ -39,7 +39,7 @@ public class ClassAbility {
     public ClassAbility(JSONObject obj, MainClassInfo mainClass) throws JSONException {
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
-        this.info = obj.getString("info");
+        this.info = obj.getString("info").trim();
         this.level = obj.getInt("level");
 
         this.mainClass = mainClass;
@@ -48,7 +48,7 @@ public class ClassAbility {
     public ClassAbility(JSONObject obj, SubClassInfo subClass) throws JSONException {
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
-        this.info = obj.getString("info");
+        this.info = obj.getString("info").trim();
         this.level = obj.getInt("level");
 
         this.subClass = subClass;

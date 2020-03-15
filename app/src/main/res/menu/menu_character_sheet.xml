@@ -27,6 +27,12 @@
         app:showAsAction="ifRoom|withText" />
 
     <item
+        android:id="@+id/action_update_player"
+        android:orderInCategory="175"
+        android:title="Update This PC"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
         android:id="@+id/action_delete_player"
         android:orderInCategory="200"
         android:title="Delete This PC"

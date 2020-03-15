@@ -47,4 +47,6 @@ public class ClassAdapter extends ArrayAdapter {
 
         return rowView;
     }
+
+
 }

@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:textSize="8pt"
+        android:textSize="12pt"
         android:hint="Class Name"
 
         app:layout_constraintEnd_toStartOf="@id/class_info"
@@ -23,7 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:textSize="6pt"
+        android:textSize="8pt"
         android:hint="Class Info"
 
         app:layout_constraintBottom_toBottomOf="@id/class_name"

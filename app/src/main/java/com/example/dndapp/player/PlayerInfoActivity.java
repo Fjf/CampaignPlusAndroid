@@ -1,5 +1,6 @@
 package com.example.dndapp.player;
 
+import android.arch.core.util.Function;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -154,7 +155,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         justifyListViewHeightBasedOnChildren(leftDrawerList);
 
         /*
-         *  Get player information and try to load the correct player object into local storage.
+         *  Get player information and try to load the correct player object into local views.
          */
         preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         int playerId = getIntent().getIntExtra("player_id", -1);
@@ -227,7 +228,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private void trySelectingPlayer(final int id, boolean forceUpdate) {
         if (forceUpdate || !MyPlayerCharacterList.hasInitialized) {
-            MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
+            MyPlayerCharacterList.initialize(new FunctionCall() {
                 @Override
                 public void success() {
                     if (MyPlayerCharacterList.playerData.size() == 0) {
@@ -333,8 +334,13 @@ public class PlayerInfoActivity extends AppCompatActivity {
             ft.replace(R.id.player_info_drawer_layout, fragment);
             ft.addToBackStack(null);
             ft.commit();
-        }else if (id == R.id.action_create_player) {
+        } else if (id == R.id.action_create_player) {
             Intent intent = new Intent(this, CreatePlayerActivity.class);
+            intent.putExtra("create", true);
+            startActivityForResult(intent, CREATE_PLAYER_RESULT);
+        } else if (id == R.id.action_update_player) {
+            Intent intent = new Intent(this, CreatePlayerActivity.class);
+            intent.putExtra("create", false);
             startActivityForResult(intent, CREATE_PLAYER_RESULT);
         }
 
@@ -344,6 +350,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK)
+            return;
+
         if (requestCode == UPDATE_ITEMS) {
             // After adding an item, update the item list from the server.
             getPlayerItems();
