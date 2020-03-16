@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="10"
+    android:padding="4dp"
+    >
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/select_item_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:text="Item"
+        android:textSize="8pt"
+
+        android:layout_weight="6"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/select_item_weight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:text="Weight"
+        android:textSize="8pt"
+
+        android:layout_weight="2"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/select_item_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:text="Value"
+        android:textSize="8pt"
+
+        android:layout_weight="2"
+        />
+
+</LinearLayout>

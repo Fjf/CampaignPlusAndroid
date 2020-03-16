@@ -1,8 +1,9 @@
 package com.example.dndapp.login;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp.campaign.CampaignOverviewActivity;
 import com.example.dndapp.R;
+import com.example.dndapp.player.PlayerInfoActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
@@ -61,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private void validate(String name, String password, String email) throws JSONException, UnsupportedEncodingException {
+    private void validate(final String name, final String password, String email) throws JSONException, UnsupportedEncodingException {
         // Disable button
         registerButton.setEnabled(false);
 
@@ -79,7 +81,14 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
                     if (serverResp.getBoolean("success")) {
-                        Intent intent = new Intent(RegisterActivity.this, CampaignOverviewActivity.class);
+                        // Store username/pw in SharedPreferences for next login to be automatic.
+                        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+                        SharedPreferences.Editor edit = preferences.edit();
+                        edit.putString("username", name);
+                        edit.putString("password", password);
+                        edit.apply();
+
+                        Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
                         startActivity(intent);
                         finish();
                     } else {

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".player.Fragments.ClassInformationFragment">
+    tools:context=".player.Fragments.SelectItemFragment">
 
     <include
         android:id="@+id/toolbar"
@@ -24,7 +24,7 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <ListView
-            android:id="@+id/class_info_abilities"
+            android:id="@+id/selectable_items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

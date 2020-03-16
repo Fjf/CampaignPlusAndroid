@@ -1,7 +1,6 @@
 package com.example.dndapp.campaign.Fragments;
 
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp.campaign.Listeners.SwipeDismissListener;
 import com.example.dndapp.R;
@@ -18,6 +19,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,7 +69,7 @@ public class ShowQRFragment extends Fragment {
         view.setOnTouchListener(new SwipeDismissListener(new FunctionCall() {
             @Override
             public void success() {
-                getActivity().getFragmentManager().popBackStackImmediate();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
 
             @Override

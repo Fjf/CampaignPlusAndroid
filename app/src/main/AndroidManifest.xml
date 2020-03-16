@@ -38,12 +38,9 @@
         <activity
             android:name=".player.AddItemActivity"
             android:label="@string/title_activity_add_item"
-            android:parentActivityName=".player.PlayerInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dndapp.player.PlayerInfoActivity" />
-        </activity>
+            android:launchMode="singleInstance"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".login.ServerSettingsActivity"
             android:label="@string/title_activity_server_settings"

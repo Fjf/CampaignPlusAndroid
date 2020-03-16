@@ -1,20 +1,19 @@
 package com.example.dndapp.player;
 
-import android.arch.core.util.Function;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,6 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp.login.LoginActivity;
+import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.Adapters.DrawerListAdapter;
 import com.example.dndapp.player.Adapters.DrawerPCListAdapter;
 import com.example.dndapp.player.Adapters.ItemListAdapter;
@@ -42,8 +43,8 @@ import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
 import com.example.dndapp.campaign.CampaignOverviewActivity;
 import com.example.dndapp.R;
 import com.example.dndapp._data.DrawerListData;
-import com.example.dndapp._data.ItemData;
-import com.example.dndapp._data.ItemType;
+import com.example.dndapp._data.items.ItemData;
+import com.example.dndapp._data.items.ItemType;
 import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerStatsData;
@@ -100,12 +101,12 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private static TextView statMaxHP;
     private static TextView statLevel;
 
-    public static SpellData[] psdDataSet;
-    public static ItemData[] pidDataSet;
+    public static SpellData[] psdDataSet = new SpellData[0];
+    public static ItemData[] pidDataSet = new ItemData[0];
     public static int selectedSpellId;
     public static int selectedItemId;
 
-    public static PlayerData selectedPlayer;
+    public static PlayerData selectedPlayer = MyPlayerCharacterList.emptyPlayer();
 
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
@@ -124,6 +125,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private ListView leftDrawerList;
     private ListView leftDrawerPCList;
     private View leftDrawerWrapper;
+    private DrawerPCListAdapter drawerPCListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,7 +237,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
                         Toast.makeText(PlayerInfoActivity.this, "You have no player characters.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    fillPlayerDrawer();
+
+                    updatePlayerDrawer();
                     updatePlayerInfo(id);
                 }
 
@@ -245,22 +248,29 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 }
             });
         } else {
-            fillPlayerDrawer();
+            updatePlayerDrawer();
             updatePlayerInfo(id);
         }
     }
 
-    private void fillPlayerDrawer() {
-        leftDrawerPCList.setAdapter(new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, MyPlayerCharacterList.playerData));
+    private void updatePlayerDrawer() {
+        // TODO: Update this to reuse adapters
+        drawerPCListAdapter = new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, MyPlayerCharacterList.playerData);
+        leftDrawerPCList.setAdapter(drawerPCListAdapter);
+
         justifyListViewHeightBasedOnChildren(leftDrawerPCList);
     }
 
     private void updatePlayerInfo(int id) {
         // Always have a player selected.
-        if (id == -1)
-            selectedPlayer = MyPlayerCharacterList.playerData.get(0);
-        else
+        if (id == -1) {
+            if (MyPlayerCharacterList.playerData.size() == 0)
+                selectedPlayer = MyPlayerCharacterList.emptyPlayer();
+            else
+                selectedPlayer = MyPlayerCharacterList.playerData.get(0);
+        } else {
             selectedPlayer = MyPlayerCharacterList.getPlayer(id);
+        }
 
         // Get all information and items.
         assert selectedPlayer != null;
@@ -277,8 +287,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
             }
         });
 
-        getPlayerItems();
-        getPlayerSpells();
+        // Don't retrieve information from a placeholder player object.
+        if (selectedPlayer.getId() != -1) {
+            getPlayerItems();
+            getPlayerSpells();
+        }
     }
 
     private ArrayList<DrawerListData> createDrawerListData(String[] leftDrawerItemTitles, TypedArray leftDrawerItemIcons) {
@@ -287,16 +300,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
             dld.add(new DrawerListData(leftDrawerItemTitles[i], leftDrawerItemIcons.getDrawable(i)));
         }
         return dld;
-    }
-
-    public void switchViewAddItem(View view) {
-        Intent intent = new Intent(this, AddItemActivity.class);
-        startActivityForResult(intent, UPDATE_ITEMS);
-    }
-
-    public void switchViewAddSpell(View view) {
-        Intent intent = new Intent(this, AddSpellActivity.class);
-        startActivityForResult(intent, UPDATE_SPELL);
     }
 
     @Override
@@ -325,8 +328,17 @@ public class PlayerInfoActivity extends AppCompatActivity {
         } else if (id == android.R.id.home) {
             drawerLayout.openDrawer(leftDrawerWrapper);
         } else if (id == R.id.action_delete_player) {
+            if (selectedPlayer == null) {
+                Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             deletePlayer();
         } else if (id == R.id.action_show_abilities) {
+            if (selectedPlayer == null) {
+                Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
             Fragment fragment = ClassInformationFragment.newInstance(0);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -339,17 +351,47 @@ public class PlayerInfoActivity extends AppCompatActivity {
             intent.putExtra("create", true);
             startActivityForResult(intent, CREATE_PLAYER_RESULT);
         } else if (id == R.id.action_update_player) {
+            if (selectedPlayer == null) {
+                Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
             Intent intent = new Intent(this, CreatePlayerActivity.class);
             intent.putExtra("create", false);
             startActivityForResult(intent, CREATE_PLAYER_RESULT);
-        }
+        } else if (id == R.id.action_logout) {
+            SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+            SharedPreferences.Editor edit = preferences.edit();
+            edit.remove("username"); edit.remove("password");
+            edit.apply();
 
+            UserService.logout(new FunctionCall() {
+                @Override
+                public void success() {
+                    Intent intent = new Intent(PlayerInfoActivity.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void error(String errorMessage) {
+                    Toast.makeText(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(PlayerInfoActivity.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK)
             return;
 
@@ -370,6 +412,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
                 @Override
                 public void success() {
+                    updatePlayerDrawer();
                     updatePlayerInfo(playerId);
                 }
 
@@ -723,9 +766,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
         Fragment fragment = null;
         Intent intent;
 
+        if (selectedPlayer == null || selectedPlayer.getId() == -1) {
+            Toast.makeText(this, "No player selected.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Close any open fragments before opening the next.
-        if (this.getFragmentManager().getBackStackEntryCount() != 0)
-            this.getFragmentManager().popBackStackImmediate();
+        if (this.getSupportFragmentManager().getBackStackEntryCount() != 0)
+            this.getSupportFragmentManager().popBackStackImmediate();
 
         switch (position) {
             case FRAGMENT_ID_ITEM: // My Items

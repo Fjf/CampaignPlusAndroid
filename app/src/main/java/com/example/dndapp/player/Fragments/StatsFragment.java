@@ -3,8 +3,8 @@ package com.example.dndapp.player.Fragments;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -217,7 +218,7 @@ public class StatsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Remove current fragment
-                getActivity().getFragmentManager().popBackStackImmediate();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
@@ -231,7 +232,7 @@ public class StatsFragment extends Fragment {
                 // Remove current fragment
                 savePlayerData();
 
-                getActivity().getFragmentManager().popBackStackImmediate();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());

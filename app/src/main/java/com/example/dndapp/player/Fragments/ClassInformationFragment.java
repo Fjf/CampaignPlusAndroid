@@ -1,10 +1,11 @@
 package com.example.dndapp.player.Fragments;
 
+import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.annotation.RequiresApi;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.example.dndapp.R;
 import com.example.dndapp._data.PlayerData;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
 
@@ -32,8 +34,8 @@ import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
 public class ClassInformationFragment extends Fragment {
     private static final String ARG_PLAYER_IDX = "playerIdx";
 
-    private View view;
     private ArrayList<ClassAbility> abilities;
+    private ClassAbilityAdapter adapter;
 
     public ClassInformationFragment() {
         // Required empty public constructor
@@ -61,7 +63,7 @@ public class ClassInformationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Remove current fragment
-                getActivity().getSupportFragmentManager().popBackStackImmediate();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
@@ -76,31 +78,18 @@ public class ClassInformationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_class_information, container, false);
-
+        View view = inflater.inflate(R.layout.fragment_class_information, container, false);
         final ListView lv = view.findViewById(R.id.class_info_abilities);
 
         Toolbar tb = view.findViewById(R.id.toolbar);
         tb.setTitle("Class Abilities");
-
         registerExitFragmentButton(tb);
 
         final PlayerData playerData = selectedPlayer;
+
         abilities = new ArrayList<>();
-        playerData.updateMainClassInfos(this.getContext(), new FunctionCall() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void success() {
-                abilities = playerData.getSortedAbilities();
-                lv.setAdapter(new ClassAbilityAdapter(getActivity(), abilities));
-            }
-
-            @Override
-            public void error(String errorMessage) {
-                // TODO: Maybe something here I currently don't care.
-            }
-        });
-
+        adapter = new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), abilities);
+        lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -112,6 +101,21 @@ public class ClassInformationFragment extends Fragment {
                 } else {
                     ability.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        playerData.updateMainClassInfos(this.getContext(), new FunctionCall() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void success() {
+                abilities.clear();
+                abilities.addAll(playerData.getSortedAbilities());
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                // TODO: Maybe something here I currently don't care.
             }
         });
 

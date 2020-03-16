@@ -1,13 +1,14 @@
 package com.example.dndapp.campaign;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,14 +43,12 @@ public class CampaignActivity extends AppCompatActivity {
     private static final int CREATE_CHARACTER_INTENT = 0;
     private final String TAG = "CampaignActivity";
     private ListView playerList;
-    private Toolbar toolbar;
-    private int playerId;
-    private PlayerData[] playerDataArray;
-    private int currentSelectedPlayer = -1;
     private String userName;
     private int campaignId;
-    private View button;
     private String campaignCode;
+
+    public CampaignActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +67,7 @@ public class CampaignActivity extends AppCompatActivity {
         getPlayers();
 
         // Attaching the layout to the toolbar object
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(campaignName);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
@@ -83,20 +82,21 @@ public class CampaignActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CREATE_CHARACTER_INTENT) {
             // Player id can maybe be used here.
             assert data != null;
             int pid = data.getIntExtra("player_id", -1);
 
             try {
-                addToPlaythrough(pid);
+                addToCampaign(pid);
             } catch (JSONException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void addToPlaythrough(int pid) throws JSONException, UnsupportedEncodingException {
+    private void addToCampaign(int pid) throws JSONException, UnsupportedEncodingException {
         String url = String.format(Locale.ENGLISH, "player/%d/playthrough", pid);
 
         JSONObject data = new JSONObject();
@@ -129,6 +129,7 @@ public class CampaignActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_showpc) {
             Intent intent = new Intent(CampaignActivity.this, PlayerInfoActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_show_qr) {
@@ -147,7 +148,7 @@ public class CampaignActivity extends AppCompatActivity {
         fragment.setEnterTransition(new Slide(Gravity.TOP));
         fragment.setExitTransition(new Slide(Gravity.BOTTOM));
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
         ft.replace(R.id.playthrough_content_layout, fragment);
@@ -186,7 +187,6 @@ public class CampaignActivity extends AppCompatActivity {
     }
 
     private void updatePlayerList(final PlayerData[] entries) {
-        playerDataArray = entries;
 
         PlayerListAdapter adapter = new PlayerListAdapter(this, entries, userName);
         playerList.setAdapter(adapter);

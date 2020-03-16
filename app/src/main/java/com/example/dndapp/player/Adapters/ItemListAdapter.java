@@ -1,13 +1,13 @@
 package com.example.dndapp.player.Adapters;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.ItemData;
+import com.example.dndapp._data.items.ItemData;
 
 public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemViewHolder> {
     private ItemData[] pidDataSet;

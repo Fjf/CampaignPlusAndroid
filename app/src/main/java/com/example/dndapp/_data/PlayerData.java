@@ -2,9 +2,9 @@ package com.example.dndapp._data;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 import android.widget.Toast;
 
 import com.example.dndapp._data.classinfo.ClassAbility;
@@ -38,7 +38,7 @@ public class PlayerData {
     public PlayerStatsData statsData = null;
     public PlayerProficiencyData proficiencies = null;
 
-    private List<MainClassInfo> mainClassInfos = new ArrayList<>();
+    private ArrayList<MainClassInfo> mainClassInfos = new ArrayList<>();
     private SubClassInfo[] subClassInfos = null;
 
     public int getId() {
@@ -230,8 +230,20 @@ public class PlayerData {
         });
     }
 
+    /**
+     * This function will try to update the PlayerData object with data retrieved from the server.
+     * On success, it will call the supplied FunctionCall.success() callback.
+     * On failure, the FunctionCall.error(errorMessage);
+     * If the player has an invalid ID (non existent), it will instantly return with success().
+     *
+     * @param func The callback function
+     */
     public void updatePlayerData(final FunctionCall func) {
-        String url = String.format(Locale.ENGLISH, "player/%s/data", this.getId());
+        // Cannot update a player with an invalid id.
+        if (this.getId() == -1)
+            func.success();
+
+        String url = String.format(Locale.ENGLISH, "player/%d/data", this.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

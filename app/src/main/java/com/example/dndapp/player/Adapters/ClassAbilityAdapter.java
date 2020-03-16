@@ -1,8 +1,8 @@
 package com.example.dndapp.player.Adapters;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +34,8 @@ public class ClassAbilityAdapter extends ArrayAdapter {
     public View getView(int position, @Nullable View rowView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
 
-        rowView = inflater.inflate(resource, null,true);
+        if (rowView == null)
+            rowView = inflater.inflate(resource, null,true);
 
         TextView className = rowView.findViewById(R.id.class_name);
         TextView subclassName  = rowView.findViewById(R.id.subclass_name);

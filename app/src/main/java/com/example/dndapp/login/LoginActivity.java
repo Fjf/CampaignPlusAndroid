@@ -3,8 +3,8 @@ package com.example.dndapp.login;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.support.design.widget.TextInputEditText;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.textfield.TextInputEditText;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,7 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText password;
     private TextView info;
     private Button login;
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences preferences;
     private String TAG = "LoginActivity";
 
     @Override
@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         login = findViewById(R.id.loginButton);
 
         // Load previously stored username. (if exists)
-        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+        preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
         name.setText(preferences.getString("username", ""));
 
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
@@ -92,17 +92,16 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void success() {
                 // Store username/pw in SharedPreferences for next login to be automatic.
-                SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
                 SharedPreferences.Editor edit = preferences.edit();
-                edit.putString("username", userName);
-                edit.putString("password", userPassword);
+                edit.putString("username", userName); edit.putString("password", userPassword);
                 edit.apply();
+
+                login.setEnabled(true);
 
                 Intent intent = new Intent(LoginActivity.this, PlayerInfoActivity.class);
                 startActivity(intent);
                 finish();
 
-                login.setEnabled(true);
             }
 
             @Override

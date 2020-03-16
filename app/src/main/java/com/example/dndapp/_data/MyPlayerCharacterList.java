@@ -1,13 +1,10 @@
 package com.example.dndapp._data;
 
-import android.arch.core.util.Function;
-import android.widget.Toast;
+import androidx.arch.core.util.Function;
 
 import com.example.dndapp._data.classinfo.MainClassInfo;
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.IgnoreFunctionCall;
-import com.example.dndapp.player.CreatePlayerActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -122,5 +119,9 @@ public class MyPlayerCharacterList {
                 return availableClass;
         }
         return null;
+    }
+
+    public static PlayerData emptyPlayer() {
+        return new PlayerData(-1, "", "");
     }
 }

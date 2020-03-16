@@ -1,10 +1,10 @@
 package com.example.dndapp.player;
 
 import android.content.Intent;
-import android.support.design.widget.TextInputEditText;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.textfield.TextInputEditText;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,11 +21,9 @@ import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.classinfo.MainClassInfo;
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.IgnoreFunctionCall;
 import com.example.dndapp.player.Adapters.ClassAdapter;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -201,6 +199,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
                         finish();
                     }
                 } catch (JSONException e) {
+                    Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
 
@@ -209,6 +208,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Toast.makeText(CreatePlayerActivity.this, response, Toast.LENGTH_SHORT).show();
                 findViewById(R.id.player_create_new_button).setEnabled(true);
             }
         });
@@ -226,7 +226,6 @@ public class CreatePlayerActivity extends AppCompatActivity {
         findViewById(R.id.player_create_new_button).setEnabled(false);
 
         String url = String.format(Locale.ENGLISH, "player/%d/data", selectedPlayer.getId());
-
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

@@ -1,5 +1,9 @@
 package com.example.dndapp.login.UserService;
 
+import android.content.SharedPreferences;
+
+import androidx.arch.core.util.Function;
+
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -27,7 +31,6 @@ public final class UserService {
         HttpUtils.post("login", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println("___________"+response.toString());
 
                 try {
                     JSONObject serverResp = new JSONObject(response.toString());
@@ -48,6 +51,20 @@ public final class UserService {
                 } catch (JSONException | NullPointerException e) {
                     f.error("Invalid JSON from server.");
                 }
+            }
+        });
+    }
+
+    public static void logout(final FunctionCall fn) {
+        HttpUtils.post("logout", null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                fn.success();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                fn.error("");
             }
         });
     }

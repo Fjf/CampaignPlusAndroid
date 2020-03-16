@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.example.dndapp._data.MyPlayerCharacterList;
+import com.example.dndapp._data.items.AvailableItems;
+import com.example.dndapp._utils.IgnoreFunctionCall;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.PlayerInfoActivity;
 import com.example.dndapp.R;
@@ -55,6 +58,18 @@ public class LandingActivity extends AppCompatActivity {
         UserService.login(username, password, new FunctionCall() {
             @Override
             public void success() {
+                AvailableItems.initialize(new FunctionCall() {
+                    @Override
+                    public void success() {
+
+                    }
+
+                    @Override
+                    public void error(String errorMessage) {
+                        Toast.makeText(LandingActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 Intent intent = new Intent(LandingActivity.this, PlayerInfoActivity.class);
                 startActivity(intent);
                 finish();

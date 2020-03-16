@@ -1,13 +1,12 @@
 package com.example.dndapp.campaign;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
@@ -198,14 +197,14 @@ public class CampaignOverviewActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 // Close fragment.
-                CampaignOverviewActivity.this.getFragmentManager().popBackStackImmediate();
+                CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 Toast.makeText(CampaignOverviewActivity.this, "This playthrough does not exist.", Toast.LENGTH_SHORT).show();
                 // Close fragment.
-                CampaignOverviewActivity.this.getFragmentManager().popBackStackImmediate();
+                CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
             }
         });
     }
@@ -256,7 +255,7 @@ public class CampaignOverviewActivity extends AppCompatActivity {
                     fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
                     fragment.setExitTransition(new Slide(Gravity.TOP));
 
-                    FragmentManager fragmentManager = getFragmentManager();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
                     FragmentTransaction ft = fragmentManager.beginTransaction();
 
                     ft.replace(R.id.playthrough_content_layout, fragment);

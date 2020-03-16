@@ -1,8 +1,8 @@
 package com.example.dndapp.player.Fragments;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,8 +13,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.ItemData;
-import com.example.dndapp._data.ItemType;
+import com.example.dndapp._data.items.ItemData;
+import com.example.dndapp._data.items.ItemType;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 
 import java.util.Objects;
@@ -79,7 +79,7 @@ public class PlayerItemFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Remove current fragment
-                getActivity().getFragmentManager().popBackStackImmediate();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());

@@ -1,10 +1,11 @@
 package com.example.dndapp.campaign.Fragments;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -165,7 +167,7 @@ public class SelectPlayerFragment extends Fragment {
                         return;
                     }
                     // Go back to parent.
-                    getActivity().getFragmentManager().popBackStackImmediate();
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -175,7 +177,7 @@ public class SelectPlayerFragment extends Fragment {
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 Toast.makeText(getActivity(), "Something went wrong updating your player's playthrough.", Toast.LENGTH_SHORT).show();
                 // Go back to parent.
-                getActivity().getFragmentManager().popBackStackImmediate();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
         });
     }

@@ -3,8 +3,8 @@ package com.example.dndapp.player;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -14,7 +14,6 @@ import com.example.dndapp.player.Adapters.SpellInstantAutoCompleteAdapter;
 import com.example.dndapp.R;
 import com.example.dndapp._data.SpellData;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.InstantAutoComplete;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -27,6 +26,8 @@ import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
+
+import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
 
 public class AddSpellActivity extends AppCompatActivity {
 
@@ -57,7 +58,7 @@ public class AddSpellActivity extends AppCompatActivity {
     private void getAllSpells() {
         final AddSpellActivity self = this;
 
-        String url = String.format(Locale.ENGLISH, "playthrough/%s/spells", playthroughId);
+        String url = String.format(Locale.ENGLISH, "player/%s/allspells", selectedPlayer.getId());
 
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
@@ -77,9 +78,9 @@ public class AddSpellActivity extends AppCompatActivity {
 
                     arrayAdapter = new SpellInstantAutoCompleteAdapter(self, spellDataArray);
 
-                    InstantAutoComplete textView = findViewById(R.id.autocomplete_spells);
-                    textView.setAdapter(arrayAdapter);
-                    textView.setThreshold(1);
+//                    InstantAutoComplete textView = findViewById(R.id.autocomplete_spells);
+//                    textView.setAdapter(arrayAdapter);
+//                    textView.setThreshold(1);
                 } catch (JSONException e) {
                     Log.d(TAG, "Something went wrong retrieving data from the server.");
                     e.printStackTrace();

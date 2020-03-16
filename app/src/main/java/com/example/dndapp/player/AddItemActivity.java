@@ -1,30 +1,43 @@
 package com.example.dndapp.player;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dndapp._data.items.AvailableItems;
+import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp.player.Adapters.ItemSpinnerArrayAdapter;
 import com.example.dndapp.R;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.InstantAutoComplete;
 import com.example.dndapp._utils.PlayerItemData;
+import com.example.dndapp.player.Fragments.SelectItemFragment;
+import com.google.android.material.button.MaterialButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -33,21 +46,27 @@ import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
 
 public class AddItemActivity extends AppCompatActivity {
     private static final String TAG = "AddItemActivity";
+    public static ItemData selectedItem;
 
-    private String[] items;
-    private int[] ids;
+    private String[] items = new String[0];
+    private int[] ids = new int[0];
+    private MaterialButton button;
+    private AppCompatEditText amount;
+    private ImageButton submitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Add Item");
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         Spinner spinner = findViewById(R.id.dice_selection);
-
+        button = findViewById(R.id.autocomplete_items);
+        amount = findViewById(R.id.add_items_amount);
+        submitButton = findViewById(R.id.add_items_submit);
 
         final String[] dice = new String[]{"Select dice type...", "4", "6", "8", "10", "12", "20", "100"};
         ItemSpinnerArrayAdapter spinnerArrayAdapter = new ItemSpinnerArrayAdapter(this, R.layout.spinner_row, dice);
@@ -55,56 +74,29 @@ public class AddItemActivity extends AppCompatActivity {
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_row);
         spinner.setAdapter(spinnerArrayAdapter);
 
-        try {
-            getAllItems();
-        } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getAllItems() throws UnsupportedEncodingException, JSONException {
-        final AddItemActivity self = this;
-
-        // Store all parameters in json object.
-        JSONObject data = new JSONObject();
-        data.put("player_id", selectedPlayer.getId());
-        StringEntity entity = new StringEntity(data.toString());
-
-        HttpUtils.post("getitems", entity, new JsonHttpResponseHandler() {
+        button.setOnClickListener(new Button.OnClickListener() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Toast.makeText(AddItemActivity.this, response.getString("error"), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    JSONArray array = response.getJSONArray("items");
-                    items = new String[array.length()];
-                    ids = new int[array.length()];
-                    for (int i = 0; i < array.length(); i++) {
-                        items[i] = array.getJSONObject(i).getString("name");
-                        ids[i] = array.getJSONObject(i).getInt("item_id");
-                    }
-
-//                    ItemInstantAutoCompleteAdapter arrayAdapter = new ItemInstantAutoCompleteAdapter(self, R.layout.item_selection_row, items);
-
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(self, android.R.layout.simple_list_item_1, items);
-
-                    InstantAutoComplete textView = findViewById(R.id.autocomplete_items);
-                    textView.setAdapter(arrayAdapter);
-                    textView.setThreshold(1);
-                } catch (JSONException e) {
-                    Log.d(TAG, "Something went wrong retrieving data from the server.");
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onClick(View v) {
+                Fragment fragment = new SelectItemFragment();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.add_item_activity, fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
+    }
+
+    @Override
+    public void onAttachFragment(@NonNull Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if (fragment instanceof SelectItemFragment)
+            ((SelectItemFragment) fragment).setListener(new SelectItemFragment.Listener() {
+                @Override
+                public void onDetached(SelectItemFragment fragment) {
+                    if (selectedItem != null)
+                        button.setText(selectedItem.getName());
+                }
+            });
     }
 
     public void toggleWeaponInfo(android.view.View view) {
@@ -164,40 +156,50 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     public void playerAddItem(View view) throws JSONException, UnsupportedEncodingException {
-        InstantAutoComplete instantAutoComplete = findViewById(R.id.autocomplete_items);
-        String text = instantAutoComplete.getText().toString();
-        EditText itemAmount = findViewById(R.id.add_items_amount);
+        Editable amountText = amount.getText();
 
-        int idx = strIndexOf(items, text);
-        if (idx == -1)
+        // Input validation.
+        if (selectedItem == null) {
+            Toast.makeText(this, "No item selected.", Toast.LENGTH_SHORT).show();
             return;
+        } else if (amountText == null) {
+            Toast.makeText(this, "No amount defined.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
-        data.put("item_id", ids[idx]);
-        data.put("amount", itemAmount.getText().toString());
+        data.put("item_id", selectedItem.getId());
+        data.put("amount", amountText.toString());
         StringEntity entity = new StringEntity(data.toString());
 
+        submitButton.setEnabled(false);
+        
         String url = String.format(Locale.ENGLISH, "player/%s/item", selectedPlayer.getId());
         HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                submitButton.setEnabled(true);
                 try {
-                    JSONObject serverResp = new JSONObject(response.toString());
-                    if (serverResp.getBoolean("success")) {
+                    if (response.getBoolean("success")) {
+                        Toast.makeText(AddItemActivity.this, "Successfully added item.", Toast.LENGTH_SHORT).show();
+
+                        Intent data = new Intent();
+                        setResult(RESULT_OK, data);
                         finish();
                     } else {
-                        Log.d(TAG, "An error occured: " + serverResp.getString("error"));
+                        Toast.makeText(AddItemActivity.this, response.getString("error"), Toast.LENGTH_SHORT).show();
                     }
-
                 } catch (JSONException e) {
-                    Log.d(TAG, "Invalid response: " + response.toString());
+                    Toast.makeText(AddItemActivity.this, "Invalidly formatted JSON received from server.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+                submitButton.setEnabled(true);
+                Toast.makeText(AddItemActivity.this, "Invalidly formatted JSON received from server.", Toast.LENGTH_SHORT).show();
             }
 
             @Override

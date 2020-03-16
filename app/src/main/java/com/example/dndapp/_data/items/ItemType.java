@@ -1,4 +1,4 @@
-package com.example.dndapp._data;
+package com.example.dndapp._data.items;
 
 public enum ItemType {
     ITEM,
