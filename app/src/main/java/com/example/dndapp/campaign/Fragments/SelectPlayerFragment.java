@@ -40,11 +40,11 @@ import cz.msebera.android.httpclient.entity.StringEntity;
  * create an instance of this fragment.
  */
 public class SelectPlayerFragment extends Fragment {
-    private static String PARAM_PLAYTHROUGH_CODE = "playthroughCode";
+    private static final String PARAM_CAMPAIGN_CODE = "campaignCode";
     private OnFragmentInteractionListener mListener;
     private Toolbar tb;
     private Spinner playerSpinner;
-    private String playthroughCode;
+    private String campaignCode;
     private String TAG = "SelectPlayerFragment2";
 
     public SelectPlayerFragment() {
@@ -57,10 +57,10 @@ public class SelectPlayerFragment extends Fragment {
      *
      * @return A new instance of fragment SelectPlayerFragment.
      */
-    public static SelectPlayerFragment newInstance(String playthroughCode) {
+    public static SelectPlayerFragment newInstance(String campaignCode) {
         SelectPlayerFragment fragment = new SelectPlayerFragment();
         Bundle args = new Bundle();
-        args.putString(PARAM_PLAYTHROUGH_CODE, playthroughCode);
+        args.putString(PARAM_CAMPAIGN_CODE, campaignCode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,7 +69,7 @@ public class SelectPlayerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            playthroughCode = getArguments().getString(PARAM_PLAYTHROUGH_CODE);
+            campaignCode = getArguments().getString(PARAM_CAMPAIGN_CODE);
         }
     }
 
@@ -82,7 +82,7 @@ public class SelectPlayerFragment extends Fragment {
         tb = view.findViewById(R.id.fragment_toolbar);
         playerSpinner = view.findViewById(R.id.player_spinner);
         
-        tb.setTitle("Playthrough Character");
+        tb.setTitle("Campaign Character");
 
         ArrayAdapter<PlayerData> arrayAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, MyPlayerCharacterList.playerData);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -98,7 +98,7 @@ public class SelectPlayerFragment extends Fragment {
                     return;
 
                 try {
-                    updatePlayerPlaythrough(item.getId());
+                    updatePlayerCampaign(item.getId());
                 } catch (UnsupportedEncodingException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -152,18 +152,24 @@ public class SelectPlayerFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private void updatePlayerPlaythrough(int playerId) throws UnsupportedEncodingException, JSONException {
+    /**
+     * Updates the campaign for the selected character.
+     * @param playerId the id of the player character
+     * @throws UnsupportedEncodingException
+     * @throws JSONException
+     */
+    private void updatePlayerCampaign(int playerId) throws UnsupportedEncodingException, JSONException {
         final JSONObject data = new JSONObject();
-        data.put("playthrough_code", playthroughCode);
+        data.put("campaign_code", campaignCode);
         StringEntity entity = new StringEntity(data.toString());
 
-        String url = String.format(Locale.ENGLISH, "player/%s/playthrough", playerId);
+        String url = String.format(Locale.ENGLISH, "player/%s/campaign", playerId);
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     if (!response.getBoolean("success")) {
-                        Toast.makeText(getActivity(), "Something went wrong updating your player's playthrough.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign.", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     // Go back to parent.
@@ -175,7 +181,7 @@ public class SelectPlayerFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(getActivity(), "Something went wrong updating your player's playthrough.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign.", Toast.LENGTH_SHORT).show();
                 // Go back to parent.
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }

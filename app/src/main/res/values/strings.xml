@@ -4,6 +4,7 @@
         <item>@drawable/ic_hanging_sign_24dp</item>
         <item>@drawable/ic_spell_book_24dp</item>
         <item>@drawable/ic_scroll_unfurled_24dp</item>
+        <item>@drawable/ic_scroll_unfurled_24dp</item>
         <item>@drawable/ic_skills_24dp</item>
     </array>
     <string name="app_name">Dndapp</string>
@@ -24,16 +25,16 @@
     <string name="charisma">Charisma</string>
     <string name="wisdom">Wisdom</string>
 
-    <string name="default_ip">192.168.0.227</string>
+    <string name="default_ip">213.93.44.3</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="select_pc_info_text">Select an existing character for this playthrough. Selecting a character which is already used in one playthrough will remove it from there, and add it to this playthrough.</string>
-    <string name="add_pc_info_text">Create a new character for this playthrough.</string>
+    <string name="select_pc_info_text">Select an existing character for this campaign. Selecting a character which is already used in one campaign will remove it from there, and add it to this campaign.</string>
+    <string name="add_pc_info_text">Create a new character for this campaign.</string>
     <string name="log_out">Log Out</string>
     <string name="show_pc">Show PC</string>
-    <string name="playthrough_qr">Playthrough QR</string>
     <string name="show_phb">Show PHB</string>
     <string name="default_port">5000</string>
+    <string name="campaign_qr">Campaign QR</string>
 
 
     <string-array name="player_info_left_drawer_titles">
@@ -41,6 +42,7 @@
         <item>Add Item</item>
         <item>My Spells</item>
         <item>Add Spell</item>
+        <item>Spell Slots</item>
         <item>Player Stats</item>
     </string-array>
 

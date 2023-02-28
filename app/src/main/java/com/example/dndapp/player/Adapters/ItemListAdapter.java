@@ -1,16 +1,17 @@
 package com.example.dndapp.player.Adapters;
 
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.items.ItemData;
+import com.example.dndapp._data.items.EquipmentItem;
 
 public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemViewHolder> {
-    private ItemData[] pidDataSet;
+    private EquipmentItem[] pidDataSet;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -19,6 +20,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
         // each data item is just a string in this case
         public TextView itemName;
         public TextView itemAmount;
+
         public ItemViewHolder(View v) {
             super(v);
             itemName = v.findViewById(R.id.playerlist_item_name);
@@ -27,7 +29,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ItemListAdapter(ItemData[] pidDataSet) {
+    public ItemListAdapter(EquipmentItem[] pidDataSet) {
         this.pidDataSet = pidDataSet;
     }
 
@@ -36,11 +38,10 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     public ItemViewHolder onCreateViewHolder(ViewGroup parent,
                                              int viewType) {
         // create a new view
-        View v = (View) LayoutInflater.from(parent.getContext())
+        View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.player_item, parent, false);
 
-        ItemViewHolder vh = new ItemViewHolder(v);
-        return vh;
+        return new ItemViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -48,7 +49,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.itemName.setText(pidDataSet[position].getName());
+        holder.itemName.setText(pidDataSet[position].getItem().getName());
         holder.itemAmount.setText(String.valueOf(pidDataSet[position].getAmount()));
     }
 

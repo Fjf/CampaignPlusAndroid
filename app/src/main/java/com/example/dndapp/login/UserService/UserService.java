@@ -24,24 +24,14 @@ public final class UserService {
     public static void login(String username, String password, final FunctionCall f) throws JSONException, UnsupportedEncodingException {
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
-        data.put("name", username);
+        data.put("username", username);
         data.put("password", password);
         StringEntity entity = new StringEntity(data.toString());
 
         HttpUtils.post("login", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                try {
-                    JSONObject serverResp = new JSONObject(response.toString());
-                    if (serverResp.getBoolean("success")) {
-                        f.success();
-                    } else {
-                        f.error(serverResp.getString("error"));
-                    }
-                } catch (JSONException e) {
-                    f.error("Invalid JSON from server.");
-                }
+                f.success();
             }
 
             @Override

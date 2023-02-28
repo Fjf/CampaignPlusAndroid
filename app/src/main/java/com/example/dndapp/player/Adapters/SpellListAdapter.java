@@ -9,8 +9,10 @@ import android.widget.TextView;
 import com.example.dndapp.R;
 import com.example.dndapp._data.SpellData;
 
+import java.util.ArrayList;
+
 public class SpellListAdapter extends RecyclerView.Adapter<SpellListAdapter.ItemViewHolder> {
-    private SpellData[] psdDataSet;
+    private final ArrayList<SpellData> psdDataSet;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -29,7 +31,7 @@ public class SpellListAdapter extends RecyclerView.Adapter<SpellListAdapter.Item
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public SpellListAdapter(SpellData[] psdDataSet) {
+    public SpellListAdapter(ArrayList<SpellData> psdDataSet) {
         this.psdDataSet = psdDataSet;
     }
 
@@ -50,14 +52,14 @@ public class SpellListAdapter extends RecyclerView.Adapter<SpellListAdapter.Item
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.spellName.setText(psdDataSet[position].getName());
-        holder.spellLevel.setText(String.valueOf(psdDataSet[position].getLevel()));
+        holder.spellName.setText(psdDataSet.get(position).getName());
+        holder.spellLevel.setText(String.valueOf(psdDataSet.get(position).getLevel()));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return psdDataSet.length;
+        return psdDataSet.size();
     }
 
 }

@@ -1,30 +1,28 @@
 package com.example.dndapp.player.Fragments;
 
-import android.app.Activity;
+import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
+
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.TextView;
 
-import com.example.dndapp._data.classinfo.ClassAbility;
-import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
-import com.example.dndapp.player.Adapters.ClassAbilityAdapter;
-import com.example.dndapp._utils.FunctionCall;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
 import com.example.dndapp.R;
 import com.example.dndapp._data.PlayerData;
+import com.example.dndapp._data.classinfo.ClassAbility;
+import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
+import com.example.dndapp.player.Adapters.ClassAbilityAdapter;
 
 import java.util.ArrayList;
 import java.util.Objects;
-
-import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,12 +57,9 @@ public class ClassInformationFragment extends Fragment {
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove current fragment
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+        btn.setOnClickListener(view -> {
+            // Remove current fragment
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }
@@ -90,19 +85,6 @@ public class ClassInformationFragment extends Fragment {
         abilities = new ArrayList<>();
         adapter = new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), abilities);
         lv.setAdapter(adapter);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextView ability = view.findViewById(R.id.class_ability);
-                // Toggle info visibility
-                int current = ability.getVisibility();
-                if (current == View.GONE) {
-                    ability.setVisibility(View.VISIBLE);
-                } else {
-                    ability.setVisibility(View.GONE);
-                }
-            }
-        });
 
         playerData.updateMainClassInfos(this.getContext(), new FunctionCall() {
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -130,7 +112,7 @@ public class ClassInformationFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String s) {
 
-                lv.setAdapter(new ClassAbilityAdapter(getActivity(), filterAbilities(s)));
+                lv.setAdapter(new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), filterAbilities(s)));
                 return false;
             }
         });
@@ -142,8 +124,7 @@ public class ClassInformationFragment extends Fragment {
         ArrayList<ClassAbility> d = new ArrayList<>();
 
         for (ClassAbility ability : abilities) {
-            if (ability.getInfo().toLowerCase().contains(s.toLowerCase()) ||
-                ability.getName().toLowerCase().contains(s.toLowerCase())) {
+            if (ability.getDescription().toLowerCase().contains(s.toLowerCase())) {
                 d.add(ability);
             }
         }

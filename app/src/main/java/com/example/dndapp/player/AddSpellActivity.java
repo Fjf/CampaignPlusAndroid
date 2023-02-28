@@ -34,7 +34,7 @@ public class AddSpellActivity extends AppCompatActivity {
     private static final String TAG = "AddSpellActivity";
     private ArrayList<SpellData> spellDataArray;
     private SpellInstantAutoCompleteAdapter arrayAdapter;
-    private int playthroughId;
+    private int campaignId;
     private int playerId;
 
     private AutoCompleteTextView spellInput;
@@ -48,7 +48,7 @@ public class AddSpellActivity extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         playerId = preferences.getInt("player_id", -1);
-        playthroughId = preferences.getInt("playthrough_id", -1);
+        campaignId = preferences.getInt("campaign_id", -1);
 
         spellInput = findViewById(R.id.autocomplete_spells);
 
@@ -57,30 +57,20 @@ public class AddSpellActivity extends AppCompatActivity {
 
     private void getAllSpells() {
         final AddSpellActivity self = this;
-
-        String url = String.format(Locale.ENGLISH, "player/%s/allspells", selectedPlayer.getId());
-
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get("user/spells", null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray spells) {
                 try {
-                    if (!response.getBoolean("success")) {
-                        // TODO: Add error message for user.
-                        Log.d(TAG, "Spell retrieval was unsuccessful.");
-                        return;
-                    }
-
-                    JSONArray array = response.getJSONArray("spells");
                     spellDataArray = new ArrayList<>();
-                    for (int i = 0; i < array.length(); i++) {
-                        spellDataArray.add(new SpellData(array.getJSONObject(i), true));
+                    for (int i = 0; i < spells.length(); i++) {
+                        spellDataArray.add(new SpellData(spells.getJSONObject(i), true));
                     }
 
                     arrayAdapter = new SpellInstantAutoCompleteAdapter(self, spellDataArray);
 
-//                    InstantAutoComplete textView = findViewById(R.id.autocomplete_spells);
-//                    textView.setAdapter(arrayAdapter);
-//                    textView.setThreshold(1);
+                    AutoCompleteTextView textView = findViewById(R.id.autocomplete_spells);
+                    textView.setAdapter(arrayAdapter);
+                    textView.setThreshold(1);
                 } catch (JSONException e) {
                     Log.d(TAG, "Something went wrong retrieving data from the server.");
                     e.printStackTrace();
@@ -128,21 +118,11 @@ public class AddSpellActivity extends AppCompatActivity {
         data.put("spell_id", id);
         StringEntity entity = new StringEntity(data.toString());
 
-        String url = String.format(Locale.ENGLISH, "player/%s/spell", playerId);
+        String url = String.format(Locale.ENGLISH, "player/%s/spells", playerId);
         HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    JSONObject serverResp = new JSONObject(response.toString());
-                    if (serverResp.getBoolean("success")) {
-                        finish();
-                    } else {
-                        Log.d(TAG, "An error occured: " + serverResp.getString("error"));
-                    }
-
-                } catch (JSONException e) {
-                    Log.d(TAG, "Invalid response: " + response.toString());
-                }
+                finish();
             }
 
             @Override

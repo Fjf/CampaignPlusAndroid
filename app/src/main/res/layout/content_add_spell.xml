@@ -25,7 +25,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.dndapp._utils.InstantAutoComplete
+        <AutoCompleteTextView
             android:id="@+id/autocomplete_spells"
             android:layout_width="0dp"
             android:layout_weight="2"

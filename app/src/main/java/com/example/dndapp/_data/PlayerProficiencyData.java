@@ -5,95 +5,95 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PlayerProficiencyData {
-    private boolean arcana;
-    private boolean athletics;
-    private boolean deception;
-    private boolean history;
-    private boolean insight;
-    private boolean intimidation;
-    private boolean investigation;
-    private boolean medicine;
-    private boolean nature;
-    private boolean perception;
-    private boolean performance;
-    private boolean persuasion;
-    private boolean religion;
-    private boolean sleightOfHand;
-    private boolean stealth;
-    private boolean survival;
-    private boolean acrobatics;
-    private boolean animalHandling;
+    private int arcana;
+    private int athletics;
+    private int deception;
+    private int history;
+    private int insight;
+    private int intimidation;
+    private int investigation;
+    private int medicine;
+    private int nature;
+    private int perception;
+    private int performance;
+    private int persuasion;
+    private int religion;
+    private int sleightOfHand;
+    private int stealth;
+    private int survival;
+    private int acrobatics;
+    private int animalHandling;
     private PlayerStatsData playerStatsData;
 
-    public boolean isArcana() {
+    public int isArcana() {
         return arcana;
     }
 
-    public boolean isAthletics() {
+    public int isAthletics() {
         return athletics;
     }
 
-    public boolean isDeception() {
+    public int isDeception() {
         return deception;
     }
 
-    public boolean isHistory() {
+    public int isHistory() {
         return history;
     }
 
-    public boolean isInsight() {
+    public int isInsight() {
         return insight;
     }
 
-    public boolean isIntimidation() {
+    public int isIntimidation() {
         return intimidation;
     }
 
-    public boolean isInvestigation() {
+    public int isInvestigation() {
         return investigation;
     }
 
-    public boolean isMedicine() {
+    public int isMedicine() {
         return medicine;
     }
 
-    public boolean isNature() {
+    public int isNature() {
         return nature;
     }
 
-    public boolean isPerception() {
+    public int isPerception() {
         return perception;
     }
 
-    public boolean isPerformance() {
+    public int isPerformance() {
         return performance;
     }
 
-    public boolean isPersuasion() {
+    public int isPersuasion() {
         return persuasion;
     }
 
-    public boolean isReligion() {
+    public int isReligion() {
         return religion;
     }
 
-    public boolean isSleightOfHand() {
+    public int isSleightOfHand() {
         return sleightOfHand;
     }
 
-    public boolean isStealth() {
+    public int isStealth() {
         return stealth;
     }
 
-    public boolean isSurvival() {
+    public int isSurvival() {
         return survival;
     }
 
-    public boolean isAcrobatics() {
+    public int isAcrobatics() {
         return acrobatics;
     }
 
-    public boolean isAnimalHandling() {
+    public int isAnimalHandling() {
         return animalHandling;
     }
 
@@ -106,24 +106,24 @@ public class PlayerProficiencyData {
     }
 
     public void setData(JSONObject obj) throws JSONException {
-        this.acrobatics = obj.getBoolean("acrobatics");
-        this.animalHandling = obj.getBoolean("animal_handling");
-        this.arcana = obj.getBoolean("arcana");
-        this.athletics = obj.getBoolean("athletics");
-        this.deception = obj.getBoolean("deception");
-        this.history = obj.getBoolean("history");
-        this.insight = obj.getBoolean("insight");
-        this.intimidation = obj.getBoolean("intimidation");
-        this.investigation = obj.getBoolean("investigation");
-        this.medicine = obj.getBoolean("medicine");
-        this.nature = obj.getBoolean("nature");
-        this.perception = obj.getBoolean("perception");
-        this.performance = obj.getBoolean("performance");
-        this.persuasion = obj.getBoolean("persuasion");
-        this.religion = obj.getBoolean("religion");
-        this.sleightOfHand = obj.getBoolean("sleight_of_hand");
-        this.stealth = obj.getBoolean("stealth");
-        this.survival = obj.getBoolean("survival");
+        this.acrobatics = obj.getInt("acrobatics");
+        this.animalHandling = obj.getInt("animal_handling");
+        this.arcana = obj.getInt("arcana");
+        this.athletics = obj.getInt("athletics");
+        this.deception = obj.getInt("deception");
+        this.history = obj.getInt("history");
+        this.insight = obj.getInt("insight");
+        this.intimidation = obj.getInt("intimidation");
+        this.investigation = obj.getInt("investigation");
+        this.medicine = obj.getInt("medicine");
+        this.nature = obj.getInt("nature");
+        this.perception = obj.getInt("perception");
+        this.performance = obj.getInt("performance");
+        this.persuasion = obj.getInt("persuasion");
+        this.religion = obj.getInt("religion");
+        this.sleightOfHand = obj.getInt("sleight_of_hand");
+        this.stealth = obj.getInt("stealth");
+        this.survival = obj.getInt("survival");
     }
 
     private String toBonus(int value) {
@@ -134,92 +134,92 @@ public class PlayerProficiencyData {
     }
 
     public String getAcrobaticBonus() {
-        int value = (acrobatics ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getDexterityModifier());
+        int value = (acrobatics * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getDexterityModifier());
         return toBonus(value);
     }
 
     public String getAnimalHandlingBonus() {
-        int value = (animalHandling ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getWisdomModifier());
+        int value = (animalHandling * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getWisdomModifier());
         return toBonus(value);
     }
 
     public String getArcanaBonus() {
-        int value = (arcana ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
+        int value = (arcana * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
         return toBonus(value);
     }
 
     public String getAthleticsBonus() {
-        int value = (athletics ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getStrengthModifier());
+        int value = (athletics * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getStrengthModifier());
         return toBonus(value);
     }
 
     public String getDeceptionBonus() {
-        int value = (deception ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getCharismaModifier());
+        int value = (deception * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getCharismaModifier());
         return toBonus(value);
     }
 
     public String getHistoryBonus() {
-        int value = (history ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
+        int value = (history * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
         return toBonus(value);
     }
 
     public String getInsightBonus() {
-        int value = (insight ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getWisdomModifier());
+        int value = (insight * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getWisdomModifier());
         return toBonus(value);
     }
 
     public String getIntimidationBonus() {
-        int value = (intimidation ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getCharismaModifier());
+        int value = (intimidation * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getCharismaModifier());
         return toBonus(value);
     }
 
     public String getInvestigationBonus() {
-        int value = (investigation ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
+        int value = (investigation * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
         return toBonus(value);
     }
 
     public String getMedicineBonus() {
-        int value = (medicine ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getWisdomModifier());
+        int value = (medicine * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getWisdomModifier());
         return toBonus(value);
     }
 
     public String getNatureBonus() {
-        int value = (nature ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
+        int value = (nature * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
         return toBonus(value);
     }
 
     public String getPerceptionBonus() {
-        int value = (perception ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getWisdomModifier());
+        int value = (perception * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getWisdomModifier());
         return toBonus(value);
     }
 
     public String getPerformanceBonus() {
-        int value = (performance ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getCharismaModifier());
+        int value = (performance * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getCharismaModifier());
         return toBonus(value);
     }
 
     public String getPersuasionBonus() {
-        int value = (persuasion ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getCharismaModifier());
+        int value = (persuasion * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getCharismaModifier());
         return toBonus(value);
     }
 
     public String getReligionBonus() {
-        int value = (religion ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
+        int value = (religion * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getIntelligenceModifier());
         return toBonus(value);
     }
 
     public String getSleightOfHandBonus() {
-        int value = (sleightOfHand ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getDexterityModifier());
+        int value = (sleightOfHand * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getDexterityModifier());
         return toBonus(value);
     }
 
     public String getStealthBonus() {
-        int value = (stealth ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getDexterityModifier());
+        int value = (stealth * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getDexterityModifier());
         return toBonus(value);
     }
 
     public String getSurvivalBonus() {
-        int value = (survival ? playerStatsData.getProficiencyModifier() : 0) + Integer.valueOf(playerStatsData.getWisdomModifier());
+        int value = (survival * playerStatsData.getProficiencyModifier()) + Integer.valueOf(playerStatsData.getWisdomModifier());
         return toBonus(value);
     }
 

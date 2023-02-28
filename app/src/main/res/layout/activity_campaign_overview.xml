@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
-    android:id="@+id/playthrough_content_layout"
+    android:id="@+id/campaign_content_layout"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,6 +24,6 @@
         <include
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/content_playthrough_overview" />
+            layout="@layout/content_campaign_overview" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

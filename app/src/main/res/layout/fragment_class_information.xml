@@ -26,7 +26,10 @@
         <ListView
             android:id="@+id/class_info_abilities"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:fastScrollAlwaysVisible="true"
+            android:fastScrollEnabled="true"
+            />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

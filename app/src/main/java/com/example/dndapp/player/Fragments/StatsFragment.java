@@ -1,19 +1,24 @@
 package com.example.dndapp.player.Fragments;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,11 +27,13 @@ import com.example.dndapp.R;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
@@ -56,7 +63,7 @@ public class StatsFragment extends Fragment {
         for (int i = 0; i < array.length; i++) {
             id = array[i];
             if (id == value)
-                return  i;
+                return i;
         }
         return -1;
     }
@@ -77,12 +84,12 @@ public class StatsFragment extends Fragment {
     }
 
     private void savePlayerData() {
-        String st = ((TextView)view.findViewById(R.id.totStr)).getText().toString();
-        String de = ((TextView)view.findViewById(R.id.totDex)).getText().toString();
-        String co = ((TextView)view.findViewById(R.id.totCon)).getText().toString();
-        String wi = ((TextView)view.findViewById(R.id.totWis)).getText().toString();
-        String in = ((TextView)view.findViewById(R.id.totInt)).getText().toString();
-        String ch = ((TextView)view.findViewById(R.id.totCha)).getText().toString();
+        String st = ((TextView) view.findViewById(R.id.totStr)).getText().toString();
+        String de = ((TextView) view.findViewById(R.id.totDex)).getText().toString();
+        String co = ((TextView) view.findViewById(R.id.totCon)).getText().toString();
+        String wi = ((TextView) view.findViewById(R.id.totWis)).getText().toString();
+        String in = ((TextView) view.findViewById(R.id.totInt)).getText().toString();
+        String ch = ((TextView) view.findViewById(R.id.totCha)).getText().toString();
 
         selectedPlayer.statsData.setStrength(Integer.valueOf(st));
         selectedPlayer.statsData.setDexterity(Integer.valueOf(de));
@@ -92,28 +99,58 @@ public class StatsFragment extends Fragment {
         selectedPlayer.statsData.setCharisma(Integer.valueOf(ch));
 
         try {
-            String url = String.format("player/%s/data", selectedPlayer.getId());
+            String url = String.format("player/%s", selectedPlayer.getId());
             StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
             // Upload changed data to the server.
-            HttpUtils.put(url, entity, new AsyncHttpResponseHandler() {
+            HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    Toast.makeText(view.getContext(), "Something went wrong uploading player data.", Toast.LENGTH_SHORT).show();
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+                    Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + response.toString(), Toast.LENGTH_LONG).show();
                 }
             });
         } catch (UnsupportedEncodingException | JSONException e) {
             e.printStackTrace();
         }
-        PlayerInfoActivity.setStatsFields();
+        Activity act = getActivity();
+        if (act instanceof PlayerInfoActivity) {
+            ((PlayerInfoActivity) act).setStatsFields();
+        }
     }
 
     private void setOnChangeRefreshListeners() {
-        int[] ids = new int[]{
+        int[] checkboxIds = new int[]{
+
+                R.id.saving_throws_cha,
+                R.id.saving_throws_dex,
+                R.id.saving_throws_str,
+                R.id.saving_throws_con,
+                R.id.saving_throws_int,
+                R.id.saving_throws_wis
+        };
+        for (int id : checkboxIds) {
+            CheckBox vw = view.findViewById(id);
+
+            vw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    try {
+                        getPlayerProficiencies();
+                        getPlayerSavingThrows();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    setPlayerProficiencies();
+                    setPlayerProficiencyBonus();
+                }
+            });
+        }
+
+        int[] buttonIds = new int[]{
                 R.id.proficiency_acr,
                 R.id.proficiency_anh,
                 R.id.proficiency_arc,
@@ -131,30 +168,25 @@ public class StatsFragment extends Fragment {
                 R.id.proficiency_rel,
                 R.id.proficiency_soh,
                 R.id.proficiency_ste,
-                R.id.proficiency_sur,
-                R.id.saving_throws_cha,
-                R.id.saving_throws_dex,
-                R.id.saving_throws_str,
-                R.id.saving_throws_con,
-                R.id.saving_throws_int,
-                R.id.saving_throws_wis
+                R.id.proficiency_sur
         };
 
-        for (int id : ids) {
-            CheckBox vw = view.findViewById(id);
+        for (int id : buttonIds) {
+            Button vw = view.findViewById(id);
 
-            vw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    try {
-                        getPlayerProficiencies();
-                        getPlayerSavingThrows();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    setPlayerProficiencies();
-                    setPlayerProficiencyBonus();
+            vw.setOnClickListener(v -> {
+                int value = Integer.parseInt((String) vw.getText());
+                vw.setText(String.valueOf((value + 1) % 3));
+
+                try {
+                    getPlayerProficiencies();
+                    getPlayerSavingThrows();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                setPlayerProficiencies();
+                setPlayerProficiencyBonus();
+
             });
         }
     }
@@ -260,7 +292,7 @@ public class StatsFragment extends Fragment {
                 EditText et = (EditText) v;
                 String text = et.getText().toString();
                 if (text.length() > 0) {
-                    selectedPlayer.statsData.setLevel(Integer.valueOf(text));
+                    selectedPlayer.statsData.setLevel(Integer.parseInt(text));
                     setPlayerProficiencyBonus();
                 }
                 return false;
@@ -274,7 +306,7 @@ public class StatsFragment extends Fragment {
 
                 String text = et.getText().toString();
                 if (text.length() > 0)
-                    selectedPlayer.statsData.setMaxHP(Integer.valueOf(text));
+                    selectedPlayer.statsData.setMaxHP(Integer.parseInt(text));
                 return false;
             }
         });
@@ -285,7 +317,7 @@ public class StatsFragment extends Fragment {
                 EditText et = (EditText) v;
                 String text = et.getText().toString();
                 if (text.length() > 0)
-                    selectedPlayer.statsData.setArmorClass(Integer.valueOf(text));
+                    selectedPlayer.statsData.setArmorClass(Integer.parseInt(text));
                 return false;
             }
         });
@@ -324,7 +356,8 @@ public class StatsFragment extends Fragment {
             selectedPlayer.statsData.setCharisma(Integer.valueOf(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
             selectedPlayer.statsData.setIntelligence(Integer.valueOf(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
             selectedPlayer.statsData.setWisdom(Integer.valueOf(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
-        } catch (NumberFormatException ignored) { }
+        } catch (NumberFormatException ignored) {
+        }
     }
 
     public void getPlayerSavingThrows() {
@@ -336,51 +369,60 @@ public class StatsFragment extends Fragment {
         selectedPlayer.statsData.intSave = (((CheckBox) view.findViewById(R.id.saving_throws_int)).isChecked());
     }
 
+    private int getIntFromButton(int view_id) {
+        return Integer.parseInt((String) ((Button) view.findViewById(view_id)).getText());
+    }
+
+    private void setButtonTextFromInt(int view_id, int value) {
+        ((Button) view.findViewById(view_id)).setText(String.valueOf(value));
+    }
+
     public JSONObject getPlayerProficiencies() throws JSONException {
         JSONObject obj = new JSONObject();
 
-        obj.put("acrobatics", ((CheckBox) view.findViewById(R.id.proficiency_acr)).isChecked());
-        obj.put("animal_handling", ((CheckBox) view.findViewById(R.id.proficiency_anh)).isChecked());
-        obj.put("arcana", ((CheckBox) view.findViewById(R.id.proficiency_arc)).isChecked());
-        obj.put("athletics", ((CheckBox) view.findViewById(R.id.proficiency_ath)).isChecked());
-        obj.put("deception", ((CheckBox) view.findViewById(R.id.proficiency_dec)).isChecked());
-        obj.put("history", ((CheckBox) view.findViewById(R.id.proficiency_his)).isChecked());
-        obj.put("insight", ((CheckBox) view.findViewById(R.id.proficiency_ins)).isChecked());
-        obj.put("intimidation", ((CheckBox) view.findViewById(R.id.proficiency_intimidation)).isChecked());
-        obj.put("investigation", ((CheckBox) view.findViewById(R.id.proficiency_inv)).isChecked());
-        obj.put("medicine", ((CheckBox) view.findViewById(R.id.proficiency_med)).isChecked());
-        obj.put("nature", ((CheckBox) view.findViewById(R.id.proficiency_nat)).isChecked());
-        obj.put("perception", ((CheckBox) view.findViewById(R.id.proficiency_perception)).isChecked());
-        obj.put("performance", ((CheckBox) view.findViewById(R.id.proficiency_per)).isChecked());
-        obj.put("persuasion", ((CheckBox) view.findViewById(R.id.proficiency_persuasion)).isChecked());
-        obj.put("religion", ((CheckBox) view.findViewById(R.id.proficiency_rel)).isChecked());
-        obj.put("sleight_of_hand", ((CheckBox) view.findViewById(R.id.proficiency_soh)).isChecked());
-        obj.put("stealth", ((CheckBox) view.findViewById(R.id.proficiency_ste)).isChecked());
-        obj.put("survival", ((CheckBox) view.findViewById(R.id.proficiency_sur)).isChecked());
+
+        obj.put("acrobatics", getIntFromButton(R.id.proficiency_acr));
+        obj.put("animal_handling", getIntFromButton(R.id.proficiency_anh));
+        obj.put("arcana", getIntFromButton(R.id.proficiency_arc));
+        obj.put("athletics", getIntFromButton(R.id.proficiency_ath));
+        obj.put("deception", getIntFromButton(R.id.proficiency_dec));
+        obj.put("history", getIntFromButton(R.id.proficiency_his));
+        obj.put("insight", getIntFromButton(R.id.proficiency_ins));
+        obj.put("intimidation", getIntFromButton(R.id.proficiency_intimidation));
+        obj.put("investigation", getIntFromButton(R.id.proficiency_inv));
+        obj.put("medicine", getIntFromButton(R.id.proficiency_med));
+        obj.put("nature", getIntFromButton(R.id.proficiency_nat));
+        obj.put("perception", getIntFromButton(R.id.proficiency_perception));
+        obj.put("performance", getIntFromButton(R.id.proficiency_per));
+        obj.put("persuasion", getIntFromButton(R.id.proficiency_persuasion));
+        obj.put("religion", getIntFromButton(R.id.proficiency_rel));
+        obj.put("sleight_of_hand", getIntFromButton(R.id.proficiency_soh));
+        obj.put("stealth", getIntFromButton(R.id.proficiency_ste));
+        obj.put("survival", getIntFromButton(R.id.proficiency_sur));
 
         selectedPlayer.proficiencies.setData(obj);
         return obj;
     }
 
     public void setPlayerProficiencies() {
-        ((CheckBox) view.findViewById(R.id.proficiency_acr)).setChecked(selectedPlayer.proficiencies.isAcrobatics());
-        ((CheckBox) view.findViewById(R.id.proficiency_anh)).setChecked(selectedPlayer.proficiencies.isAnimalHandling());
-        ((CheckBox) view.findViewById(R.id.proficiency_arc)).setChecked(selectedPlayer.proficiencies.isArcana());
-        ((CheckBox) view.findViewById(R.id.proficiency_ath)).setChecked(selectedPlayer.proficiencies.isAthletics());
-        ((CheckBox) view.findViewById(R.id.proficiency_dec)).setChecked(selectedPlayer.proficiencies.isDeception());
-        ((CheckBox) view.findViewById(R.id.proficiency_his)).setChecked(selectedPlayer.proficiencies.isHistory());
-        ((CheckBox) view.findViewById(R.id.proficiency_ins)).setChecked(selectedPlayer.proficiencies.isInsight());
-        ((CheckBox) view.findViewById(R.id.proficiency_intimidation)).setChecked(selectedPlayer.proficiencies.isIntimidation());
-        ((CheckBox) view.findViewById(R.id.proficiency_inv)).setChecked(selectedPlayer.proficiencies.isInvestigation());
-        ((CheckBox) view.findViewById(R.id.proficiency_med)).setChecked(selectedPlayer.proficiencies.isMedicine());
-        ((CheckBox) view.findViewById(R.id.proficiency_nat)).setChecked(selectedPlayer.proficiencies.isNature());
-        ((CheckBox) view.findViewById(R.id.proficiency_perception)).setChecked(selectedPlayer.proficiencies.isPerception());
-        ((CheckBox) view.findViewById(R.id.proficiency_per)).setChecked(selectedPlayer.proficiencies.isPerformance());
-        ((CheckBox) view.findViewById(R.id.proficiency_persuasion)).setChecked(selectedPlayer.proficiencies.isPersuasion());
-        ((CheckBox) view.findViewById(R.id.proficiency_rel)).setChecked(selectedPlayer.proficiencies.isReligion());
-        ((CheckBox) view.findViewById(R.id.proficiency_soh)).setChecked(selectedPlayer.proficiencies.isSleightOfHand());
-        ((CheckBox) view.findViewById(R.id.proficiency_ste)).setChecked(selectedPlayer.proficiencies.isStealth());
-        ((CheckBox) view.findViewById(R.id.proficiency_sur)).setChecked(selectedPlayer.proficiencies.isSurvival());
+        setButtonTextFromInt(R.id.proficiency_acr, selectedPlayer.proficiencies.isAcrobatics());
+        setButtonTextFromInt(R.id.proficiency_anh, selectedPlayer.proficiencies.isAnimalHandling());
+        setButtonTextFromInt(R.id.proficiency_arc, selectedPlayer.proficiencies.isArcana());
+        setButtonTextFromInt(R.id.proficiency_ath, selectedPlayer.proficiencies.isAthletics());
+        setButtonTextFromInt(R.id.proficiency_dec, selectedPlayer.proficiencies.isDeception());
+        setButtonTextFromInt(R.id.proficiency_his, selectedPlayer.proficiencies.isHistory());
+        setButtonTextFromInt(R.id.proficiency_ins, selectedPlayer.proficiencies.isInsight());
+        setButtonTextFromInt(R.id.proficiency_intimidation, selectedPlayer.proficiencies.isIntimidation());
+        setButtonTextFromInt(R.id.proficiency_inv, selectedPlayer.proficiencies.isInvestigation());
+        setButtonTextFromInt(R.id.proficiency_med, selectedPlayer.proficiencies.isMedicine());
+        setButtonTextFromInt(R.id.proficiency_nat, selectedPlayer.proficiencies.isNature());
+        setButtonTextFromInt(R.id.proficiency_perception, selectedPlayer.proficiencies.isPerception());
+        setButtonTextFromInt(R.id.proficiency_per, selectedPlayer.proficiencies.isPerformance());
+        setButtonTextFromInt(R.id.proficiency_persuasion, selectedPlayer.proficiencies.isPersuasion());
+        setButtonTextFromInt(R.id.proficiency_rel, selectedPlayer.proficiencies.isReligion());
+        setButtonTextFromInt(R.id.proficiency_soh, selectedPlayer.proficiencies.isSleightOfHand());
+        setButtonTextFromInt(R.id.proficiency_ste, selectedPlayer.proficiencies.isStealth());
+        setButtonTextFromInt(R.id.proficiency_sur, selectedPlayer.proficiencies.isSurvival());
 
 
         ((CheckBox) view.findViewById(R.id.saving_throws_cha)).setChecked(selectedPlayer.statsData.chaSave);
@@ -447,7 +489,22 @@ public class StatsFragment extends Fragment {
 
     private void setExhaustionInfoText(int checkedId) {
         int id = indexOf(radioButtons, checkedId);
-        if (id > -1 && id < arr.length)
-            tv.setText(arr[id]);
+        if (id > -1 && id < arr.length) {
+            if (id == 0) {
+                tv.setText(arr[id]);
+            } else {
+                // After exhaustion level 0, they will add up together
+                StringBuilder sb = new StringBuilder();
+                for (int i = 1; i <= id; i++) {
+                    sb.append(arr[i]);
+                    sb.append("\n");
+                }
+                tv.setText(sb.toString());
+            }
+        }
+
+        // Scroll to bottom after updating text
+        ScrollView scroll = view.findViewById(R.id.stats_overview);
+        scroll.fullScroll(View.FOCUS_DOWN);
     }
 }

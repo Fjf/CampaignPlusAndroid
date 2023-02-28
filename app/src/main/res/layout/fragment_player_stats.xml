@@ -66,7 +66,7 @@
                     android:id="@+id/totStr"
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
-
+                    android:selectAllOnFocus="true"
                     android:gravity="center_horizontal"
                     android:inputType="numberSigned"
 
@@ -123,10 +123,11 @@
                             android:text="Athletics" />
 
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_ath"
                             android:layout_width="0dp"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_ath_bon"
@@ -167,7 +168,7 @@
                     android:id="@+id/totDex"
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
-
+                    android:selectAllOnFocus="true"
                     android:gravity="center_horizontal"
                     android:inputType="numberSigned"
 
@@ -222,10 +223,11 @@
                             android:gravity="center"
                             android:text="Acrobatics" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_acr"
                             android:layout_width="0dp"
-                            android:layout_weight="0.25" />
+                            android:layout_weight="0.25"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_acr_bon"
@@ -246,11 +248,12 @@
                             android:gravity="center"
                             android:text="Sleight of Hand" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_soh"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_soh_bon"
@@ -272,11 +275,12 @@
                             android:text="Stealth" />
 
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_ste"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_ste_bon"
@@ -316,7 +320,7 @@
                     android:id="@+id/totCon"
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
-
+                    android:selectAllOnFocus="true"
                     android:gravity="center_horizontal"
                     android:inputType="numberSigned"
 
@@ -393,7 +397,7 @@
                     android:id="@+id/totInt"
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
-
+                    android:selectAllOnFocus="true"
                     android:gravity="center_horizontal"
                     android:inputType="numberSigned"
 
@@ -450,11 +454,12 @@
                             android:gravity="center"
                             android:text="Arcana" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_arc"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
 
                         <TextView
@@ -476,11 +481,12 @@
                             android:gravity="center"
                             android:text="History" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_his"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_his_bon"
@@ -501,11 +507,12 @@
                             android:gravity="center"
                             android:text="Investigation" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_inv"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_inv_bon"
@@ -526,11 +533,12 @@
                             android:gravity="center"
                             android:text="Nature" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_nat"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_nat_bon"
@@ -551,11 +559,12 @@
                             android:gravity="center"
                             android:text="Religion" />
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_rel"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_rel_bon"
@@ -575,6 +584,216 @@
                     app:constraint_referenced_ids="intelligence_proficiencies,totInt" />
 
                 <TextView
+                    android:id="@+id/wisdom_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center"
+                    android:text="@string/wisdom"
+                    android:textSize="7pt"
+                    android:textStyle="bold"
+
+                    app:layout_constraintEnd_toStartOf="@id/wisdom_proficiencies"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_intelligence"
+
+                    />
+
+                <EditText
+                    android:id="@+id/totWis"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+                    android:selectAllOnFocus="true"
+                    android:gravity="center_horizontal"
+                    android:inputType="numberSigned"
+
+                    app:layout_constraintEnd_toEndOf="@id/wisdom_title"
+                    app:layout_constraintStart_toStartOf="@id/wisdom_title"
+                    app:layout_constraintTop_toBottomOf="@id/wisdom_title" />
+
+                <TableLayout
+                    android:id="@+id/wisdom_proficiencies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="3"
+                    app:layout_constraintStart_toEndOf="@id/wisdom_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_intelligence">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Saving Throws"
+                            android:textStyle="italic|bold" />
+
+
+                        <CheckBox
+                            android:id="@+id/saving_throws_wis"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/saving_throws_wis_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Animal Handling" />
+
+                        <Button
+                            android:id="@+id/proficiency_anh"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0" />
+
+                        <TextView
+                            android:id="@+id/proficiency_anh_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Insight" />
+
+
+                        <Button
+                            android:id="@+id/proficiency_ins"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0" />
+
+                        <TextView
+                            android:id="@+id/proficiency_ins_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Medicine" />
+
+
+                        <Button
+                            android:id="@+id/proficiency_med"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0" />
+
+                        <TextView
+                            android:id="@+id/proficiency_med_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Perception" />
+
+
+                        <Button
+                            android:text="0"
+                            android:id="@+id/proficiency_perception"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_perception_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:gravity="center"
+                            android:text="Survival" />
+
+
+                        <Button
+                            android:text="0"
+                            android:id="@+id/proficiency_sur"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/proficiency_sur_bon"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="Bonus" />
+
+                    </TableRow>
+
+                </TableLayout>
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_charisma"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="wisdom_proficiencies,totWis" />
+
+                <TextView
                     android:id="@+id/charisma_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -587,7 +806,7 @@
                     app:layout_constraintEnd_toStartOf="@id/charisma_proficiencies"
                     app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/barrier_intelligence"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_charisma"
 
                     />
 
@@ -595,7 +814,7 @@
                     android:id="@+id/totCha"
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
-
+                    android:selectAllOnFocus="true"
                     android:gravity="center_horizontal"
                     android:inputType="numberSigned"
 
@@ -611,8 +830,8 @@
 
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_weight="3"
-                    app:layout_constraintStart_toEndOf="@id/intelligence_title"
-                    app:layout_constraintTop_toBottomOf="@id/barrier_intelligence">
+                    app:layout_constraintStart_toEndOf="@id/wisdom_title"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_charisma">
 
                     <TableRow
                         android:layout_width="match_parent"
@@ -652,11 +871,12 @@
                             android:text="Deception" />
 
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_dec"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_dec_bon"
@@ -678,11 +898,12 @@
                             android:text="Intimidation" />
 
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_intimidation"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_intimidation_bon"
@@ -704,11 +925,12 @@
                             android:text="Performance" />
 
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_per"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_per_bon"
@@ -730,11 +952,12 @@
                             android:text="Persuasion" />
 
 
-                        <CheckBox
+                        <Button
                             android:id="@+id/proficiency_persuasion"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:text="0" />
 
                         <TextView
                             android:id="@+id/proficiency_persuasion_bon"
@@ -744,211 +967,6 @@
 
                     </TableRow>
                 </TableLayout>
-
-                <androidx.constraintlayout.widget.Barrier
-                    android:id="@+id/barrier_charisma"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-
-                    app:barrierDirection="bottom"
-                    app:constraint_referenced_ids="charisma_proficiencies,totCha" />
-
-                <TextView
-                    android:id="@+id/wisdom_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="center"
-                    android:text="@string/wisdom"
-                    android:textSize="7pt"
-                    android:textStyle="bold"
-
-                    app:layout_constraintEnd_toStartOf="@id/wisdom_proficiencies"
-                    app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/barrier_charisma"
-
-                    />
-
-                <EditText
-                    android:id="@+id/totWis"
-                    android:layout_width="56dp"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="center_horizontal"
-                    android:inputType="numberSigned"
-
-                    app:layout_constraintEnd_toEndOf="@id/wisdom_title"
-                    app:layout_constraintStart_toStartOf="@id/wisdom_title"
-                    app:layout_constraintTop_toBottomOf="@id/wisdom_title" />
-
-                <TableLayout
-                    android:id="@+id/wisdom_proficiencies"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_weight="3"
-                    app:layout_constraintStart_toEndOf="@id/wisdom_title"
-                    app:layout_constraintTop_toBottomOf="@id/barrier_charisma">
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:weightSum="4">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:gravity="center"
-                            android:text="Saving Throws"
-                            android:textStyle="italic|bold" />
-
-
-                        <CheckBox
-                            android:id="@+id/saving_throws_wis"
-                            android:layout_width="0dp"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/saving_throws_wis_bon"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:text="Bonus" />
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:gravity="center"
-                            android:text="Animal Handling" />
-
-                        <CheckBox
-                            android:id="@+id/proficiency_anh"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/proficiency_anh_bon"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:text="Bonus" />
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:gravity="center"
-                            android:text="Insight" />
-
-
-                        <CheckBox
-                            android:id="@+id/proficiency_ins"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/proficiency_ins_bon"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:text="Bonus" />
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:gravity="center"
-                            android:text="Medicine" />
-
-
-                        <CheckBox
-                            android:id="@+id/proficiency_med"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/proficiency_med_bon"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:text="Bonus" />
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:gravity="center"
-                            android:text="Perception" />
-
-
-                        <CheckBox
-                            android:id="@+id/proficiency_perception"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/proficiency_perception_bon"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:text="Bonus" />
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:gravity="center"
-                            android:text="Survival" />
-
-
-                        <CheckBox
-                            android:id="@+id/proficiency_sur"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/proficiency_sur_bon"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:text="Bonus" />
-
-                    </TableRow>
-                </TableLayout>
-
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="2dp"

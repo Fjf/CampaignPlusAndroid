@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.dndapp.R;
+import com.example.dndapp._data.items.EquipmentItem;
 import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp._data.items.ItemType;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
@@ -90,7 +91,7 @@ public class PlayerItemFragment extends Fragment {
         // Default spell information is the first entry
         System.out.println(selectedItemId);
 
-        ItemData current = pidDataSet[selectedItemId];
+        EquipmentItem current = pidDataSet[selectedItemId];
 
         createItemDropdown();
 
@@ -100,7 +101,7 @@ public class PlayerItemFragment extends Fragment {
     private void createItemDropdown() {
         String[] itemNames = new String[pidDataSet.length];
         for (int i = 0; i < pidDataSet.length; i++) {
-            itemNames[i] = pidDataSet[i].getName();
+            itemNames[i] = pidDataSet[i].getItem().getName();
         }
 
         Spinner spin = view.findViewById(R.id.name);
@@ -121,12 +122,14 @@ public class PlayerItemFragment extends Fragment {
         });
     }
 
-    private void fillItemData(ItemData itemData) {
+    private void fillItemData(EquipmentItem equipmentItem) {
         TextView na = view.findViewById(R.id.item_info_value);
         TextView am = view.findViewById(R.id.item_info_amount);
 
+        ItemData itemData = equipmentItem.getItem();
+
         na.setText(itemData.getNormalValue());
-        am.setText(String.valueOf(itemData.getAmount()));
+        am.setText(String.valueOf(equipmentItem.getAmount()));
 
         if (itemData.getType() == ItemType.WEAPON) {
             hideAllBut(R.id.item_weapon_info);

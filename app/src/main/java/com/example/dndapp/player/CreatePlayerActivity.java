@@ -1,10 +1,15 @@
 package com.example.dndapp.player;
 
 import android.content.Intent;
+
 import com.google.android.material.textfield.TextInputEditText;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -81,7 +86,6 @@ public class CreatePlayerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-
         ListView lv = findViewById(R.id.player_class_list);
 
         classAdapter = new ClassAdapter(this, selectedClasses);
@@ -125,6 +129,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
 
     /**
      * This function will add an object to the selected list which is also shown in the list.
+     *
      * @param selectedItemId The id from classes list will be added to the selected list.
      */
     private void addSelectedClass(int selectedItemId) {
@@ -225,21 +230,19 @@ public class CreatePlayerActivity extends AppCompatActivity {
 
         findViewById(R.id.player_create_new_button).setEnabled(false);
 
-        String url = String.format(Locale.ENGLISH, "player/%d/data", selectedPlayer.getId());
+        String url = String.format(Locale.ENGLISH, "player/%d", selectedPlayer.getId());
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    if (response.getBoolean("success")) {
-                        // After creating new character, this overlay may close.
-                        Intent data = new Intent();
-                        data.putExtra("player_id", response.getInt("player_id"));
-                        setResult(RESULT_OK, data);
+                    // After creating new character, this overlay may close.
+                    Intent data = new Intent();
+                    data.putExtra("player_id", response.getInt("player_id"));
+                    setResult(RESULT_OK, data);
 
-                        Toast.makeText(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT).show();
 
-                        finish();
-                    }
+                    finish();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

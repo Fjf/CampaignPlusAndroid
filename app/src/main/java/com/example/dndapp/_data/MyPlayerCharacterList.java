@@ -1,5 +1,7 @@
 package com.example.dndapp._data;
 
+import android.util.Log;
+
 import androidx.arch.core.util.Function;
 
 import com.example.dndapp._data.classinfo.MainClassInfo;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class MyPlayerCharacterList {
+    private static final String TAG = "MyPlayerCharacterList";
     public static ArrayList<PlayerData> playerData = new ArrayList<>();
     public static ArrayList<MainClassInfo> availableClasses;
 
@@ -55,14 +58,12 @@ public class MyPlayerCharacterList {
     }
 
     public static void updatePlayerData(final FunctionCall fn) {
-        String url = "user/players";
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        Log.d(TAG, "Loading player classes");
+        HttpUtils.get("user/players", null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
-                    if (response.getBoolean("success")) {
-                        setPlayerData(response.getJSONArray("players"));
-                    }
+                    setPlayerData(response);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -76,19 +77,15 @@ public class MyPlayerCharacterList {
     public static void updateClassData(final FunctionCall fn) {
         HttpUtils.get("user/classes", null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray classes) {
                 try {
-                    if (response.getBoolean("success")) {
-                        JSONArray classes = response.getJSONArray("classes");
-
-                        // Create class object for all incoming classes.
-                        availableClasses = new ArrayList<>();
-                        for (int i = 0; i < classes.length(); i++) {
-                            availableClasses.add(new MainClassInfo(classes.getJSONObject(i)));
-                        }
-
-                        fn.success();
+                    // Create class object for all incoming classes.
+                    availableClasses = new ArrayList<>();
+                    for (int i = 0; i < classes.length(); i++) {
+                        availableClasses.add(new MainClassInfo(classes.getJSONObject(i)));
                     }
+
+                    fn.success();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

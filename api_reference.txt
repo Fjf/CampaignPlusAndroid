@@ -1,63 +1,3 @@
-PLAYTHROUGH API.
-
-/createplaythrough (POST)
-
-- requires login
-- json api
-
-Creates a playthrough with a given name, owned by the logged in user.
-
-Parameters:
- name
-
-
-
-/getplaythroughs (GET)
-
-- requires login
-- json api
-
-Returns the list of playthroughs.
-Data is formatted as a json list of objects containing playthrough id, name
- and time of creation.
-
-
-
-/getplaythroughurl (POST)
-
-- requires login
-- json api
-
-Returns the URL which is linked to a playthrough id.
-
-Parameters:
- id
-
-
-
-/getplaythroughname (POST)
-
-- requires login
-- json api
-
-Returns the an object containing the name linked to a playthrough.
-
-Parameters:
- code
-
-
-
-/getjoinedplaythroughs (GET)
-
-- requires login
-- json api
-
-Returns a list of playthroughs the logged in user is a part of.
-Data is formatted as a json list of objects containing playthrough code, name
- and time of creation.
-
-
-
 USER API
 
 /register (POST)
@@ -105,13 +45,13 @@ PLAYER API
 - json api
 - requires login
 
-Creates a player for a certain playthrough.
+Creates a player for a certain campaign.
 Will return an object containing a success boolean and an optional error message.
 
 Parameters:
  name
  class_name
- code (playthrough code)
+ code (campaign code)
  backstory
  race
 
@@ -130,7 +70,7 @@ Parameters:
  pid 
  name (optional)
  class_name (optional)
- code (playthrough code)
+ code (campaign code)
  backstory (optional)
  race (optional)
 
@@ -141,16 +81,16 @@ Parameters:
 - json api
 - requires login
 
-Returns a list with all players in a certain playthrough.
+Returns a list with all players in a certain campaign.
 Every entry in the list  contains player id, name, class and user name.
-May only access if the requesting user is a part of this playthrough.
-Can request using either playthrough_id or playthrough_code
+May only access if the requesting user is a part of this campaign.
+Can request using either campaign_id or campaign_code
 
 Parameters:
- playthrough_id (optional)
- playthrough_code (optional)
+ campaign_id (optional)
+ campaign_code (optional)
 
-NOTE: one of the above has to be non empty, if both are non empty it will use playthrough_id
+NOTE: one of the above has to be non empty, if both are non empty it will use campaign_id
 
 
 

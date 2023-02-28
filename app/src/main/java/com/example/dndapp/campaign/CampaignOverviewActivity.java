@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.player.PlayerInfoActivity;
-import com.example.dndapp.campaign.Adapters.PlaythroughListAdapter;
+import com.example.dndapp.campaign.Adapters.CampaignListAdapter;
 import com.example.dndapp.campaign.Fragments.SelectPlayerFragment;
 import com.example.dndapp.R;
 import com.example.dndapp._data.MyPlayerCharacterList;
@@ -38,34 +38,33 @@ import java.io.UnsupportedEncodingException;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class CampaignOverviewActivity extends AppCompatActivity {
     private static final int QR_CODE = 0;
-    private String TAG = "CampaignOverviewActivity";
-    private ListView playthroughsList;
-    private PlaythroughListAdapter playthroughsListData;
+    private final String TAG = "CampaignOverviewActivity";
+    private ListView campaignList;
+    private CampaignListAdapter campaignListData;
     private String[] codes;
     private String[] names;
     private Toolbar toolbar;
     private Spinner playerSpinner;
     private ProgressBar progressBar;
-    private String playthroughCode = "";
+    private String campaignCode = "";
     private EditText et;
     private int[] ids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playthrough_overview);
+        setContentView(R.layout.activity_campaign_overview);
 
-        et = findViewById(R.id.playthrough_code);
+        et = findViewById(R.id.campaign_code);
 
         progressBar = findViewById(R.id.loading_bar);
         playerSpinner = findViewById(R.id.player_spinner);
 
-        playthroughsList = findViewById(R.id.playthroughs);
-        playthroughsList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        campaignList = findViewById(R.id.campaigns);
+        campaignList.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
             {
@@ -82,11 +81,11 @@ public class CampaignOverviewActivity extends AppCompatActivity {
             }
         });
 
-        getJoinedPlaythroughs();
+        getJoinedCampaigns();
 
         // Attaching the layout to the toolbar object
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("All Playthroughs");
+        toolbar.setTitle("All Campaigns");
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
     }
@@ -96,7 +95,7 @@ public class CampaignOverviewActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_playthrough, menu);
+        getMenuInflater().inflate(R.menu.menu_campaign, menu);
         return true;
     }
 
@@ -121,23 +120,22 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getJoinedPlaythroughs() {
-        String url = "getjoinedplaythroughs";
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+    private void getJoinedCampaigns() {
+        HttpUtils.get("campaigns", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
                     names = new String[response.length()];
                     codes = new String[response.length()];
                     ids = new int[response.length()];
-                    // Iterate over all playthrough entries in list.
+                    // Iterate over all campaign entries in list.
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject entry = response.getJSONObject(i);
                         names[i] = entry.getString("name");
                         ids[i] = entry.getInt("id");
                         codes[i] = entry.getString("code");
                     }
-                    updatePlaythroughsList(names);
+                    updateCampaignsList(names);
                 } catch (JSONException e) {
                     Log.d(TAG, "Invalid response: " + response);
                     e.printStackTrace();
@@ -151,10 +149,10 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         });
     }
 
-    private void updatePlaythroughsList(String[] data) {
-        playthroughsListData = new PlaythroughListAdapter(this, data);
+    private void updateCampaignsList(String[] data) {
+        campaignListData = new CampaignListAdapter(this, data);
 
-        playthroughsList.setAdapter(playthroughsListData);
+        campaignList.setAdapter(campaignListData);
 
     }
 
@@ -162,14 +160,14 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == QR_CODE) {
             if(resultCode == RESULT_OK) {
-                String playthrough_code = data.getStringExtra("QR_CODE");
-                if (playthrough_code.length() != 6)
+                String campaign_code = data.getStringExtra("QR_CODE");
+                if (campaign_code != null && campaign_code.length() != 6)
                     return;
 
-                playthroughCode = playthrough_code;
-                et.setText(playthroughCode);
+                campaignCode = campaign_code;
+                et.setText(campaignCode);
 
-                if (!validateCode(playthroughCode)) {
+                if (!validateCode(campaignCode)) {
                     Toast.makeText(this, "This code is invalid.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -179,21 +177,17 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         }
     }
 
-    public void addPlayerPlaythroughButton(View view) {
+    public void addPlayerCampaignButton(View view) {
         try {
-            joinPlaythrough(playthroughCode);
+            joinCampaign(campaignCode);
         } catch (UnsupportedEncodingException | JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void joinPlaythrough(String code) throws UnsupportedEncodingException, JSONException {
-        final JSONObject data = new JSONObject();
-        data.put("playthrough_code", code);
-        StringEntity entity = new StringEntity(data.toString());
-
-        String url = "joinplaythrough";
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+    private void joinCampaign(String code) throws UnsupportedEncodingException, JSONException {
+        String url = "campaigns/join/" + code;
+        HttpUtils.post(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 // Close fragment.
@@ -202,16 +196,16 @@ public class CampaignOverviewActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(CampaignOverviewActivity.this, "This playthrough does not exist.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
                 // Close fragment.
                 CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
             }
         });
     }
 
-    public void joinPlaythroughButton(View view) {
-        playthroughCode = et.getText().toString();
-        if (!validateCode(playthroughCode)) {
+    public void joinCampaignButton(View view) {
+        campaignCode = et.getText().toString();
+        if (!validateCode(campaignCode)) {
             Toast.makeText(this, "This code is invalid.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -227,8 +221,7 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         // Load all your player characters from database.
-        String url = "user/players";
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get("user/players", null, new JsonHttpResponseHandler() {
             @Override
             public void onPreProcessResponse(ResponseHandlerInterface instance, HttpResponse response) {
                 // Stop the loading bar
@@ -251,14 +244,14 @@ public class CampaignOverviewActivity extends AppCompatActivity {
                     MyPlayerCharacterList.setPlayerData(arr);
 
 
-                    SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(playthroughCode);
+                    SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(campaignCode);
                     fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
                     fragment.setExitTransition(new Slide(Gravity.TOP));
 
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     FragmentTransaction ft = fragmentManager.beginTransaction();
 
-                    ft.replace(R.id.playthrough_content_layout, fragment);
+                    ft.replace(R.id.campaign_content_layout, fragment);
                     ft.addToBackStack(null);
                     ft.commit();
 

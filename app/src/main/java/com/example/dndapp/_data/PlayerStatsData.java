@@ -6,10 +6,10 @@ import org.json.JSONObject;
 import java.util.Locale;
 
 public class PlayerStatsData {
-    private int speed;
-    private int armorClass;
-    private int maxHP;
-    private int level;
+    private int speed = 0;
+    private int armorClass = 0;
+    private int maxHP = 0;
+    private int level = 0;
 
     public void setDexterity(int dexterity) {
         this.dexterity = fixStatInputRange(dexterity);
@@ -40,19 +40,19 @@ public class PlayerStatsData {
         return Math.max(Math.min(stat, 30), 1);
     }
 
-    private int dexterity;
-    private int strength;
-    private int constitution;
-    private int wisdom;
-    private int intelligence;
-    private int charisma;
+    private int dexterity = 0;
+    private int strength = 0;
+    private int constitution = 0;
+    private int wisdom = 0;
+    private int intelligence = 0;
+    private int charisma = 0;
 
-    public boolean dexSave;
-    public boolean conSave;
-    public boolean wisSave;
-    public boolean strSave;
-    public boolean intSave;
-    public boolean chaSave;
+    public boolean dexSave = false;
+    public boolean conSave = false;
+    public boolean wisSave = false;
+    public boolean strSave = false;
+    public boolean intSave = false;
+    public boolean chaSave = false;
 
     public void setSpeed(int speed) {
         this.speed = speed;
@@ -138,6 +138,11 @@ public class PlayerStatsData {
         this.maxHP = obj.getInt("max_hp");
         this.level = obj.getInt("level");
     }
+
+    /**
+     * Default constructor
+     */
+    public PlayerStatsData() { }
 
     private String getModifier(int value) {
         int val = getIntModifier(value);

@@ -4,9 +4,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ItemData {
-    private int id;
 
-    private int amount = 0;
+    private int id;
     private int weight = 0;
     private int value = 0;
     private String name;
@@ -29,10 +28,6 @@ public class ItemData {
 
     public int getId() {
         return id;
-    }
-
-    public int getAmount() {
-        return amount;
     }
 
     public String getNormalValue() {
@@ -107,42 +102,55 @@ public class ItemData {
         this.name = name;
     }
 
-    public ItemData(JSONObject obj, ItemType type) throws JSONException {
-        this.id = obj.getInt("id");
+    private ItemType getItemType(String category) {
+        if (category.equals("Weapon"))
+            return ItemType.WEAPON;
+        if (category.equals("Armor"))
+            return ItemType.ARMOR;
+        if (category.equals("Adventuring Gear"))
+            return ItemType.GEAR;
+        if (category.equals("Tools"))
+            return ItemType.TOOLS;
+        if (category.equals("Mounts and Vehicles"))
+            return ItemType.MOUNT;
 
-        this.name = obj.getString("name");
+        // Fallback.
+        return ItemType.ITEM;
+    }
 
-        if (!obj.isNull("amount")) {
-            this.amount = obj.getInt("amount");
-        } else {
-            this.amount = 0;
-        }
-
-        this.weight = obj.getInt("weight");
-        this.value = obj.getInt("value");
-        this.category = obj.getString("category");
+    public ItemData(JSONObject itemInfo) throws JSONException {
+        /*
+         * General information about this type of item
+         * All specific Weapon stats are loaded etc.
+         */
+        this.id = itemInfo.getInt("id");
+        this.name = itemInfo.getString("name");
+        this.weight = itemInfo.getInt("weight");
+        this.value = itemInfo.getInt("raw_value");
+        this.category = itemInfo.getString("category");
+        ItemType type = getItemType(this.category);
 
         this.type = type;
 
         if (type == ItemType.WEAPON) {
-            if (!obj.isNull("dice")) {
-                this.dice = obj.getString("dice");
-                this.damageType = obj.getString("damage_type");
-                this.damageBonus = obj.getInt("damage_bonus");
+            if (!itemInfo.isNull("dice")) {
+                this.dice = itemInfo.getString("dice");
+                this.damageType = itemInfo.getString("damage_type");
+                this.damageBonus = itemInfo.getInt("damage_bonus");
             }
 
             // Make sure 2h damage exists.
-            if (!obj.isNull("2h_dice")) {
-                this.twoDice = obj.getString("2h_dice");
-                this.twoDamageType = obj.getString("2h_damage_type");
-                this.twoDamageBonus = obj.getInt("2h_damage_bonus");
+            if (!itemInfo.isNull("2h_dice")) {
+                this.twoDice = itemInfo.getString("2h_dice");
+                this.twoDamageType = itemInfo.getString("2h_damage_type");
+                this.twoDamageBonus = itemInfo.getInt("2h_damage_bonus");
             }
 
-            this.rangeNormal = getIfNotNullString(obj, "range_normal");
-            this.rangeLong = getIfNotNullString(obj, "range_long");
+            this.rangeNormal = getIfNotNullString(itemInfo, "range_normal");
+            this.rangeLong = getIfNotNullString(itemInfo, "range_long");
 
-            this.throwRangeNormal = getIfNotNullString(obj, "throw_range_normal");
-            this.throwRangeLong = getIfNotNullString(obj, "throw_range_long");
+            this.throwRangeNormal = getIfNotNullString(itemInfo, "throw_range_normal");
+            this.throwRangeLong = getIfNotNullString(itemInfo, "throw_range_long");
         }
     }
 

@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp._data.items.EquipmentItem;
 import com.example.dndapp.login.LoginActivity;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.Adapters.DrawerListAdapter;
@@ -43,8 +44,6 @@ import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
 import com.example.dndapp.campaign.CampaignOverviewActivity;
 import com.example.dndapp.R;
 import com.example.dndapp._data.DrawerListData;
-import com.example.dndapp._data.items.ItemData;
-import com.example.dndapp._data.items.ItemType;
 import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerStatsData;
@@ -76,33 +75,27 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
-    private final int FRAGMENT_ID_ITEM =     0;
-    private final int FRAGMENT_ID_ADD_ITEM = 1;
-    private final int FRAGMENT_ID_SPELL = 2;
-    private final int FRAGMENT_ID_ADD_SPELL = 3;
-    private final int FRAGMENT_ID_PLAYER_STATS = 4;
 
+    private TextView totalStrength;
+    private TextView totalConstitution;
+    private TextView totalDexterity;
+    private TextView totalWisdom;
+    private TextView totalCharisma;
+    private TextView totalIntelligence;
 
-    private static TextView totalStrength;
-    private static TextView totalConstitution;
-    private static TextView totalDexterity;
-    private static TextView totalWisdom;
-    private static TextView totalCharisma;
-    private static TextView totalIntelligence;
+    private TextView strengthMod;
+    private TextView dexterityMod;
+    private TextView constitutionMod;
+    private TextView wisdomMod;
+    private TextView intelligenceMod;
+    private TextView charismaMod;
 
-    private static TextView strengthMod;
-    private static TextView dexterityMod;
-    private static TextView constitutionMod;
-    private static TextView wisdomMod;
-    private static TextView intelligenceMod;
-    private static TextView charismaMod;
+    private TextView statArmorClass;
+    private TextView statMaxHP;
+    private TextView statLevel;
 
-    private static TextView statArmorClass;
-    private static TextView statMaxHP;
-    private static TextView statLevel;
-
-    public static SpellData[] psdDataSet = new SpellData[0];
-    public static ItemData[] pidDataSet = new ItemData[0];
+    public static ArrayList<SpellData> psdDataSet;
+    public static EquipmentItem[] pidDataSet = new EquipmentItem[0];
     public static int selectedSpellId;
     public static int selectedItemId;
 
@@ -160,8 +153,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
          *  Get player information and try to load the correct player object into local views.
          */
         preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
-        int playerId = getIntent().getIntExtra("player_id", -1);
+        int playerId = preferences.getInt("player_id", -1);
+        Log.d(TAG, "------------------       Current player id: " + playerId);
         trySelectingPlayer(playerId, false);
+
 
         // Set onchange listener for current hp.
         ((EditText) findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
@@ -194,7 +189,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                         selectedItemId = position;
 
                         TextView tv = findViewById(R.id.deleteItemTextButton);
-                        tv.setText("Delete " + pidDataSet[selectedItemId].getName());
+                        tv.setText("Delete " + pidDataSet[selectedItemId].getItem().getName());
                         findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
                     }
                 })
@@ -219,7 +214,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                         selectedSpellId = position;
 
                         TextView tv = findViewById(R.id.deleteSpellTextButton);
-                        tv.setText("Delete " + psdDataSet[selectedSpellId].getName());
+                        tv.setText("Delete " + psdDataSet.get(selectedSpellId).getName());
                         findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
                     }
                 })
@@ -237,7 +232,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
                         Toast.makeText(PlayerInfoActivity.this, "You have no player characters.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
                     updatePlayerDrawer();
                     updatePlayerInfo(id);
                 }
@@ -262,6 +256,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void updatePlayerInfo(int id) {
+        // Set currently selected playerid to preferences to autoload next time
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("player_id", id);
+        editor.apply();
+
         // Always have a player selected.
         if (id == -1) {
             if (MyPlayerCharacterList.playerData.size() == 0)
@@ -425,32 +424,21 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void getPlayerItems() {
-        String url = String.format(Locale.ENGLISH, "player/%s/item", selectedPlayer.getId());
+        String url = String.format(Locale.ENGLISH, "player/%s/items", selectedPlayer.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
                 try {
-                    if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong retrieving items from server.");
-                        return;
-                    }
-
-                    JSONArray array = response.getJSONArray("items");
-                    JSONObject obj;
-
-                    if (array.length() == 0) {
+                    if (items.length() == 0) {
                         findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
                     } else {
                         findViewById(R.id.no_items_text).setVisibility(View.GONE);
                     }
 
-                    pidDataSet = new ItemData[array.length()];
-                    for (int i = 0; i < array.length(); i++) {
-                        obj = array.getJSONObject(i);
-
-                        ItemType type = getItemType(obj.getString("category"));
-
-                        pidDataSet[i] = new ItemData(obj, type);
+                    pidDataSet = new EquipmentItem[items.length()];
+                    for (int i = 0; i < items.length(); i++) {
+                        JSONObject obj = items.getJSONObject(i);
+                        pidDataSet[i] = new EquipmentItem(obj);
                     }
 
                     itemAdapter = new ItemListAdapter(pidDataSet);
@@ -504,13 +492,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         });
     }
 
-    private ItemType getItemType(String category) {
-        if (category.equals("Weapon"))
-            return ItemType.WEAPON;
 
-        // Fallback.
-        return ItemType.ITEM;
-    }
 
     private void registerStatViews() {
         totalStrength = findViewById(R.id.statStrengthTotal);
@@ -532,7 +514,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         statLevel = findViewById(R.id.level_value);
     }
 
-    public static void setStatsFields() {
+    public void setStatsFields() {
         PlayerStatsData sd = selectedPlayer.statsData;
         TextView tv;
 
@@ -559,29 +541,22 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void getPlayerSpells() {
-        String url = String.format(Locale.ENGLISH, "player/%s/spell", selectedPlayer.getId());
+        String url = String.format(Locale.ENGLISH, "player/%s/spells", selectedPlayer.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray spells) {
                 try {
-                    if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong retrieving spells from the server.");
-                        return;
-                    }
 
-                    JSONArray array = response.getJSONArray("spells");
-                    JSONObject obj;
-
-                    if (array.length() == 0) {
+                    if (spells.length() == 0) {
                         findViewById(R.id.no_spells_text).setVisibility(View.VISIBLE);
                     } else {
                         findViewById(R.id.no_spells_text).setVisibility(View.GONE);
                     }
 
-                    psdDataSet = new SpellData[array.length()];
-                    for (int i = 0; i < array.length(); i++) {
-                        obj = array.getJSONObject(i);
-                        psdDataSet[i] = new SpellData(obj);
+                    psdDataSet = new ArrayList<SpellData>(spells.length());
+                    for (int i = 0; i < spells.length(); i++) {
+                        JSONObject obj = spells.getJSONObject(i);
+                        psdDataSet.add(new SpellData(obj));
                     }
 
 
@@ -624,7 +599,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void deleteSpell() {
-        String url = String.format(Locale.ENGLISH, "player/%s/spell/%d", selectedPlayer.getId(), psdDataSet[selectedSpellId].getId());
+        String url = String.format(Locale.ENGLISH, "player/%s/spells/%d", selectedPlayer.getId(), psdDataSet.get(selectedSpellId).getId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -670,7 +645,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void deleteItem() {
-        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", selectedPlayer.getId(), pidDataSet[selectedItemId].getId());
+        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", selectedPlayer.getId(), pidDataSet[selectedItemId].getInstanceId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -707,9 +682,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         closeMenus();
-
-        System.out.println("____________IM HERE");
-
         // Close fragments on top.
         int count = getSupportFragmentManager().getBackStackEntryCount();
 
@@ -727,7 +699,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         closeMenus();
 
         Intent intent = new Intent(this, PdfViewerActivity.class);
-        intent.putExtra("REQUESTED_PAGE_NUMBER", psdDataSet[selectedSpellId].getPhb());
+        intent.putExtra("REQUESTED_PAGE_NUMBER", psdDataSet.get(selectedSpellId).getPhb());
         startActivity(intent);
     }
 
@@ -735,7 +707,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         closeMenus();
 
         Intent intent = new Intent(this, PdfViewerActivity.class);
-        intent.putExtra("REQUESTED_PAGE_NUMBER", pidDataSet[selectedSpellId].getPhb());
+        intent.putExtra("REQUESTED_PAGE_NUMBER", pidDataSet[selectedSpellId].getItem().getPhb());
         startActivity(intent);
     }
 
@@ -775,6 +747,13 @@ public class PlayerInfoActivity extends AppCompatActivity {
         if (this.getSupportFragmentManager().getBackStackEntryCount() != 0)
             this.getSupportFragmentManager().popBackStackImmediate();
 
+        final int FRAGMENT_ID_ITEM = 0;
+        final int FRAGMENT_ID_ADD_ITEM = 1;
+        final int FRAGMENT_ID_SPELL = 2;
+        final int FRAGMENT_ID_ADD_SPELL = 3;
+        final int FRAGMENT_ID_SPELL_SLOTS = 4;
+        final int FRAGMENT_ID_PLAYER_STATS = 5;
+
         switch (position) {
             case FRAGMENT_ID_ITEM: // My Items
                 if (pidDataSet.length == 0) {
@@ -792,7 +771,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 drawerLayout.closeDrawer(leftDrawerWrapper);
                 return;
             case FRAGMENT_ID_SPELL: // My Spells
-                if (psdDataSet.length == 0) {
+                if (psdDataSet.size() == 0) {
                     Toast.makeText(this, "You have no spells.", Toast.LENGTH_SHORT).show();
                     return;
                 }

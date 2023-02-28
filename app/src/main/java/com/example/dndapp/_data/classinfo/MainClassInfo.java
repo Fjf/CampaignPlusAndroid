@@ -11,8 +11,8 @@ public class MainClassInfo {
     private int id;
 
     private String name;
-    private final String info;
     private ArrayList<ClassAbility> abilities;
+    private JSONObject table;
 
     public int getId() {
         return id;
@@ -22,10 +22,6 @@ public class MainClassInfo {
         return name;
     }
 
-    public String getInfo() {
-        return info;
-    }
-
     public ArrayList<ClassAbility> getAbilities() {
         return abilities;
     }
@@ -33,7 +29,9 @@ public class MainClassInfo {
     public MainClassInfo(JSONObject obj) throws JSONException {
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
-        this.info = obj.getString("info");
+
+        // TODO: use the table data to show the user spell slots etc.
+//        this.table = obj.getJSONObject("table");
 
         JSONArray jsonArray = obj.getJSONArray("abilities");
         abilities = new ArrayList<>();

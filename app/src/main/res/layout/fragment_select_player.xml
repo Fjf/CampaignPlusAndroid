@@ -33,7 +33,7 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:onClick="addPlayerPlaythroughButton"
+        android:onClick="addPlayerCampaignButton"
 
         android:padding="12dp"
         android:text="Add New"

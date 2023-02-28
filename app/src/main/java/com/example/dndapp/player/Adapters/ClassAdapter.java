@@ -38,11 +38,9 @@ public class ClassAdapter extends ArrayAdapter {
             rowView = inflater.inflate(resource, null, true);
 
         TextView name = rowView.findViewById(R.id.class_name);
-        TextView info = rowView.findViewById(R.id.class_info);
 
         MainClassInfo data = classes.get(position);
         name.setText(data.getName());
-        info.setText(data.getInfo());
 
         return rowView;
     }

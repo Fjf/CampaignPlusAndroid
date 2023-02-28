@@ -56,7 +56,7 @@ public class PlayerListAdapter extends ArrayAdapter {
             rowView.findViewById(R.id.userName).setVisibility(View.VISIBLE);
         }
 
-        //this code gets references to objects in the playthrough_listview_row.xmlview_row.xml file
+        //this code gets references to objects in the campaign_listview_row.xmlview_row.xml file
         TextView playerText = rowView.findViewById(R.id.playerName);
         TextView classText =  rowView.findViewById(R.id.className);
         TextView userText =   rowView.findViewById(R.id.userName);

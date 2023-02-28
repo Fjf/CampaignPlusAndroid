@@ -53,7 +53,7 @@ public class CampaignActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playthrough);
+        setContentView(R.layout.activity_campaign);
 
         Intent intent = getIntent();
         campaignId = intent.getIntExtra("campaign_id", -1);
@@ -76,7 +76,7 @@ public class CampaignActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_playthrough, menu);
+        getMenuInflater().inflate(R.menu.menu_campaign, menu);
         return true;
     }
 
@@ -97,10 +97,10 @@ public class CampaignActivity extends AppCompatActivity {
     }
 
     private void addToCampaign(int pid) throws JSONException, UnsupportedEncodingException {
-        String url = String.format(Locale.ENGLISH, "player/%d/playthrough", pid);
+        String url = String.format(Locale.ENGLISH, "player/%d/campaign", pid);
 
         JSONObject data = new JSONObject();
-        data.put("playthrough_code", campaignCode);
+        data.put("campaign_code", campaignCode);
         StringEntity args = new StringEntity(data.toString());
 
         HttpUtils.put(url, args, new JsonHttpResponseHandler() {
@@ -151,13 +151,13 @@ public class CampaignActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        ft.replace(R.id.playthrough_content_layout, fragment);
+        ft.replace(R.id.campaign_content_layout, fragment);
         ft.addToBackStack(null);
         ft.commit();
     }
 
     private void getPlayers() {
-        String url = String.format(Locale.ENGLISH, "playthrough/%d/players", campaignId);
+        String url = String.format(Locale.ENGLISH, "campaign/%d/players", campaignId);
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

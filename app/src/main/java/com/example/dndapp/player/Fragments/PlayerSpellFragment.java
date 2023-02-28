@@ -111,7 +111,7 @@ public class PlayerSpellFragment extends
 
     public void setSpellData() {
         // Default spell information is the first entry
-        SpellData current = psdDataSet[selectedSpellId];
+        SpellData current = psdDataSet.get(selectedSpellId);
 
         createSpellDropdown();
 
@@ -119,9 +119,9 @@ public class PlayerSpellFragment extends
     }
 
     private void createSpellDropdown() {
-        String[] users = new String[psdDataSet.length];
-        for (int i = 0; i < psdDataSet.length; i++) {
-            users[i] = psdDataSet[i].getName();
+        String[] users = new String[psdDataSet.size()];
+        for (int i = 0; i < psdDataSet.size(); i++) {
+            users[i] = psdDataSet.get(i).getName();
         }
 
         Spinner spin = view.findViewById(R.id.name);
@@ -132,7 +132,7 @@ public class PlayerSpellFragment extends
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                fillSpellData(psdDataSet[position]);
+                fillSpellData(psdDataSet.get(position));
             }
 
             @Override
