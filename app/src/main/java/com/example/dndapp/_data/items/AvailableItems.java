@@ -31,12 +31,15 @@ public class AvailableItems {
     }
 
     public static void initialize(final FunctionCall fn) {
-        HttpUtils.get("items", null, new JsonHttpResponseHandler() {
+       updateItems(fn);
+    }
+
+    public static void updateItems(final FunctionCall fn) {
+        HttpUtils.get("user/items", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
                 try {
                     setItems(items);
-
                     fn.success();
                 } catch (JSONException e) {
                     fn.error("Fetching available items failed: invalid JSON format.");
@@ -57,5 +60,19 @@ public class AvailableItems {
             }
         }
         return null;
+    }
+
+    public static void updateItem(JSONObject rawNewItem) throws JSONException {
+        ItemData newItem = new ItemData(rawNewItem);
+        for (int i = 0; i < items.size(); i++) {
+            ItemData item = items.get(i);
+            // Overwrite existing item if we performed an update
+            if (item.getId() == newItem.getId()) {
+                items.set(i, newItem);
+                return;
+            }
+        }
+        // Add new item to list if it has a new ID.
+        items.add(newItem);
     }
 }

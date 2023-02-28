@@ -15,6 +15,7 @@ public class ItemData {
 
     private String dice = "";
     private String damageType = "";
+    private String description = "";
     private int damageBonus = 0;
 
     private String twoDice = "";
@@ -118,20 +119,23 @@ public class ItemData {
         return ItemType.ITEM;
     }
 
-    public ItemData(JSONObject itemInfo) throws JSONException {
+    public ItemData(JSONObject itemJson) throws JSONException {
         /*
          * General information about this type of item
          * All specific Weapon stats are loaded etc.
          */
-        this.id = itemInfo.getInt("id");
-        this.name = itemInfo.getString("name");
-        this.weight = itemInfo.getInt("weight");
-        this.value = itemInfo.getInt("raw_value");
-        this.category = itemInfo.getString("category");
+        this.id = itemJson.getInt("id");
+        this.name = itemJson.getString("name");
+        this.weight = itemJson.getInt("weight");
+        this.value = itemJson.getInt("raw_value");
+        this.category = itemJson.getString("category");
+        this.description = itemJson.getString("description");
+
         ItemType type = getItemType(this.category);
 
         this.type = type;
 
+        JSONObject itemInfo = itemJson.getJSONObject("item_info");
         if (type == ItemType.WEAPON) {
             if (!itemInfo.isNull("dice")) {
                 this.dice = itemInfo.getString("dice");
@@ -161,5 +165,9 @@ public class ItemData {
     public int getPhb() {
         int phb = 145;
         return phb;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

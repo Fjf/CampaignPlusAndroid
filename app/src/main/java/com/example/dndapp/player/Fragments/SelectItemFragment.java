@@ -1,6 +1,5 @@
 package com.example.dndapp.player.Fragments;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -18,12 +16,9 @@ import com.example.dndapp.R;
 import com.example.dndapp._data.items.AvailableItems;
 import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
-import com.example.dndapp.player.Adapters.ClassAbilityAdapter;
-import com.example.dndapp.player.Adapters.ItemListAdapter;
 import com.example.dndapp.player.Adapters.SelectItemListAdapter;
 import com.example.dndapp.player.AddItemActivity;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -80,17 +75,13 @@ public class SelectItemFragment extends Fragment {
 
         adapter = new SelectItemListAdapter(Objects.requireNonNull(this.getActivity()), items);
         lv.setAdapter(adapter);
+        lv.setOnItemClickListener((parent, view1, position, id) -> {
+            // Set selected item.
+            int idx = view1.getId();
+            AddItemActivity.selectedItem = AvailableItems.getItem(idx);
 
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Set selected item.
-                int idx = view.getId();
-                AddItemActivity.selectedItem = AvailableItems.getItem(idx);
-
-                // Remove current fragment.
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+            // Remove current fragment.
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
 
         SearchView searchView = view.findViewById(R.id.search_fragment_button);
@@ -102,14 +93,14 @@ public class SelectItemFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                filterAbilities(s);
+                filterItems(s);
                 return false;
             }
         });
         return view;
     }
 
-    private void filterAbilities(String s) {
+    private void filterItems(String s) {
         items.clear();
         for (ItemData ability : AvailableItems.items) {
             if (ability.getName().toLowerCase().contains(s.toLowerCase())) {

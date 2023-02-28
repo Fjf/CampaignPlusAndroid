@@ -125,12 +125,13 @@ public class PlayerItemFragment extends Fragment {
     private void fillItemData(EquipmentItem equipmentItem) {
         TextView na = view.findViewById(R.id.item_info_value);
         TextView am = view.findViewById(R.id.item_info_amount);
+        TextView info = view.findViewById(R.id.item_info_information);
 
         ItemData itemData = equipmentItem.getItem();
 
         na.setText(itemData.getNormalValue());
         am.setText(String.valueOf(equipmentItem.getAmount()));
-
+        info.setText(equipmentItem.getItem().getDescription());
         if (itemData.getType() == ItemType.WEAPON) {
             hideAllBut(R.id.item_weapon_info);
 

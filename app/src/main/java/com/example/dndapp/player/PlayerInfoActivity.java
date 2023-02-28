@@ -429,6 +429,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
                 try {
+                    Log.d(TAG, "Response length:" + items.length());
                     if (items.length() == 0) {
                         findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
                     } else {

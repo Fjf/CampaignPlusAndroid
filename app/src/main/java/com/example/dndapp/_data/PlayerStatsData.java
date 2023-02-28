@@ -190,6 +190,13 @@ public class PlayerStatsData {
         obj.put("intelligence", this.intelligence);
         obj.put("charisma", this.charisma);
 
+        obj.put("saving_throws_dex", this.dexSave);
+        obj.put("saving_throws_con", this.conSave);
+        obj.put("saving_throws_wis", this.wisSave);
+        obj.put("saving_throws_str", this.strSave);
+        obj.put("saving_throws_int", this.intSave);
+        obj.put("saving_throws_cha", this.chaSave);
+
         obj.put("speed", this.speed);
         obj.put("armor_class", this.armorClass);
         obj.put("max_hp", this.maxHP);

@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.dndapp._data.items.AvailableItems;
 import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp.player.Adapters.ItemSpinnerArrayAdapter;
 import com.example.dndapp.R;
@@ -53,22 +54,19 @@ public class AddItemActivity extends AppCompatActivity {
             "Mounts and Vehicles", "Weapon"
     };
 
-    final String[] dice = new String[]{"Select dice type...", "4", "6", "8", "10", "12", "20", "100"};
+    final String[] dice = new String[]{"No dice", "4", "6", "8", "10", "12", "20", "100"};
 
     final String[] damageTypes = new String[]{
-            "Select damage type...", "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing",
+            "acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing",
             "poison", "psychic", "radiant", "slashing", "thunder"
     };
 
     private static final String TAG = "AddItemActivity";
     public static ItemData selectedItem;
 
-    private String[] items = new String[0];
-    private int[] ids = new int[0];
     private MaterialButton button;
     private AppCompatEditText amount;
     private ImageButton submitButton;
-    private Button createItemButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +84,7 @@ public class AddItemActivity extends AppCompatActivity {
         amount = findViewById(R.id.add_items_amount);
         submitButton = findViewById(R.id.add_items_submit);
 
-        createItemButton = findViewById(R.id.create_item_button);
+        Button createItemButton = findViewById(R.id.create_item_button);
 
         /*
          * Gear categories
@@ -171,7 +169,8 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     public void buttonCreateItem(View view) throws JSONException {
-        String category = (String) ((Spinner) findViewById(R.id.gear_category_dropdown)).getSelectedItem();
+        long categoryId = ((Spinner) findViewById(R.id.gear_category_dropdown)).getSelectedItemId();
+
         ItemData itemData = null;
 
         String name = ((EditText) findViewById(R.id.item_name)).getText().toString();
@@ -179,6 +178,9 @@ public class AddItemActivity extends AppCompatActivity {
 
         // Dont allow empty strings.
         if (name.length() == 0 || description.length() == 0) return;
+        if (categoryId == 0) return;
+
+        String category = gearCategories[(int) categoryId];
 
         JSONObject itemJsonObject = new JSONObject();
         JSONObject itemInfoObject = new JSONObject();
@@ -194,15 +196,9 @@ public class AddItemActivity extends AppCompatActivity {
          * Put extra data specifically for Weapon-types
          */
         if (Objects.equals(category, "Weapon")) {
-            Spinner diceDropdown = findViewById(R.id.dice_selection);
-            if (diceDropdown.getSelectedItemPosition() == 0) return; // Not a selection.
+            String diceType = (String) ((Spinner) findViewById(R.id.dice_selection)).getSelectedItem();
+            String damageType = (String) ((Spinner) findViewById(R.id.damage_type_selection)).getSelectedItem();
 
-            Spinner damageTypeDropdown = findViewById(R.id.damage_type_selection);
-            if (diceDropdown.getSelectedItemPosition() == 0) return; // Not a selection.
-            // TODO: Highlight in red all unfilled input fields.
-
-            String damageType = damageTypeDropdown.getSelectedItem().toString(); // TODO: Add field for damage type, probably dropdown.
-            String diceType = diceDropdown.getSelectedItem().toString();
             String diceAmount = ((EditText) findViewById(R.id.dice_amount)).getText().toString();
             String flatDamage = ((EditText) findViewById(R.id.flat_damage)).getText().toString();
 
@@ -293,9 +289,14 @@ public class AddItemActivity extends AppCompatActivity {
 
     private void createItem(JSONObject data) throws UnsupportedEncodingException {
         StringEntity entity = new StringEntity(data.toString());
-        HttpUtils.post("user/item", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("user/items", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    AvailableItems.updateItem(response);
+                } catch (JSONException e) {
+                    Toast.makeText(AddItemActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                }
                 finish();
             }
 
