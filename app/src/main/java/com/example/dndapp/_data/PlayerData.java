@@ -241,6 +241,8 @@ public class PlayerData {
         if (this.getId() == -1)
             func.success();
 
+        Log.d("---------------------Fetching", String.valueOf(this.getId()));
+
         String url = String.format(Locale.ENGLISH, "player/%d", this.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override

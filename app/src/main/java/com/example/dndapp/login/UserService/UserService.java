@@ -1,6 +1,7 @@
 package com.example.dndapp.login.UserService;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.arch.core.util.Function;
 
@@ -35,9 +36,15 @@ public final class UserService {
             }
 
             @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                f.error(responseString);
+                super.onFailure(statusCode, headers, responseString, throwable);
+            }
+
+            @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 try {
-                    f.error(errorResponse.getString("error"));
+                    f.error(errorResponse.getString("message"));
                 } catch (JSONException | NullPointerException e) {
                     f.error("Invalid JSON from server.");
                 }

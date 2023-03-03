@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
@@ -123,6 +125,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "onCreate called for " + TAG);
         setContentView(R.layout.activity_player_info);   // Attaching the layout to the toolbar object
 
         toolbar = findViewById(R.id.toolbar);
@@ -154,9 +158,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
          */
         preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
         int playerId = preferences.getInt("player_id", -1);
-        Log.d(TAG, "------------------       Current player id: " + playerId);
-        trySelectingPlayer(playerId, false);
-
+        trySelectingPlayer(playerId, true);
 
         // Set onchange listener for current hp.
         ((EditText) findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
@@ -222,29 +224,23 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
 
-
     private void trySelectingPlayer(final int id, boolean forceUpdate) {
-        if (forceUpdate || !MyPlayerCharacterList.hasInitialized) {
-            MyPlayerCharacterList.initialize(new FunctionCall() {
-                @Override
-                public void success() {
-                    if (MyPlayerCharacterList.playerData.size() == 0) {
-                        Toast.makeText(PlayerInfoActivity.this, "You have no player characters.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    updatePlayerDrawer();
-                    updatePlayerInfo(id);
+        MyPlayerCharacterList.initialize(new FunctionCall() {
+            @Override
+            public void success() {
+                if (MyPlayerCharacterList.playerData.size() == 0) {
+                    Toast.makeText(PlayerInfoActivity.this, "You have no player characters.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                updatePlayerDrawer();
+                updatePlayerInfo(id);
+            }
 
-                @Override
-                public void error(String errorMessage) {
-                    // Server error.
-                }
-            });
-        } else {
-            updatePlayerDrawer();
-            updatePlayerInfo(id);
-        }
+            @Override
+            public void error(String errorMessage) {
+                // Server error.
+            }
+        }, forceUpdate);
     }
 
     private void updatePlayerDrawer() {
@@ -271,8 +267,14 @@ public class PlayerInfoActivity extends AppCompatActivity {
             selectedPlayer = MyPlayerCharacterList.getPlayer(id);
         }
 
-        // Get all information and items.
-        assert selectedPlayer != null;
+        if (selectedPlayer == null) {
+            // We have an invalid ID in our SharedPreferences, remove this.
+            editor.clear();
+            editor.apply();
+            selectedPlayer = MyPlayerCharacterList.emptyPlayer();
+        }
+
+
         selectedPlayer.updatePlayerData(new FunctionCall() {
             @Override
             public void success() {
@@ -359,17 +361,20 @@ public class PlayerInfoActivity extends AppCompatActivity {
             intent.putExtra("create", false);
             startActivityForResult(intent, CREATE_PLAYER_RESULT);
         } else if (id == R.id.action_logout) {
-            SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
-            SharedPreferences.Editor edit = preferences.edit();
-            edit.remove("username"); edit.remove("password");
-            edit.apply();
-
             UserService.logout(new FunctionCall() {
                 @Override
                 public void success() {
                     Intent intent = new Intent(PlayerInfoActivity.this, LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivity(intent);
+
+                    String[] toClearPreferences = {"LoginData", "PlayerData"};
+                    for (String pref : toClearPreferences) {
+                        SharedPreferences preferences = getSharedPreferences(pref, MODE_PRIVATE);
+                        SharedPreferences.Editor edit = preferences.edit();
+                        edit.clear();
+                        edit.apply();
+                    }
                     finish();
                 }
 
@@ -492,7 +497,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     private void registerStatViews() {
@@ -687,7 +691,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         int count = getSupportFragmentManager().getBackStackEntryCount();
 
         System.out.println(count);
-        if (count > 0){
+        if (count > 0) {
             getSupportFragmentManager().popBackStackImmediate();
         }
     }

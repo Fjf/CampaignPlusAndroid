@@ -31,9 +31,11 @@ public class MyPlayerCharacterList {
         playerData = new ArrayList<>();
     }
 
-    public static void initialize(final FunctionCall fn) {
-        if (hasInitialized)
+    public static void initialize(final FunctionCall fn, boolean force) {
+        if (hasInitialized && !force) {
+            fn.success();
             return;
+        }
 
         // Load iteratively
         updateClassData(new FunctionCall() {
@@ -48,6 +50,10 @@ public class MyPlayerCharacterList {
             }
         });
         hasInitialized = true;
+    }
+
+    public static void initialize(final FunctionCall fn) {
+        initialize(fn, false);
     }
 
     public static void setPlayerData(JSONArray array) throws JSONException {
