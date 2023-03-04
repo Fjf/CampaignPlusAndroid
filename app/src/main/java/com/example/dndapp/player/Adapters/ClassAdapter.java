@@ -1,5 +1,7 @@
 package com.example.dndapp.player.Adapters;
 
+import static com.example.dndapp._data.DataCache.availableClasses;
+
 import android.app.Activity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +19,11 @@ import java.util.ArrayList;
 
 public class ClassAdapter extends ArrayAdapter {
 
-    private final ArrayList<MainClassInfo> classes;
+    private final ArrayList<Integer> classes;
     private final int resource;
     private final Activity context;
 
-    public ClassAdapter(@NonNull Activity context, @NonNull ArrayList<MainClassInfo> classes) {
+    public ClassAdapter(@NonNull Activity context, @NonNull ArrayList<Integer> classes) {
         super(context, R.layout.row_class, R.id.class_name, classes);
 
         this.context = context;
@@ -39,7 +41,7 @@ public class ClassAdapter extends ArrayAdapter {
 
         TextView name = rowView.findViewById(R.id.class_name);
 
-        MainClassInfo data = classes.get(position);
+        MainClassInfo data = availableClasses.get(classes.get(position));
         name.setText(data.getName());
 
         return rowView;

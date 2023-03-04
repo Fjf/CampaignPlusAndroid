@@ -19,10 +19,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp._data.DataCache;
 import com.example.dndapp.campaign.Adapters.PlayerListAdapter;
 import com.example.dndapp.campaign.Fragments.ShowQRFragment;
 import com.example.dndapp.R;
-import com.example.dndapp._data.PlayerCharacterList;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp.player.CreatePlayerActivity;
@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
@@ -169,9 +170,9 @@ public class CampaignActivity extends AppCompatActivity {
                     }
 
                     JSONArray array = response.getJSONArray("players");
-                    PlayerCharacterList.setPlayerData(array);
+                    DataCache.setPlayerData(array);
 
-                    updatePlayerList(PlayerCharacterList.playerData);
+                    updatePlayerList(DataCache.playerData);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -186,8 +187,7 @@ public class CampaignActivity extends AppCompatActivity {
         });
     }
 
-    private void updatePlayerList(final PlayerData[] entries) {
-
+    private void updatePlayerList(final ArrayList<PlayerData> entries) {
         PlayerListAdapter adapter = new PlayerListAdapter(this, entries, userName);
         playerList.setAdapter(adapter);
     }

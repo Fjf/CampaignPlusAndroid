@@ -27,8 +27,6 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
-
 public class AddSpellActivity extends AppCompatActivity {
 
     private static final String TAG = "AddSpellActivity";

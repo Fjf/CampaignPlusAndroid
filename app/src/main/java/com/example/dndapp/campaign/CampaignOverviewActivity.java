@@ -64,21 +64,17 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         playerSpinner = findViewById(R.id.player_spinner);
 
         campaignList = findViewById(R.id.campaigns);
-        campaignList.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
-            {
-                if (position > codes.length) {
-                    throw new IndexOutOfBoundsException("Code array index out of bounds.");
-                }
-
-                // Start campaign overview.
-                Intent intent = new Intent(CampaignOverviewActivity.this, CampaignActivity.class);
-                intent.putExtra("campaign_id", ids[position]);
-                intent.putExtra("campaign_code", codes[position]);
-                intent.putExtra("campaign_name", names[position]);
-                startActivity(intent);
+        campaignList.setOnItemClickListener((arg0, arg1, position, arg3) -> {
+            if (position > codes.length) {
+                throw new IndexOutOfBoundsException("Code array index out of bounds.");
             }
+
+            // Start campaign overview.
+            Intent intent = new Intent(CampaignOverviewActivity.this, CampaignActivity.class);
+            intent.putExtra("campaign_id", ids[position]);
+            intent.putExtra("campaign_code", codes[position]);
+            intent.putExtra("campaign_name", names[position]);
+            startActivity(intent);
         });
 
         getJoinedCampaigns();

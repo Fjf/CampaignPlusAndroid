@@ -1,6 +1,7 @@
 package com.example.dndapp.player.Fragments;
 
-import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
+
+import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.dndapp.R;
+import com.example.dndapp._data.DataCache;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.classinfo.ClassAbility;
 import com.example.dndapp._utils.FunctionCall;
@@ -69,6 +71,7 @@ public class ClassInformationFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -80,26 +83,9 @@ public class ClassInformationFragment extends Fragment {
         tb.setTitle("Class Abilities");
         registerExitFragmentButton(tb);
 
-        final PlayerData playerData = selectedPlayer;
-
-        abilities = new ArrayList<>();
+        abilities = selectedPlayer.getSortedAbilities();
         adapter = new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), abilities);
         lv.setAdapter(adapter);
-
-        playerData.updateMainClassInfos(this.getContext(), new FunctionCall() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void success() {
-                abilities.clear();
-                abilities.addAll(playerData.getSortedAbilities());
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void error(String errorMessage) {
-                // TODO: Maybe something here I currently don't care.
-            }
-        });
 
         SearchView searchView = view.findViewById(R.id.search_fragment_button);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -111,7 +97,6 @@ public class ClassInformationFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public boolean onQueryTextChange(String s) {
-
                 lv.setAdapter(new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), filterAbilities(s)));
                 return false;
             }

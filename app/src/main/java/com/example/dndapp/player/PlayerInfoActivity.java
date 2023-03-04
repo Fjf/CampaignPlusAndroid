@@ -5,17 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,8 +19,29 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp.R;
+import com.example.dndapp._data.DataCache;
+import com.example.dndapp._data.DrawerListData;
+import com.example.dndapp._data.MyPlayerCharacterList;
+import com.example.dndapp._data.PlayerData;
+import com.example.dndapp._data.PlayerStatsData;
+import com.example.dndapp._data.SpellData;
 import com.example.dndapp._data.items.EquipmentItem;
+import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp._utils.IgnoreFunctionCall;
+import com.example.dndapp.campaign.CampaignOverviewActivity;
 import com.example.dndapp.login.LoginActivity;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.Adapters.DrawerListAdapter;
@@ -43,17 +53,8 @@ import com.example.dndapp.player.Fragments.PlayerItemFragment;
 import com.example.dndapp.player.Fragments.PlayerSpellFragment;
 import com.example.dndapp.player.Fragments.StatsFragment;
 import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
-import com.example.dndapp.campaign.CampaignOverviewActivity;
-import com.example.dndapp.R;
-import com.example.dndapp._data.DrawerListData;
-import com.example.dndapp._data.MyPlayerCharacterList;
-import com.example.dndapp._data.PlayerData;
-import com.example.dndapp._data.PlayerStatsData;
-import com.example.dndapp._data.SpellData;
-import com.example.dndapp._utils.FunctionCall;
-import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.IgnoreFunctionCall;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -100,8 +101,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
     public static EquipmentItem[] pidDataSet = new EquipmentItem[0];
     public static int selectedSpellId;
     public static int selectedItemId;
-
-    public static PlayerData selectedPlayer = MyPlayerCharacterList.emptyPlayer();
 
     private final int UPDATE_STATS = 0;
     private final int UPDATE_ITEMS = 1;
@@ -228,7 +227,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         MyPlayerCharacterList.initialize(new FunctionCall() {
             @Override
             public void success() {
-                if (MyPlayerCharacterList.playerData.size() == 0) {
+                if (DataCache.playerData.size() == 0) {
                     Toast.makeText(PlayerInfoActivity.this, "You have no player characters.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -245,7 +244,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private void updatePlayerDrawer() {
         // TODO: Update this to reuse adapters
-        drawerPCListAdapter = new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, MyPlayerCharacterList.playerData);
+        drawerPCListAdapter = new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, DataCache.playerData);
         leftDrawerPCList.setAdapter(drawerPCListAdapter);
 
         justifyListViewHeightBasedOnChildren(leftDrawerPCList);
@@ -259,12 +258,12 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         // Always have a player selected.
         if (id == -1) {
-            if (MyPlayerCharacterList.playerData.size() == 0)
-                selectedPlayer = MyPlayerCharacterList.emptyPlayer();
+            if (DataCache.playerData.size() == 0)
+                selectedPlayer = new PlayerData();
             else
-                selectedPlayer = MyPlayerCharacterList.playerData.get(0);
+                selectedPlayer = DataCache.playerData.get(0);
         } else {
-            selectedPlayer = MyPlayerCharacterList.getPlayer(id);
+            selectedPlayer = DataCache.getPlayer(id);
         }
 
         if (selectedPlayer == null) {
@@ -735,7 +734,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             drawerLayout.closeDrawer(leftDrawerWrapper);
-            updatePlayerInfo(MyPlayerCharacterList.playerData.get(position).getId());
+            updatePlayerInfo(DataCache.playerData.get(position).getId());
         }
     }
 

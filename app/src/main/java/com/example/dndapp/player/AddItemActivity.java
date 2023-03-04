@@ -1,5 +1,7 @@
 package com.example.dndapp.player;
 
+import static com.example.dndapp._data.DataCache.selectedPlayer;
+
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -44,8 +46,6 @@ import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
-
-import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
 
 public class AddItemActivity extends AppCompatActivity {
 

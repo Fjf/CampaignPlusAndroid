@@ -1,5 +1,7 @@
 package com.example.dndapp.campaign.Fragments;
 
+import static com.example.dndapp._data.DataCache.playerData;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,7 +86,7 @@ public class SelectPlayerFragment extends Fragment {
         
         tb.setTitle("Campaign Character");
 
-        ArrayAdapter<PlayerData> arrayAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, MyPlayerCharacterList.playerData);
+        ArrayAdapter<PlayerData> arrayAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, playerData);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         final SpinnerInitialTextAdapter adapter = new SpinnerInitialTextAdapter(arrayAdapter, R.layout.player_spinner_nothing_selected_row, view.getContext());

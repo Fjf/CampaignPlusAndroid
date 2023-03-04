@@ -1,18 +1,15 @@
 package com.example.dndapp._data;
 
-import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import com.example.dndapp._data.classinfo.ClassAbility;
-import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._data.classinfo.MainClassInfo;
 import com.example.dndapp._data.classinfo.SubClassInfo;
+import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -28,8 +25,10 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.Header;
 
 public class PlayerData {
-    private int id;
-    private String userName;
+    private static final String TAG = "PlayerData";
+    private int id = -1;
+    private String userName = "";
+
 
     private String name;
     private String className;
@@ -38,13 +37,20 @@ public class PlayerData {
     private String backstory = "";
 
     public PlayerStatsData statsData = null;
-    public PlayerProficiencyData proficiencies = null;
+    public PlayerProficiencyData proficiencies = new PlayerProficiencyData();
 
-    private ArrayList<MainClassInfo> mainClassInfos = new ArrayList<>();
-    private SubClassInfo[] subClassInfos = null;
+    private final ArrayList<Integer> mainClassIds = new ArrayList<>();
+    private final SubClassInfo[] subClassInfos = null;
 
     public int getId() {
         return id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRace(String race) {
+        this.race = race;
     }
 
     public String getName() {
@@ -71,15 +77,22 @@ public class PlayerData {
         this.backstory = backstory;
     }
 
-    public List<MainClassInfo> getMainClassInfos() {
-        return mainClassInfos;
+    public List<Integer> getMainClassIds() {
+        return mainClassIds;
     }
 
     public ArrayList<ClassAbility> getAllAbilities() {
         ArrayList<ClassAbility> arrayList = new ArrayList<>();
-
-        for (MainClassInfo mainClassInfo : mainClassInfos) {
-            arrayList.addAll(mainClassInfo.getAbilities());
+        Log.d("--------------------", "Getting alla biltiies");
+        for (Integer id : mainClassIds) {
+            Log.d("--------------------", String.valueOf(id));
+            // Locate class from list and add to this PlayerData.
+            MainClassInfo mci = DataCache.getClass(id);
+            if (mci == null) {
+                Log.d(TAG, "Unable to find class with id; " + id);
+                continue;
+            }
+            arrayList.addAll(mci.getAbilities());
         }
 
         return arrayList;
@@ -97,55 +110,38 @@ public class PlayerData {
         return subClassInfos;
     }
 
-    public PlayerData(@NonNull int id, String name, String race) {
-        this.id = id;
-        this.name = name;
-        this.race = race;
-        this.statsData = new PlayerStatsData();
-    }
-
+    public PlayerData() { }
     public PlayerData(JSONObject obj) throws JSONException {
+        this.setData(obj);
+    }
+    public void setData(JSONObject obj) throws JSONException {
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
         this.userName = obj.getString("owner");
         this.race = obj.getString("race");
 
-        // Find the class with the correct id from the available classes.
-        if (!obj.isNull("class_ids")) {
-            JSONArray ids = obj.getJSONArray("class_ids");
-            for (int i = 0; i < ids.length(); i++) {
-                int id = ids.getInt(i);
-
-                // Locate class from list and add to this PlayerData.
-                MainClassInfo mci = MyPlayerCharacterList.findClass(id);
-                if (mci == null) {
-                    System.err.println("Unable to find class with id; " + id);
-                    continue;
-                }
-                this.mainClassInfos.add(mci);
-            }
-        }
 
         if (!obj.isNull("backstory")) {
             this.backstory = obj.getString("backstory");
         }
 
-        if (!obj.isNull("stats")) {
-            this.statsData = new PlayerStatsData(obj.getJSONObject("stats"));
-        }
-
-        if (!obj.isNull("proficiencies")) {
-            this.proficiencies = new PlayerProficiencyData(obj.getJSONObject("proficiencies"));
+        JSONObject info = obj.getJSONObject("info");
+        this.statsData = new PlayerStatsData(info.getJSONObject("stats"));
+        this.proficiencies = new PlayerProficiencyData(info.getJSONObject("proficiencies"));
+        JSONArray ids = info.getJSONArray("class_ids");
+        for (int i = 0; i < ids.length(); i++) {
+            int id = ids.getInt(i);
+            this.mainClassIds.add(id);
         }
     }
 
-    public void addMainClasses(List<MainClassInfo> mcis) {
-        mainClassInfos.addAll(mcis);
+    public void addMainClassIds(List<Integer> mcis) {
+        mainClassIds.addAll(mcis);
     }
 
-    public void setMainClasses(List<MainClassInfo> mcis) {
-        mainClassInfos.clear();
-        addMainClasses(mcis);
+    public void setMainClassIds(List<Integer> mcis) {
+        mainClassIds.clear();
+        addMainClassIds(mcis);
     }
 
     public JSONObject toJSON() throws JSONException {
@@ -154,11 +150,6 @@ public class PlayerData {
         obj.put("name", this.name);
 
         // Fill array with all ids for this user.
-        int[] classIds = new int[mainClassInfos.size()];
-        for (int i = 0; i < mainClassInfos.size(); i++) {
-            classIds[i] = mainClassInfos.get(i).getId();
-        }
-
         obj.put("id", this.id);
         obj.put("race", this.race);
         obj.put("backstory", this.getBackstory());
@@ -166,66 +157,11 @@ public class PlayerData {
         JSONObject infoObj = new JSONObject();
         infoObj.put("stats", this.statsData.toJSON());
         infoObj.put("proficiencies", this.proficiencies.toJSON());
-        infoObj.put("class_ids", new JSONArray(classIds));
+        infoObj.put("class_ids", new JSONArray(mainClassIds));
 
         obj.put("info", infoObj);
 
         return obj;
-    }
-
-    private void setMainClassInfos(JSONArray response) throws JSONException {
-        for (int i = 0; i < response.length(); i++) {
-            mainClassInfos.add(new MainClassInfo(response.getJSONObject(i)));
-        }
-    }
-
-    public void updateMainClassInfos(final Context context, final FunctionCall call) {
-        String url = String.format(Locale.ENGLISH, "player/%d/classes", this.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                try {
-                    setMainClassInfos(response);
-                    call.success();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(context, "Something went wrong retrieving main class information from the server.", Toast.LENGTH_SHORT).show();
-                super.onFailure(statusCode, headers, responseString, throwable);
-            }
-        });
-    }
-
-    private void setSubClassInfos(JSONObject response) throws JSONException {
-        JSONArray jsonArray = response.getJSONArray("class");
-        for (int i = 0; i < jsonArray.length(); i++) {
-            subClassInfos[i] = new SubClassInfo(jsonArray.getJSONObject(i));
-        }
-    }
-
-    public void updateSubClassInfos(final Context context, final FunctionCall call) {
-        String url = String.format(Locale.ENGLISH, "/player/%d/subclasses", this.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    setSubClassInfos(response);
-                    call.success();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(context, "Something went wrong retrieving subclass information from the server.", Toast.LENGTH_SHORT).show();
-                super.onFailure(statusCode, headers, responseString, throwable);
-            }
-        });
     }
 
     /**
@@ -272,6 +208,8 @@ public class PlayerData {
     public String toString() {
         return getName() + " / " + getClassName() + " / " + getRace();
     }
+
+
 }
 
 

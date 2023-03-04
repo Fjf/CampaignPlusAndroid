@@ -14,12 +14,14 @@ import com.example.dndapp.player.PlayerInfoActivity;
 import com.example.dndapp.R;
 import com.example.dndapp._data.PlayerData;
 
+import java.util.ArrayList;
+
 public class PlayerListAdapter extends ArrayAdapter {
     private final Activity context;
-    private final PlayerData[] entries;
+    private final ArrayList<PlayerData> entries;
     private final String playerName;
 
-    public PlayerListAdapter(Activity context, PlayerData[] entries, String playerName) {
+    public PlayerListAdapter(Activity context, ArrayList<PlayerData> entries, String playerName) {
         super(context, R.layout.playerview_row, entries);
 
         this.context = context;
@@ -35,21 +37,18 @@ public class PlayerListAdapter extends ArrayAdapter {
             rowView = inflater.inflate(R.layout.playerview_row, null,true);
         }
 
-        final PlayerData pae = entries[position];
+        final PlayerData pae = entries.get(position);
 
         if (pae.getUserName().equals(playerName)) {
             Button sheet = rowView.findViewById(R.id.characterSheet);
             sheet.setVisibility(View.VISIBLE);
             rowView.findViewById(R.id.userName).setVisibility(View.GONE);
 
-            sheet.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, PlayerInfoActivity.class);
-                    intent.putExtra("player_id", pae.getId());
-                    context.startActivity(intent);
-                    context.finish();
-                }
+            sheet.setOnClickListener(v -> {
+                Intent intent = new Intent(context, PlayerInfoActivity.class);
+                intent.putExtra("player_id", pae.getId());
+                context.startActivity(intent);
+                context.finish();
             });
         } else {
             rowView.findViewById(R.id.characterSheet).setVisibility(View.GONE);

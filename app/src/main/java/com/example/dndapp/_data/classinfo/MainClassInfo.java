@@ -8,9 +8,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainClassInfo {
-    private int id;
+    private int id = -1;
 
-    private String name;
+    private String name = "";
     private ArrayList<ClassAbility> abilities;
     private JSONObject table;
 

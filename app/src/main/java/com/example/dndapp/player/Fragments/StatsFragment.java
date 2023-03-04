@@ -40,7 +40,7 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.example.dndapp.player.PlayerInfoActivity.selectedPlayer;
+import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 public class StatsFragment extends Fragment {
     private String[] arr;
