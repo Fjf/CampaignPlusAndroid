@@ -1,16 +1,21 @@
 package com.example.dndapp._data;
 
+import static com.example.dndapp._data.DataCache.selectedPlayer;
+
 import android.os.Build;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.example.dndapp.R;
 import com.example.dndapp._data.classinfo.ClassAbility;
 import com.example.dndapp._data.classinfo.MainClassInfo;
 import com.example.dndapp._data.classinfo.SubClassInfo;
 import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp.player.Adapters.SpellListAdapter;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -29,22 +34,59 @@ public class PlayerData {
     private int id = -1;
     private String userName = "";
 
+    public ArrayList<SpellData> getSpells() {
+        return spells;
+    }
 
+    public void addSpell(SpellData spell) {
+        this.spells.add(spell);
+    }
+
+    public void updateSpells(final FunctionCall callback) {
+        String url = String.format(Locale.ENGLISH, "player/%s/spells", selectedPlayer.getId());
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray newSpells) {
+                try {
+                    setSpells(newSpells);
+                    callback.success();
+                } catch (JSONException e) {
+                    callback.error(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                callback.error(response);
+            }
+        });
+    }
+
+    public void setSpells(JSONArray newSpells) throws JSONException {
+        spells.clear();
+        for (int i = 0; i < newSpells.length(); i++) {
+            JSONObject obj = newSpells.getJSONObject(i);
+            spells.add(new SpellData(obj));
+        }
+    }
+
+    private ArrayList<SpellData> spells = new ArrayList<SpellData>();
     private String name;
     private String className;
+
     private String race;
 
     private String backstory = "";
-
     public PlayerStatsData statsData = null;
+
     public PlayerProficiencyData proficiencies = new PlayerProficiencyData();
-
     private final ArrayList<Integer> mainClassIds = new ArrayList<>();
-    private final SubClassInfo[] subClassInfos = null;
 
+    private final SubClassInfo[] subClassInfos = null;
     public int getId() {
         return id;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -109,11 +151,11 @@ public class PlayerData {
     public SubClassInfo[] getSubClassInfos() {
         return subClassInfos;
     }
-
     public PlayerData() { }
     public PlayerData(JSONObject obj) throws JSONException {
         this.setData(obj);
     }
+
     public void setData(JSONObject obj) throws JSONException {
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
@@ -208,7 +250,6 @@ public class PlayerData {
     public String toString() {
         return getName() + " / " + getClassName() + " / " + getRace();
     }
-
 
 }
 

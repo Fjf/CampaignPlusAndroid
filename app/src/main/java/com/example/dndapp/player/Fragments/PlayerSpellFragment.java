@@ -1,8 +1,9 @@
 package com.example.dndapp.player.Fragments;
 
+import static com.example.dndapp._data.DataCache.selectedPlayer;
+import static com.example.dndapp.player.PlayerInfoActivity.selectedSpellId;
+
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,15 +13,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
 import com.example.dndapp.R;
 import com.example.dndapp._data.SpellData;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Objects;
-
-import static com.example.dndapp.player.PlayerInfoActivity.psdDataSet;
-import static com.example.dndapp.player.PlayerInfoActivity.selectedSpellId;
 
 public class PlayerSpellFragment extends
         Fragment {
@@ -75,12 +75,9 @@ public class PlayerSpellFragment extends
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove current fragment
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+        btn.setOnClickListener(view -> {
+            // Remove current fragment
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }
@@ -94,13 +91,7 @@ public class PlayerSpellFragment extends
         TextView du = view.findViewById(R.id.spell_info_duration);
         TextView le = view.findViewById(R.id.spell_info_level);
 
-        String description = "null";
-        try {
-            description = new String(current.getDescription().getBytes("ISO-8859-1"), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
+        String description = current.getDescription();
         ct.setText(current.getCastingTime());
         hl.setText(current.getHigherLevel());
         de.setText(description);
@@ -111,7 +102,7 @@ public class PlayerSpellFragment extends
 
     public void setSpellData() {
         // Default spell information is the first entry
-        SpellData current = psdDataSet.get(selectedSpellId);
+        SpellData current = selectedPlayer.getSpells().get(selectedSpellId);
 
         createSpellDropdown();
 
@@ -119,9 +110,9 @@ public class PlayerSpellFragment extends
     }
 
     private void createSpellDropdown() {
-        String[] users = new String[psdDataSet.size()];
-        for (int i = 0; i < psdDataSet.size(); i++) {
-            users[i] = psdDataSet.get(i).getName();
+        String[] users = new String[selectedPlayer.getSpells().size()];
+        for (int i = 0; i < selectedPlayer.getSpells().size(); i++) {
+            users[i] = selectedPlayer.getSpells().get(i).getName();
         }
 
         Spinner spin = view.findViewById(R.id.name);
@@ -132,7 +123,7 @@ public class PlayerSpellFragment extends
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                fillSpellData(psdDataSet.get(position));
+                fillSpellData(selectedPlayer.getSpells().get(position));
             }
 
             @Override
@@ -141,4 +132,6 @@ public class PlayerSpellFragment extends
             }
         });
     }
+
+
 }

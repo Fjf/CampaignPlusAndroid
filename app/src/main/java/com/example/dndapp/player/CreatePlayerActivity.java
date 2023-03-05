@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -82,7 +83,6 @@ public class CreatePlayerActivity extends AppCompatActivity {
             playerName.setText(selectedPlayer.getName());
             playerRace.setText(selectedPlayer.getRace());
             playerBackstory.setText(selectedPlayer.getBackstory());
-
             selectedClassIds.addAll(selectedPlayer.getMainClassIds());
         }
 
@@ -133,10 +133,6 @@ public class CreatePlayerActivity extends AppCompatActivity {
             selected = iterator.next();
         }
 
-
-        Log.d("------------------------", String.valueOf(selected));
-        Log.d("------------------------", String.valueOf(availableClasses.keySet()));
-        Log.d("------------------------", String.valueOf(selectedClassIds));
 
         assert selected != null;
 
@@ -197,15 +193,13 @@ public class CreatePlayerActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    if (response.getBoolean("success")) {
-                        Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
 
-                        // After creating new character, this overlay may close.
-                        Intent data = new Intent();
-                        data.putExtra("player_id", response.getInt("player_id"));
-                        setResult(RESULT_OK, data);
-                        finish();
-                    }
+                    // After creating new character, this overlay may close.
+                    Intent data = new Intent();
+                    data.putExtra("player_id", response.getInt("player_id"));
+                    setResult(RESULT_OK, data);
+                    finish();
                 } catch (JSONException e) {
                     Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
@@ -228,6 +222,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
 
         selectedPlayer.setName(name);
         selectedPlayer.setRace(race);
+        selectedPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());
         selectedPlayer.setMainClassIds(selectedClassIds);
 
         StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());

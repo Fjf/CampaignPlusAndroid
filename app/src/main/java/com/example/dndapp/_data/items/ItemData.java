@@ -135,6 +135,7 @@ public class ItemData {
 
         this.type = type;
 
+
         JSONObject itemInfo = itemJson.getJSONObject("item_info");
         if (type == ItemType.WEAPON) {
             if (!itemInfo.isNull("dice")) {

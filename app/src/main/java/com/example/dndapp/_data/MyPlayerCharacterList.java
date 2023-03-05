@@ -50,20 +50,13 @@ public class MyPlayerCharacterList {
         initialize(fn, false);
     }
 
-    public static void setPlayerData(JSONArray array) throws JSONException {
-        playerData = new ArrayList<>();
-        for (int i = 0; i < array.length(); i++) {
-            playerData.add(new PlayerData(array.getJSONObject(i)));
-        }
-    }
-
     public static void updatePlayerData(final FunctionCall fn) {
         Log.d(TAG, "Loading player classes");
         HttpUtils.get("user/players", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
-                    setPlayerData(response);
+                    DataCache.setPlayerData(response);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

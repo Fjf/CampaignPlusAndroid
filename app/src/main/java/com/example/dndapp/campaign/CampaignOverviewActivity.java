@@ -21,6 +21,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.dndapp.PdfViewerActivity;
+import com.example.dndapp._data.DataCache;
 import com.example.dndapp.player.PlayerInfoActivity;
 import com.example.dndapp.campaign.Adapters.CampaignListAdapter;
 import com.example.dndapp.campaign.Fragments.SelectPlayerFragment;
@@ -237,7 +238,7 @@ public class CampaignOverviewActivity extends AppCompatActivity {
                     }
 
                     JSONArray arr = response.getJSONArray("players");
-                    MyPlayerCharacterList.setPlayerData(arr);
+                    DataCache.setPlayerData(arr);
 
 
                     SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(campaignCode);

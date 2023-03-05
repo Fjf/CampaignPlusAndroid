@@ -68,18 +68,6 @@ public class StatsFragment extends Fragment {
         return -1;
     }
 
-    /**
-     * @param str Input string
-     * @return The converted string, or -1 if no convertible number was given.
-     */
-    private int tryParseInt(String str) {
-        try {
-            return Integer.parseInt(str);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
     public StatsFragment() {
     }
 
@@ -217,14 +205,11 @@ public class StatsFragment extends Fragment {
         rb.setChecked(true);
         setExhaustionInfoText(id);
 
-        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                setExhaustionInfoText(checkedId);
+        rg.setOnCheckedChangeListener((group, checkedId) -> {
+            setExhaustionInfoText(checkedId);
 
-                editor.putInt("current_exhaustion", checkedId);
-                editor.apply();
-            }
+            editor.putInt("current_exhaustion", checkedId);
+            editor.apply();
         });
 
         // Load toolbar eventlisteners.
@@ -246,12 +231,9 @@ public class StatsFragment extends Fragment {
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove current fragment
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+        btn.setOnClickListener(view -> {
+            // Remove current fragment
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }

@@ -4,11 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     android:orientation="vertical"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:background="#FFFFFF">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <include layout="@layout/fragment_toolbar" android:id="@+id/fragment_toolbar"/>
+    <include
+        android:id="@+id/fragment_toolbar"
+        layout="@layout/fragment_toolbar" />
 
     <ScrollView
         android:id="@+id/fragment_player_item"
@@ -68,24 +70,37 @@
                     app:layout_constraintStart_toEndOf="@id/item_info_amount"
                     app:layout_constraintTop_toTopOf="@id/item_info_amount" />
 
-                <TextView
+                <EditText
                     android:id="@+id/item_info_amount"
                     android:layout_width="wrap_content"
                     android:layout_height="56dp"
                     android:gravity="center"
+                    android:imeOptions="actionSend"
+                    android:inputType="numberSigned"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
+                    android:selectAllOnFocus="true"
                     android:text="20"
                     android:textSize="24sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/name" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <EditText
+                android:id="@+id/item_info_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:imeOptions="actionSend"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Description"
+                android:textStyle="italic" />
+
             <TextView
                 android:id="@+id/item_info_information"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="0dp"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="Description"
@@ -179,7 +194,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Throw Range"
+                    android:text="Throw"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@id/weapon_info_throw_range"
                     app:layout_constraintEnd_toStartOf="@id/weapon_info_throw_range"

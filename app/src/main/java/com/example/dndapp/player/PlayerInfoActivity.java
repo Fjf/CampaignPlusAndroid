@@ -49,11 +49,14 @@ import com.example.dndapp.player.Adapters.DrawerPCListAdapter;
 import com.example.dndapp.player.Adapters.ItemListAdapter;
 import com.example.dndapp.player.Adapters.SpellListAdapter;
 import com.example.dndapp.player.Fragments.ClassInformationFragment;
+import com.example.dndapp.player.Fragments.PlayerAddSpellFragment;
 import com.example.dndapp.player.Fragments.PlayerItemFragment;
 import com.example.dndapp.player.Fragments.PlayerSpellFragment;
+import com.example.dndapp.player.Fragments.SpellSlotsFragment;
 import com.example.dndapp.player.Fragments.StatsFragment;
 import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
 import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import org.json.JSONArray;
@@ -97,7 +100,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private TextView statMaxHP;
     private TextView statLevel;
 
-    public static ArrayList<SpellData> psdDataSet;
     public static EquipmentItem[] pidDataSet = new EquipmentItem[0];
     public static int selectedSpellId;
     public static int selectedItemId;
@@ -215,13 +217,16 @@ public class PlayerInfoActivity extends AppCompatActivity {
                         selectedSpellId = position;
 
                         TextView tv = findViewById(R.id.deleteSpellTextButton);
-                        tv.setText("Delete " + psdDataSet.get(selectedSpellId).getName());
+                        tv.setText("Delete " + selectedPlayer.getSpells().get(selectedSpellId).getName());
                         findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
                     }
                 })
         );
     }
 
+    public void refreshItems() {
+        getPlayerItems();
+    }
 
     private void trySelectingPlayer(final int id, boolean forceUpdate) {
         MyPlayerCharacterList.initialize(new FunctionCall() {
@@ -405,7 +410,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
             // After updating your stats, update player stats.
             selectedPlayer.updatePlayerData(new IgnoreFunctionCall());
         } else if (requestCode == UPDATE_SPELL) {
-            // After creating a spell, update spells list.
+            Log.d("------------------------", "got response");
+            // After adding a spell, update spells list.
             getPlayerSpells();
         } else if (requestCode == CREATE_PLAYER_RESULT) {
             final int playerId = data.getIntExtra("player_id", -1);
@@ -545,35 +551,25 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void getPlayerSpells() {
-        String url = String.format(Locale.ENGLISH, "player/%s/spells", selectedPlayer.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        ArrayList<SpellData> spells = selectedPlayer.getSpells();
+        DataCache.selectedPlayer.updateSpells(new FunctionCall() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray spells) {
-                try {
-
-                    if (spells.length() == 0) {
-                        findViewById(R.id.no_spells_text).setVisibility(View.VISIBLE);
-                    } else {
-                        findViewById(R.id.no_spells_text).setVisibility(View.GONE);
-                    }
-
-                    psdDataSet = new ArrayList<SpellData>(spells.length());
-                    for (int i = 0; i < spells.length(); i++) {
-                        JSONObject obj = spells.getJSONObject(i);
-                        psdDataSet.add(new SpellData(obj));
-                    }
-
-
-                    spellAdapter = new SpellListAdapter(psdDataSet);
-                    spellRecyclerView.setAdapter(spellAdapter);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void success() {
+                if (spells.size() == 0) {
+                    findViewById(R.id.no_spells_text).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.no_spells_text).setVisibility(View.GONE);
                 }
+
+                spellAdapter = new SpellListAdapter(spells);
+                spellRecyclerView.setAdapter(spellAdapter);
+                spellAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void error(String errorMessage) {
+                Log.d(TAG, "Error fetching player spells: " + errorMessage);
+
             }
         });
     }
@@ -603,18 +599,19 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void deleteSpell() {
-        String url = String.format(Locale.ENGLISH, "player/%s/spells/%d", selectedPlayer.getId(), psdDataSet.get(selectedSpellId).getId());
+        String url = String.format(
+                Locale.ENGLISH,
+                "player/%s/spells/%d",
+                selectedPlayer.getId(),
+                selectedPlayer.getSpells().get(selectedSpellId).getId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
-                    if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong retrieving spells from the server.");
-                        return;
-                    }
-
+                    selectedPlayer.setSpells(response);
                     closeMenus();
                     getPlayerSpells();
+                    findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.GONE);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -703,7 +700,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         closeMenus();
 
         Intent intent = new Intent(this, PdfViewerActivity.class);
-        intent.putExtra("REQUESTED_PAGE_NUMBER", psdDataSet.get(selectedSpellId).getPhb());
+        intent.putExtra("REQUESTED_PAGE_NUMBER", selectedPlayer.getSpells().get(selectedSpellId).getPhb());
         startActivity(intent);
     }
 
@@ -721,6 +718,10 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     public void openSpellFragment(View view) {
         openFragment(2);
+    }
+
+    public void refreshSpells() {
+        getPlayerSpells();
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -775,7 +776,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 drawerLayout.closeDrawer(leftDrawerWrapper);
                 return;
             case FRAGMENT_ID_SPELL: // My Spells
-                if (psdDataSet.size() == 0) {
+                if (selectedPlayer.getSpells().size() == 0) {
                     Toast.makeText(this, "You have no spells.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -784,14 +785,19 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 fragment.setExitTransition(new Slide(Gravity.END));
                 break;
             case FRAGMENT_ID_ADD_SPELL: // Add Spell
-                intent = new Intent(this, AddSpellActivity.class);
-                startActivityForResult(intent, UPDATE_SPELL);
-                drawerLayout.closeDrawer(leftDrawerWrapper);
-                return;
+                fragment = new PlayerAddSpellFragment();
+                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                fragment.setExitTransition(new Slide(Gravity.TOP));
+                break;
             case FRAGMENT_ID_PLAYER_STATS: // Player Stats
                 fragment = new StatsFragment();
                 fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
                 fragment.setExitTransition(new Slide(Gravity.TOP));
+                break;
+            case FRAGMENT_ID_SPELL_SLOTS: // Player spell slots
+                fragment = new SpellSlotsFragment();
+                fragment.setEnterTransition(new Slide(Gravity.START));
+                fragment.setExitTransition(new Slide(Gravity.END));
                 break;
             default:
                 break;

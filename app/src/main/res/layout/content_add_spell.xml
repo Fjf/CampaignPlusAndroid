@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".player.AddSpellActivity"
-    tools:showIn="@layout/activity_add_spell">
+    tools:showIn="@layout/fragment_add_spell">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/spell_info_text"
@@ -40,10 +40,8 @@
             android:id="@+id/imageButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="playerAddSpell"
-            app:srcCompat="@android:drawable/ic_menu_save"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/autocomplete_spells"
-            />
+            app:srcCompat="@android:drawable/ic_menu_save" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.constraintlayout.widget.ConstraintLayout>

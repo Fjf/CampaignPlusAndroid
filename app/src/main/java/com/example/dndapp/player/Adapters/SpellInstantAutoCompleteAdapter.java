@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,19 +20,21 @@ import java.util.ArrayList;
 
 public class SpellInstantAutoCompleteAdapter extends ArrayAdapter<SpellData> {
     private final String TAG = "SpellInstantAutoCompleteAdapter";
-    private final Activity context;
+    private final Context context;
     private final ArrayList<SpellData> filteredSpells;
     private final ArrayList<SpellData> originalSpells;
     private final int resource;
 
-    public SpellInstantAutoCompleteAdapter(@NonNull Activity context, @NonNull ArrayList<SpellData> spells) {
+    public SpellInstantAutoCompleteAdapter(@NonNull Context context, @NonNull ArrayList<SpellData> spells) {
         super(context, R.layout.spell_selection_row, spells);
 
         this.resource = R.layout.spell_selection_row;
         this.filteredSpells = new ArrayList<>(spells);
-        this.originalSpells = new ArrayList<>(spells);
+        this.originalSpells = spells;
         this.context = context;
     }
+
+
 
     public int getCount() {
         return filteredSpells.size();
@@ -47,15 +50,15 @@ public class SpellInstantAutoCompleteAdapter extends ArrayAdapter<SpellData> {
 
     @Override
     public View getView(int position, View rowView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = context.getLayoutInflater();
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         rowView = inflater.inflate(resource, null, true);
 
-        TextView nameTextField = (TextView) rowView.findViewById(R.id.instant_spell_name);
-        TextView levelTextField = (TextView) rowView.findViewById(R.id.instant_spell_level);
-        TextView idTextField = (TextView) rowView.findViewById(R.id.instant_spell_id);
+        TextView nameTextField = rowView.findViewById(R.id.instant_spell_name);
+        TextView levelTextField = rowView.findViewById(R.id.instant_spell_level);
+        TextView idTextField = rowView.findViewById(R.id.instant_spell_id);
 
-        SpellData obj = (SpellData) getItem(position);
+        SpellData obj = getItem(position);
         assert obj != null;
 
         //this code sets the values of the objects to values from the arrays

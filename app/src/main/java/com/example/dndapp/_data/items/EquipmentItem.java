@@ -8,7 +8,12 @@ public class EquipmentItem {
 
     private int amount = 0;
 
+    private String description;
     private ItemData item;
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
 
     public int getAmount() {
         return amount;
@@ -32,7 +37,23 @@ public class EquipmentItem {
         } else {
             this.amount = 0;
         }
+        this.description = obj.getString("description");
         this.item = new ItemData(obj.getJSONObject("info"));
     }
 
+    public JSONObject toJSON() throws JSONException {
+        JSONObject response = new JSONObject();
+        response.put("item_id", this.instanceId);
+        response.put("amount", this.amount);
+        response.put("description", this.description);
+        return response;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
