@@ -52,6 +52,7 @@ import com.example.dndapp.player.Fragments.ClassInformationFragment;
 import com.example.dndapp.player.Fragments.PlayerAddSpellFragment;
 import com.example.dndapp.player.Fragments.PlayerItemFragment;
 import com.example.dndapp.player.Fragments.PlayerSpellFragment;
+import com.example.dndapp.player.Fragments.SpellOptionsFragment;
 import com.example.dndapp.player.Fragments.SpellSlotsFragment;
 import com.example.dndapp.player.Fragments.StatsFragment;
 import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
@@ -214,11 +215,16 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
                     @Override
                     public void onLongClick(View view, int position) {
-                        selectedSpellId = position;
+                        Fragment fragment = SpellOptionsFragment.newInstance(position);
+                        fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                        fragment.setExitTransition(new Slide(Gravity.TOP));
 
-                        TextView tv = findViewById(R.id.deleteSpellTextButton);
-                        tv.setText("Delete " + selectedPlayer.getSpells().get(selectedSpellId).getName());
-                        findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        FragmentTransaction ft = fragmentManager.beginTransaction();
+
+                        ft.replace(R.id.player_info_drawer_layout, fragment);
+                        ft.addToBackStack(null);
+                        ft.commit();
                     }
                 })
         );

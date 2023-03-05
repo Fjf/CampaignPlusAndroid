@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/spellSettingsOverlayMenu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/overlaySettingsLight"
+        android:gravity="bottom"
+        android:onClick="eatClickEvent"
+        android:orientation="vertical"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/overlaySettings"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="Spell Settings"
+            android:textSize="8pt"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/deleteSpellTextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_item_onclick_color"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="requestDeleteSpell"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:textSize="10pt" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_item_onclick_color"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="openSpellFragment"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:text="Show Spell Info"
+            android:textSize="10pt" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_item_onclick_color"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="showSpellPHB"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:text="Show Spell in PHB"
+            android:textSize="10pt" />
+
+        <TextView
+            android:id="@+id/close_fragment_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_item_onclick_color"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:padding="12dp"
+            android:paddingBottom="16dp"
+            android:text="Cancel"
+            android:textSize="10pt" />
+    </LinearLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
