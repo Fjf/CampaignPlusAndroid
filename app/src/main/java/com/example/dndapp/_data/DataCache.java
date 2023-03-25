@@ -1,6 +1,7 @@
 package com.example.dndapp._data;
 
 import com.example.dndapp._data.classinfo.MainClassInfo;
+import com.example.dndapp._data.classinfo.SubClassInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,7 @@ public class DataCache {
     public static PlayerData selectedPlayer = new PlayerData();
     public static ArrayList<PlayerData> playerData = new ArrayList<>();
     public static HashMap<Integer, MainClassInfo> availableClasses = new HashMap<>();
+    public static HashMap<Integer, SubClassInfo> availableSubClasses = new HashMap<>();
 
     public static void setPlayerData(JSONArray array) throws JSONException {
         playerData.clear();

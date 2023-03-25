@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.dndapp.login.UserService.UserService;
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp.R;
 import com.example.dndapp.player.PlayerInfoActivity;
 
@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         // Disable button
         login.setEnabled(false);
 
-        UserService.login(userName, userPassword, new FunctionCall() {
+        UserService.login(userName, userPassword, new CallBack() {
             @Override
             public void success() {
                 // Store username/pw in SharedPreferences for next login to be automatic.

@@ -1,6 +1,6 @@
 package com.example.dndapp._utils;
 
-public interface FunctionCall {
+public interface CallBack {
     void success();
 
     void error(String errorMessage);

@@ -1,12 +1,8 @@
 package com.example.dndapp._data.items;
 
-import android.util.Log;
-import android.widget.Toast;
-
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,11 +26,11 @@ public class AvailableItems {
         }
     }
 
-    public static void initialize(final FunctionCall fn) {
+    public static void initialize(final CallBack fn) {
        updateItems(fn);
     }
 
-    public static void updateItems(final FunctionCall fn) {
+    public static void updateItems(final CallBack fn) {
         HttpUtils.get("user/items", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray items) {

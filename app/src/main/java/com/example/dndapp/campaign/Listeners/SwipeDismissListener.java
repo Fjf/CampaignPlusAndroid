@@ -3,13 +3,13 @@ package com.example.dndapp.campaign.Listeners;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 
 public class SwipeDismissListener implements View.OnTouchListener {
-    private final FunctionCall f;
+    private final CallBack f;
     private float x1, y1;
 
-    public SwipeDismissListener(FunctionCall f) {
+    public SwipeDismissListener(CallBack f) {
         this.f = f;
     }
 

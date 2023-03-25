@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:padding="8dp"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/table_info_title"
+        android:layout_width="150dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="Level 1 Spells"
+        android:textSize="16sp" />
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/table_item_group"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:minWidth="24dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:id="@+id/table_item"/>
+
+
+                <Button
+                    android:minWidth="36dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:id="@+id/table_counter"/>
+            </LinearLayout>
+
+        </HorizontalScrollView>
+</LinearLayout>

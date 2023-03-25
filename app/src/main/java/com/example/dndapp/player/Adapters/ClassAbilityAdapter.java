@@ -1,9 +1,12 @@
 package com.example.dndapp.player.Adapters;
 
+import static com.example.dndapp._data.DataCache.selectedPlayer;
+
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,8 +72,7 @@ public class ClassAbilityAdapter extends ArrayAdapter implements SectionIndexer 
     public View getView(int position, @Nullable View rowView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
 
-        if (rowView == null)
-            rowView = inflater.inflate(resource, null, true);
+        rowView = inflater.inflate(resource, null, true);
 
         TextView className = rowView.findViewById(R.id.class_name);
         TextView subclassName = rowView.findViewById(R.id.subclass_name);
@@ -89,6 +91,13 @@ public class ClassAbilityAdapter extends ArrayAdapter implements SectionIndexer 
         }
         abilityInfo.setText(data.getDescription());
         abilityLevel.setText("Level " + String.valueOf(data.getLevel()));
+
+        if (Integer.parseInt(selectedPlayer.statsData.getLevel()) < data.getLevel()) {
+            abilityInfo.setTextColor(ContextCompat.getColor(context, R.color.overlaySettingsLight));
+            abilityLevel.setTextColor(ContextCompat.getColor(context, R.color.overlaySettingsLight));
+            className.setTextColor(ContextCompat.getColor(context, R.color.overlaySettingsLight));
+            subclassName.setTextColor(ContextCompat.getColor(context, R.color.overlaySettingsLight));
+        }
 
         return rowView;
     }

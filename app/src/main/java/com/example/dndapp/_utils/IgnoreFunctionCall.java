@@ -1,6 +1,6 @@
 package com.example.dndapp._utils;
 
-public class IgnoreFunctionCall implements FunctionCall {
+public class IgnoreFunctionCall implements CallBack {
     @Override
     public void success() {
 

@@ -12,7 +12,7 @@ import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp.campaign.Listeners.SwipeDismissListener;
 import com.example.dndapp.R;
 import com.squareup.picasso.Callback;
@@ -66,7 +66,7 @@ public class ShowQRFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_show_qr, container, false);
-        view.setOnTouchListener(new SwipeDismissListener(new FunctionCall() {
+        view.setOnTouchListener(new SwipeDismissListener(new CallBack() {
             @Override
             public void success() {
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();

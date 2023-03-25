@@ -38,7 +38,7 @@ import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerStatsData;
 import com.example.dndapp._data.SpellData;
 import com.example.dndapp._data.items.EquipmentItem;
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.IgnoreFunctionCall;
 import com.example.dndapp.campaign.CampaignOverviewActivity;
@@ -53,7 +53,7 @@ import com.example.dndapp.player.Fragments.PlayerAddSpellFragment;
 import com.example.dndapp.player.Fragments.PlayerItemFragment;
 import com.example.dndapp.player.Fragments.PlayerSpellFragment;
 import com.example.dndapp.player.Fragments.SpellOptionsFragment;
-import com.example.dndapp.player.Fragments.SpellSlotsFragment;
+import com.example.dndapp.player.Fragments.TableInfoFragment;
 import com.example.dndapp.player.Fragments.StatsFragment;
 import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -235,7 +235,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void trySelectingPlayer(final int id, boolean forceUpdate) {
-        MyPlayerCharacterList.initialize(new FunctionCall() {
+        MyPlayerCharacterList.initialize(new CallBack() {
             @Override
             public void success() {
                 if (DataCache.playerData.size() == 0) {
@@ -285,7 +285,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         }
 
 
-        selectedPlayer.updatePlayerData(new FunctionCall() {
+        selectedPlayer.updatePlayerData(new CallBack() {
             @Override
             public void success() {
                 setStatsFields();
@@ -343,7 +343,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            deletePlayer();
+            requestDeletePlayer();
         } else if (id == R.id.action_show_abilities) {
             if (selectedPlayer == null) {
                 Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
@@ -371,7 +371,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             intent.putExtra("create", false);
             startActivityForResult(intent, CREATE_PLAYER_RESULT);
         } else if (id == R.id.action_logout) {
-            UserService.logout(new FunctionCall() {
+            UserService.logout(new CallBack() {
                 @Override
                 public void success() {
                     Intent intent = new Intent(PlayerInfoActivity.this, LoginActivity.class);
@@ -424,7 +424,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             if (playerId == -1)
                 return;
 
-            MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
+            MyPlayerCharacterList.updatePlayerData(new CallBack() {
                 @Override
                 public void success() {
                     updatePlayerDrawer();
@@ -489,12 +489,33 @@ public class PlayerInfoActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    private void requestDeletePlayer() {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        deletePlayer();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialog);
+        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
     private void deletePlayer() {
         String url = String.format(Locale.ENGLISH, "player/%s", selectedPlayer.getId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                MyPlayerCharacterList.updatePlayerData(new FunctionCall() {
+                MyPlayerCharacterList.updatePlayerData(new CallBack() {
                     @Override
                     public void success() {
                         trySelectingPlayer(-1, false);
@@ -507,6 +528,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 });
             }
         });
+
     }
 
 
@@ -558,7 +580,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private void getPlayerSpells() {
         ArrayList<SpellData> spells = selectedPlayer.getSpells();
-        DataCache.selectedPlayer.updateSpells(new FunctionCall() {
+        DataCache.selectedPlayer.updateSpells(new CallBack() {
             @Override
             public void success() {
                 if (spells.size() == 0) {
@@ -677,13 +699,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void closeMenus() {
-        findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.GONE);
         findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.GONE);
     }
 
     private boolean areMenusOpen() {
-        return findViewById(R.id.spellSettingsOverlayMenu).getVisibility() == View.VISIBLE ||
-                findViewById(R.id.itemSettingsOverlayMenu).getVisibility() == View.VISIBLE;
+        return findViewById(R.id.itemSettingsOverlayMenu).getVisibility() == View.VISIBLE;
     }
 
     @Override
@@ -692,7 +712,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
         // Close fragments on top.
         int count = getSupportFragmentManager().getBackStackEntryCount();
 
-        System.out.println(count);
         if (count > 0) {
             getSupportFragmentManager().popBackStackImmediate();
         }
@@ -801,7 +820,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 fragment.setExitTransition(new Slide(Gravity.TOP));
                 break;
             case FRAGMENT_ID_SPELL_SLOTS: // Player spell slots
-                fragment = new SpellSlotsFragment();
+                fragment = new TableInfoFragment();
                 fragment.setEnterTransition(new Slide(Gravity.START));
                 fragment.setExitTransition(new Slide(Gravity.END));
                 break;

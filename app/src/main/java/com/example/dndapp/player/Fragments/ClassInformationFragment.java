@@ -16,10 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.DataCache;
-import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.classinfo.ClassAbility;
-import com.example.dndapp._utils.FunctionCall;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 import com.example.dndapp.player.Adapters.ClassAbilityAdapter;
 

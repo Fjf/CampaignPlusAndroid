@@ -8,13 +8,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._data.items.AvailableItems;
-import com.example.dndapp._utils.IgnoreFunctionCall;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.PlayerInfoActivity;
 import com.example.dndapp.R;
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
 
 import org.json.JSONException;
@@ -55,10 +53,10 @@ public class LandingActivity extends AppCompatActivity {
             finish();
         }
 
-        UserService.login(username, password, new FunctionCall() {
+        UserService.login(username, password, new CallBack() {
             @Override
             public void success() {
-                AvailableItems.initialize(new FunctionCall() {
+                AvailableItems.initialize(new CallBack() {
                     @Override
                     public void success() {
 

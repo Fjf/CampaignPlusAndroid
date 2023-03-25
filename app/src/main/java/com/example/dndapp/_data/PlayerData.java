@@ -4,18 +4,15 @@ import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.example.dndapp.R;
 import com.example.dndapp._data.classinfo.ClassAbility;
 import com.example.dndapp._data.classinfo.MainClassInfo;
 import com.example.dndapp._data.classinfo.SubClassInfo;
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp.player.Adapters.SpellListAdapter;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -42,7 +39,7 @@ public class PlayerData {
         this.spells.add(spell);
     }
 
-    public void updateSpells(final FunctionCall callback) {
+    public void updateSpells(final CallBack callback) {
         String url = String.format(Locale.ENGLISH, "player/%s/spells", selectedPlayer.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {
             @Override
@@ -72,7 +69,6 @@ public class PlayerData {
 
     private ArrayList<SpellData> spells = new ArrayList<SpellData>();
     private String name;
-    private String className;
 
     private String race;
 
@@ -81,8 +77,8 @@ public class PlayerData {
 
     public PlayerProficiencyData proficiencies = new PlayerProficiencyData();
     private final ArrayList<Integer> mainClassIds = new ArrayList<>();
+    private final ArrayList<Integer> subClassIds = new ArrayList<>();
 
-    private final SubClassInfo[] subClassInfos = null;
     public int getId() {
         return id;
     }
@@ -100,7 +96,7 @@ public class PlayerData {
     }
 
     public String getClassName() {
-        return className;
+        return "";
     }
 
     public String getRace() {
@@ -125,9 +121,7 @@ public class PlayerData {
 
     public ArrayList<ClassAbility> getAllAbilities() {
         ArrayList<ClassAbility> arrayList = new ArrayList<>();
-        Log.d("--------------------", "Getting alla biltiies");
         for (Integer id : mainClassIds) {
-            Log.d("--------------------", String.valueOf(id));
             // Locate class from list and add to this PlayerData.
             MainClassInfo mci = DataCache.getClass(id);
             if (mci == null) {
@@ -135,6 +129,14 @@ public class PlayerData {
                 continue;
             }
             arrayList.addAll(mci.getAbilities());
+        }
+        for (Integer id : subClassIds) {
+            SubClassInfo sci = DataCache.availableSubClasses.get(id);
+            if (sci == null) {
+                Log.d(TAG, "Unable to find subclass with id; " + id);
+                continue;
+            }
+            arrayList.addAll(sci.getAbilities());
         }
 
         return arrayList;
@@ -148,10 +150,9 @@ public class PlayerData {
         return abilities;
     }
 
-    public SubClassInfo[] getSubClassInfos() {
-        return subClassInfos;
+    public PlayerData() {
     }
-    public PlayerData() { }
+
     public PlayerData(JSONObject obj) throws JSONException {
         this.setData(obj);
     }
@@ -175,15 +176,21 @@ public class PlayerData {
             int id = ids.getInt(i);
             this.mainClassIds.add(id);
         }
-    }
-
-    public void addMainClassIds(List<Integer> mcis) {
-        mainClassIds.addAll(mcis);
+        ids = info.getJSONArray("subclass_ids");
+        for (int i = 0; i < ids.length(); i++) {
+            int id = ids.getInt(i);
+            this.subClassIds.add(id);
+        }
     }
 
     public void setMainClassIds(List<Integer> mcis) {
         mainClassIds.clear();
-        addMainClassIds(mcis);
+        mainClassIds.addAll(mcis);
+    }
+
+    public void setSubClassIds(List<Integer> scis) {
+        subClassIds.clear();
+        subClassIds.addAll(scis);
     }
 
     public JSONObject toJSON() throws JSONException {
@@ -200,6 +207,7 @@ public class PlayerData {
         infoObj.put("stats", this.statsData.toJSON());
         infoObj.put("proficiencies", this.proficiencies.toJSON());
         infoObj.put("class_ids", new JSONArray(mainClassIds));
+        infoObj.put("subclass_ids", new JSONArray(subClassIds));
 
         obj.put("info", infoObj);
 
@@ -214,12 +222,10 @@ public class PlayerData {
      *
      * @param func The callback function
      */
-    public void updatePlayerData(final FunctionCall func) {
+    public void updatePlayerData(final CallBack func) {
         // Cannot update a player with an invalid id.
         if (this.getId() == -1)
             func.success();
-
-        Log.d("---------------------Fetching", String.valueOf(this.getId()));
 
         String url = String.format(Locale.ENGLISH, "player/%d", this.getId());
         HttpUtils.get(url, null, new JsonHttpResponseHandler() {

@@ -11,7 +11,6 @@ public class SubClassInfo {
     private final String mainClassName;
     private int id;
     private int mainClassId;
-
     private String name;
     private ArrayList<ClassAbility> abilities;
 
@@ -37,9 +36,9 @@ public class SubClassInfo {
 
     public SubClassInfo(JSONObject obj) throws JSONException {
         this.id = obj.getInt("id");
-        this.mainClassId = obj.getInt("main_class_id");
         this.name = obj.getString("name");
         this.mainClassName = obj.getString("main_class_name");
+        this.mainClassId = obj.getInt("main_class_id");
 
         JSONArray jsonArray = obj.getJSONArray("abilities");
         abilities = new ArrayList<>();

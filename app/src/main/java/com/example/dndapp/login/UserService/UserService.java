@@ -1,11 +1,6 @@
 package com.example.dndapp.login.UserService;
 
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import androidx.arch.core.util.Function;
-
-import com.example.dndapp._utils.FunctionCall;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -22,7 +17,7 @@ public final class UserService {
 
     }
 
-    public static void login(String username, String password, final FunctionCall f) throws JSONException, UnsupportedEncodingException {
+    public static void login(String username, String password, final CallBack f) throws JSONException, UnsupportedEncodingException {
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
         data.put("username", username);
@@ -52,7 +47,7 @@ public final class UserService {
         });
     }
 
-    public static void logout(final FunctionCall fn) {
+    public static void logout(final CallBack fn) {
         HttpUtils.post("logout", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
