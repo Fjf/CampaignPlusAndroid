@@ -197,6 +197,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
         HttpUtils.post("user/player", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                findViewById(R.id.player_create_new_button).setEnabled(true);
                 try {
                     Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
 
@@ -213,13 +214,18 @@ public class CreatePlayerActivity extends AppCompatActivity {
                     Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
-
-                findViewById(R.id.player_create_new_button).setEnabled(true);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 Toast.makeText(CreatePlayerActivity.this, response, Toast.LENGTH_SHORT).show();
+                findViewById(R.id.player_create_new_button).setEnabled(true);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                Toast.makeText(CreatePlayerActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
                 findViewById(R.id.player_create_new_button).setEnabled(true);
             }
         });
