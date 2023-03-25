@@ -65,6 +65,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
@@ -589,6 +590,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     findViewById(R.id.no_spells_text).setVisibility(View.GONE);
                 }
 
+                Collections.sort(spells, (a, b) -> Integer.compare(a.getLevel(), b.getLevel()));
                 spellAdapter = new SpellListAdapter(spells);
                 spellRecyclerView.setAdapter(spellAdapter);
                 spellAdapter.notifyDataSetChanged();
