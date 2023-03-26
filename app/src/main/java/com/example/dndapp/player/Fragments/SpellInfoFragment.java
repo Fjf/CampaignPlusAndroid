@@ -22,13 +22,13 @@ import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
 
 import java.util.Objects;
 
-public class PlayerSpellFragment extends
+public class SpellInfoFragment extends
         Fragment {
     private static final String TAG = "PlayerSpellFragment";
 
     private View view;
 
-    public PlayerSpellFragment() {
+    public SpellInfoFragment() {
     }
 
     @Override

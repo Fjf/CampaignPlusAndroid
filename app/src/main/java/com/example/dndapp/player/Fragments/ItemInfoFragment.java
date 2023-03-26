@@ -25,7 +25,6 @@ import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp._data.items.ItemType;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
-import com.example.dndapp.player.MainFragments.ItemViewFragment;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import java.io.UnsupportedEncodingException;
@@ -42,14 +41,14 @@ import org.json.JSONObject;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class PlayerItemFragment extends Fragment {
+public class ItemInfoFragment extends Fragment {
     private String TAG = "PlayerItemActivity";
 
     private View view;
     private EditText amount;
     private EditText information;
 
-    public PlayerItemFragment() {
+    public ItemInfoFragment() {
 
     }
 

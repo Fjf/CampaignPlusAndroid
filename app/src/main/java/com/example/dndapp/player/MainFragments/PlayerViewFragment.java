@@ -3,7 +3,6 @@ package com.example.dndapp.player.MainFragments;
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.dndapp._data.DataCache.selectedPlayer;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,15 +14,9 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 
 import com.example.dndapp.R;
-import com.example.dndapp._data.DataCache;
-import com.example.dndapp._data.MyPlayerCharacterList;
-import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._data.PlayerStatsData;
-import com.example.dndapp._data.items.EquipmentItem;
 import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.PlayerInfoFragment;
 import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;

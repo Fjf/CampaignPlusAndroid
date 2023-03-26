@@ -28,7 +28,7 @@ import com.example.dndapp._data.items.EquipmentItem;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.PlayerInfoFragment;
 import com.example.dndapp.player.Adapters.ItemListAdapter;
-import com.example.dndapp.player.Fragments.PlayerItemFragment;
+import com.example.dndapp.player.Fragments.ItemInfoFragment;
 import com.example.dndapp.player.RecyclerItemClickListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -41,7 +41,7 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.Header;
 
 public class ItemViewFragment extends PlayerInfoFragment {
-    private static final String TAG = "ItemViewActivity";
+    private static final String TAG = "ItemViewFragment";
     private Toolbar toolbar;
 
     private View view;
@@ -123,21 +123,32 @@ public class ItemViewFragment extends PlayerInfoFragment {
         itemRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this.getContext(), itemRecyclerView, new RecyclerItemClickListener.ClickListener() {
                     @Override
-                    public void onClick(View view, int position) {
+                    public void onClick(View v, int position) {
                         selectedItemId = position;
-                        openItemFragment(view);
+                        openItemFragment(v);
                     }
 
                     @Override
-                    public void onLongClick(View view, int position) {
+                    public void onDoubleTap(View v, int position) {
                         selectedItemId = position;
 
-                        TextView tv = view.findViewById(R.id.deleteItemTextButton);
+                        TextView tv = view.findViewById(R.id.delete_item_button);
                         tv.setText("Delete " + pidDataSet[selectedItemId].getItem().getName());
-                        view.findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.VISIBLE);
+
+                        // Lock drawer and Show the Spell options.
+                        ((DrawerLayout) getActivity().findViewById(R.id.player_info_drawer_layout))
+                                .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                        view.findViewById(R.id.overlay_item_options).setVisibility(View.VISIBLE);
                     }
                 })
         );
+
+        view.findViewById(R.id.overlay_item_options).setOnClickListener(v -> {
+            v.setVisibility(View.GONE);
+        });
+        view.findViewById(R.id.delete_item_button).setOnClickListener(this::requestDeleteItem);
+        view.findViewById(R.id.show_item_info_button).setOnClickListener(this::openItemFragment);
+        view.findViewById(R.id.close_menu_button).setOnClickListener(this::closeMenu);
     }
 
     public void openItemFragment(View view) {
@@ -146,7 +157,7 @@ public class ItemViewFragment extends PlayerInfoFragment {
             return;
         }
 
-        Fragment fragment = new PlayerItemFragment();
+        Fragment fragment = new ItemInfoFragment();
         fragment.setEnterTransition(new Slide(Gravity.END));
         fragment.setExitTransition(new Slide(Gravity.START));
 
@@ -158,18 +169,15 @@ public class ItemViewFragment extends PlayerInfoFragment {
     }
 
     public void requestDeleteItem(View view) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        deleteItem();
-                        break;
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    deleteItem();
+                    break;
 
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        //No button clicked
-                        break;
-                }
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
             }
         };
 
@@ -204,11 +212,11 @@ public class ItemViewFragment extends PlayerInfoFragment {
     }
 
     private void closeMenus() {
-        view.findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.GONE);
+        view.findViewById(R.id.overlay_item_options).setVisibility(View.GONE);
     }
 
     private boolean areMenusOpen() {
-        return view.findViewById(R.id.itemSettingsOverlayMenu).getVisibility() == View.VISIBLE;
+        return view.findViewById(R.id.overlay_item_options).getVisibility() == View.VISIBLE;
     }
 
 
@@ -237,4 +245,5 @@ public class ItemViewFragment extends PlayerInfoFragment {
     public void onUpdateCurrentPlayer() {
         getPlayerItems();
     }
+
 }

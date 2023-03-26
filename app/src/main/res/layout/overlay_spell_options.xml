@@ -6,12 +6,11 @@
 
 
     <LinearLayout
-        android:id="@+id/spellSettingsOverlayMenu"
+        android:id="@+id/overlay_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/overlaySettingsLight"
         android:gravity="bottom"
-        android:onClick="eatClickEvent"
         android:orientation="vertical"
         tools:visibility="visible">
 
@@ -26,46 +25,33 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/deleteSpellTextButton"
+            android:id="@+id/delete_spell_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/list_item_onclick_color"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:onClick="requestDeleteSpell"
             android:padding="12dp"
             android:paddingBottom="16dp"
             android:textSize="10pt" />
 
         <TextView
+            android:id="@+id/open_spell_fragment_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/list_item_onclick_color"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:onClick="openSpellFragment"
             android:padding="12dp"
             android:paddingBottom="16dp"
             android:text="Show Spell Info"
             android:textSize="10pt" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/list_item_onclick_color"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="showSpellPHB"
-            android:padding="12dp"
-            android:paddingBottom="16dp"
-            android:text="Show Spell in PHB"
-            android:textSize="10pt" />
 
         <TextView
-            android:id="@+id/close_fragment_button"
+            android:id="@+id/close_menu_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/list_item_onclick_color"

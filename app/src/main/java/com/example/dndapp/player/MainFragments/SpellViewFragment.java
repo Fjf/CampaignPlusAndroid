@@ -10,11 +10,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -28,8 +30,7 @@ import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.PlayerInfoFragment;
 import com.example.dndapp.player.Adapters.SpellListAdapter;
-import com.example.dndapp.player.Fragments.PlayerSpellFragment;
-import com.example.dndapp.player.Fragments.SpellOptionsFragment;
+import com.example.dndapp.player.Fragments.SpellInfoFragment;
 import com.example.dndapp.player.RecyclerItemClickListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -71,6 +72,8 @@ public class SpellViewFragment extends PlayerInfoFragment {
 
         spellLayoutManager = new LinearLayoutManager(view.getContext());
         spellRecyclerView.setLayoutManager(spellLayoutManager);
+
+
 
         getPlayerSpells();
         setEventListeners();
@@ -136,7 +139,7 @@ public class SpellViewFragment extends PlayerInfoFragment {
                 try {
                     selectedPlayer.setSpells(response);
                     getPlayerSpells();
-                    view.findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.GONE);
+                    view.findViewById(R.id.overlay_spell_options).setVisibility(View.GONE);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -160,21 +163,26 @@ public class SpellViewFragment extends PlayerInfoFragment {
                     }
 
                     @Override
-                    public void onLongClick(View view, int position) {
-                        Fragment fragment = SpellOptionsFragment.newInstance(position);
-                        fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
-                        fragment.setExitTransition(new Slide(Gravity.TOP));
+                    public void onDoubleTap(View v, int position) {
+                        selectedSpellId = position;
 
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FragmentTransaction ft = fragmentManager.beginTransaction();
+                        TextView tv = view.findViewById(R.id.delete_spell_button);
+                        tv.setText("Delete " + selectedPlayer.getSpells().get(selectedSpellId).name);
 
-                        ft.replace(R.id.player_info_drawer_layout, fragment);
-                        ft.addToBackStack(null);
-                        ft.commit();
+                        // Lock drawer and Show the Spell options.
+                        ((DrawerLayout) getActivity().findViewById(R.id.player_info_drawer_layout))
+                                .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                        view.findViewById(R.id.overlay_spell_options).setVisibility(View.VISIBLE);
                     }
                 })
         );
 
+        view.findViewById(R.id.overlay_spell_options).setOnClickListener(v -> {
+            v.setVisibility(View.GONE);
+        });
+        view.findViewById(R.id.delete_spell_button).setOnClickListener(this::requestDeleteSpell);
+        view.findViewById(R.id.open_spell_fragment_button).setOnClickListener(this::openSpellFragment);
+        view.findViewById(R.id.close_menu_button).setOnClickListener(this::closeMenu);
     }
 
     public void openSpellFragment(View view) {
@@ -182,7 +190,7 @@ public class SpellViewFragment extends PlayerInfoFragment {
             Toast.makeText(view.getContext(), "You have no spells.", Toast.LENGTH_SHORT).show();
             return;
         }
-        Fragment fragment = new PlayerSpellFragment();
+        Fragment fragment = new SpellInfoFragment();
         fragment.setEnterTransition(new Slide(Gravity.START));
         fragment.setExitTransition(new Slide(Gravity.END));
 
@@ -195,11 +203,11 @@ public class SpellViewFragment extends PlayerInfoFragment {
 
 
     private void closeMenus() {
-        view.findViewById(R.id.itemSettingsOverlayMenu).setVisibility(View.GONE);
+        view.findViewById(R.id.overlay_spell_options).setVisibility(View.GONE);
     }
 
     private boolean areMenusOpen() {
-        return view.findViewById(R.id.itemSettingsOverlayMenu).getVisibility() == View.VISIBLE;
+        return view.findViewById(R.id.overlay_spell_options).getVisibility() == View.VISIBLE;
     }
 
 

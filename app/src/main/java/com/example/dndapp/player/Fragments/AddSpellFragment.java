@@ -32,7 +32,7 @@ import java.util.Objects;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class PlayerAddSpellFragment extends Fragment {
+public class AddSpellFragment extends Fragment {
 
     private static final String TAG = "PlayerAddSpellFragment";
     private ViewGroup view;
@@ -40,7 +40,7 @@ public class PlayerAddSpellFragment extends Fragment {
 
     private AutoCompleteTextView spellInput;
 
-    public PlayerAddSpellFragment() {}
+    public AddSpellFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

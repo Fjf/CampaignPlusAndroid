@@ -2,10 +2,8 @@ package com.example.dndapp.player;
 
 import static com.example.dndapp._data.DataCache.selectedPlayer;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,7 +22,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.dndapp._data.items.AvailableItems;
@@ -32,8 +29,7 @@ import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp.player.Adapters.ItemSpinnerArrayAdapter;
 import com.example.dndapp.R;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.PlayerItemData;
-import com.example.dndapp.player.Fragments.SelectItemFragment;
+import com.example.dndapp.player.Fragments.AddItemFragment;
 import com.google.android.material.button.MaterialButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -108,7 +104,7 @@ public class AddItemActivity extends AppCompatActivity {
         damageTypeDropdown.setAdapter(damageArrayAdapter);
 
         button.setOnClickListener(v -> {
-            Fragment fragment = new SelectItemFragment();
+            Fragment fragment = new AddItemFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.add_item_activity, fragment);
             transaction.addToBackStack(null);
@@ -158,10 +154,10 @@ public class AddItemActivity extends AppCompatActivity {
     @Override
     public void onAttachFragment(@NonNull Fragment fragment) {
         super.onAttachFragment(fragment);
-        if (fragment instanceof SelectItemFragment)
-            ((SelectItemFragment) fragment).setListener(new SelectItemFragment.Listener() {
+        if (fragment instanceof AddItemFragment)
+            ((AddItemFragment) fragment).setListener(new AddItemFragment.Listener() {
                 @Override
-                public void onDetached(SelectItemFragment fragment) {
+                public void onDetached(AddItemFragment fragment) {
                     if (selectedItem != null)
                         button.setText(selectedItem.getName());
                 }

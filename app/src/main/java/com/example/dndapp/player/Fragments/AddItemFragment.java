@@ -4,11 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -22,13 +21,13 @@ import com.example.dndapp.player.AddItemActivity;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class SelectItemFragment extends Fragment {
+public class AddItemFragment extends Fragment {
     @Nullable
     private Listener listener;
     private SelectItemListAdapter  adapter;
     private ArrayList<ItemData> items = new ArrayList<>();
 
-    public SelectItemFragment() {
+    public AddItemFragment() {
         // Required empty public constructor
     }
 
@@ -39,8 +38,8 @@ public class SelectItemFragment extends Fragment {
      * @return A new instance of fragment SelectItemFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SelectItemFragment newInstance() {
-        return new SelectItemFragment();
+    public static AddItemFragment newInstance() {
+        return new AddItemFragment();
     }
 
     private void registerExitFragmentButton(Toolbar tb) {
@@ -119,7 +118,7 @@ public class SelectItemFragment extends Fragment {
     }
 
     public interface Listener {
-        void onDetached(SelectItemFragment fragment);
+        void onDetached(AddItemFragment fragment);
     }
 
     public void setListener(@Nullable Listener listener) {

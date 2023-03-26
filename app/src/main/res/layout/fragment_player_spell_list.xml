@@ -13,10 +13,10 @@
         android:layout_height="0dp"
         android:layout_margin="4dp"
         android:minHeight="150dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/no_spells_text"
@@ -38,65 +38,12 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:id="@+id/itemSettingsOverlayMenu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/overlaySettingsLight"
-        android:gravity="bottom"
-        android:orientation="vertical"
+    <include
+        android:id="@+id/overlay_spell_options"
+        layout="@layout/overlay_spell_options"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/overlaySettings"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="Item Settings"
-            android:textSize="8pt"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/deleteItemTextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/list_item_onclick_color"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="requestDeleteItem"
-            android:padding="12dp"
-            android:paddingBottom="16dp"
-            android:textSize="10pt" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/list_item_onclick_color"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="openItemFragment"
-            android:padding="12dp"
-            android:paddingBottom="16dp"
-            android:text="Show Item Info"
-            android:textSize="10pt" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/list_item_onclick_color"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:onClick="closeMenu"
-            android:padding="12dp"
-            android:paddingBottom="16dp"
-            android:text="Cancel"
-            android:textSize="10pt" />
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

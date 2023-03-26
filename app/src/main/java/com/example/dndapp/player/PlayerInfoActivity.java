@@ -44,9 +44,11 @@ import com.example.dndapp.login.LoginActivity;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.Adapters.DrawerListAdapter;
 import com.example.dndapp.player.Adapters.DrawerPCListAdapter;
+import com.example.dndapp.player.Fragments.AddItemFragment;
+import com.example.dndapp.player.Fragments.ItemInfoFragment;
 import com.example.dndapp.player.MainFragments.ClassInformationFragment;
-import com.example.dndapp.player.Fragments.PlayerAddSpellFragment;
-import com.example.dndapp.player.Fragments.PlayerSpellFragment;
+import com.example.dndapp.player.Fragments.AddSpellFragment;
+import com.example.dndapp.player.Fragments.SpellInfoFragment;
 import com.example.dndapp.player.Fragments.StatsFragment;
 import com.example.dndapp.player.Fragments.TableInfoFragment;
 import com.example.dndapp.player.MainFragments.ItemViewFragment;
@@ -198,6 +200,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Toast.makeText(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG).show();
             }
         });
+        openDefaultFragment();
         super.onResume();
     }
 
@@ -288,7 +291,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
                 return true;
             }
-
             Intent intent = new Intent(this, CreatePlayerActivity.class);
             intent.putExtra("create", false);
             startActivityForResult(intent, CREATE_PLAYER_RESULT);
@@ -332,12 +334,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
             return;
 
         if (requestCode == UPDATE_STATS) {
-            Log.d("------------------------", "got UPDATE STATS REQUEST");
-
             // After updating your stats, update player stats.
             selectedPlayer.updatePlayerData(new IgnoreFunctionCall());
         } else if (requestCode == UPDATE_SPELL) {
             Log.d("------------------------", "got response");
+
             // After adding a spell, update spells list.
         } else if (requestCode == CREATE_PLAYER_RESULT) {
             final int playerId = data.getIntExtra("player_id", -1);
@@ -454,23 +455,28 @@ public class PlayerInfoActivity extends AppCompatActivity {
         if (this.getSupportFragmentManager().getBackStackEntryCount() != 0)
             this.getSupportFragmentManager().popBackStackImmediate();
 
+        final int FRAGMENT_ID_ADD_ITEM = 1;
         final int FRAGMENT_ID_SPELL = 2;
         final int FRAGMENT_ID_ADD_SPELL = 3;
         final int FRAGMENT_ID_SPELL_SLOTS = 4;
         final int FRAGMENT_ID_PLAYER_STATS = 5;
 
         switch (position) {
+            case FRAGMENT_ID_ADD_ITEM:
+                intent = new Intent(this, AddItemActivity.class);
+                startActivity(intent);
+                return;
             case FRAGMENT_ID_SPELL: // My Spells
                 if (selectedPlayer.getSpells().size() == 0) {
                     Toast.makeText(this, "You have no spells.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                fragment = new PlayerSpellFragment();
+                fragment = new SpellInfoFragment();
                 fragment.setEnterTransition(new Slide(Gravity.START));
                 fragment.setExitTransition(new Slide(Gravity.END));
                 break;
             case FRAGMENT_ID_ADD_SPELL: // Add Spell
-                fragment = new PlayerAddSpellFragment();
+                fragment = new AddSpellFragment();
                 fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
                 fragment.setExitTransition(new Slide(Gravity.TOP));
                 break;
