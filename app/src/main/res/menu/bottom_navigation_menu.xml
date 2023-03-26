@@ -15,4 +15,9 @@
         android:enabled="true"
         android:icon="@drawable/ic_shield_24dp"
         android:title="@string/title_activity_player_item"/>
+    <item
+        android:id="@+id/page_class"
+        android:enabled="true"
+        android:icon="@drawable/ic_hanging_sign_24dp"
+        android:title="@string/title_activity_player_class"/>
 </menu>

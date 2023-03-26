@@ -218,15 +218,11 @@ public class ItemViewFragment extends PlayerInfoFragment {
             return;
         }
 
-        // Close any open fragments before opening the next.
-        if (this.getActivity().getSupportFragmentManager().getBackStackEntryCount() != 0)
-            this.getActivity().getSupportFragmentManager().popBackStackImmediate();
-
         if (fragment != null) {
             // Got most of the fragment code from here
             // https://www.androidcode.ninja/android-navigation-drawer-example/
 
-            FragmentManager fragmentManager = this.getActivity().getSupportFragmentManager();
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
 
             ft.replace(R.id.player_info_drawer_layout, fragment);

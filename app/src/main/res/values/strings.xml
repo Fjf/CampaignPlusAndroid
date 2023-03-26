@@ -35,6 +35,7 @@
     <string name="show_phb">Show PHB</string>
     <string name="default_port">5000</string>
     <string name="campaign_qr">Campaign QR</string>
+    <string name="title_activity_player_class">Class Info</string>
 
 
     <string-array name="player_info_left_drawer_titles">

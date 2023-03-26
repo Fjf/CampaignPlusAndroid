@@ -45,9 +45,8 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_show_abilities"
+        android:id="@+id/action_update_app"
         android:orderInCategory="400"
-        android:title="Show Abilities"
+        android:title="Check for Updates"
         app:showAsAction="never" />
-
 </menu>

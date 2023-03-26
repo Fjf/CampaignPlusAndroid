@@ -23,6 +23,10 @@ public class HttpUtils {
         client.setMaxRetriesAndTimeout(0, 1500);
     }
 
+    public static String getUrl() {
+        return "http://" + IP_ADDRESS + ":" + PORT;
+    }
+
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }

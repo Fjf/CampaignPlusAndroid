@@ -209,10 +209,6 @@ public class SpellViewFragment extends PlayerInfoFragment {
             return;
         }
 
-        // Close any open fragments before opening the next.
-        if (getActivity().getSupportFragmentManager().getBackStackEntryCount() != 0)
-            getActivity().getSupportFragmentManager().popBackStackImmediate();
-
         if (fragment != null) {
             // Got most of the fragment code from here
             // https://www.androidcode.ninja/android-navigation-drawer-example/
@@ -220,7 +216,7 @@ public class SpellViewFragment extends PlayerInfoFragment {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
 
-            ft.replace(R.id.player_info_drawer_layout, fragment);
+            ft.replace(R.id.player_info_drawer_layout, fragment, "spellViewFragment");
             ft.addToBackStack(null);
             ft.commit();
         } else {

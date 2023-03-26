@@ -3,11 +3,11 @@ package com.example.dndapp.player;
 import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.net.Uri;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Slide;
@@ -18,10 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -37,8 +35,6 @@ import com.example.dndapp.R;
 import com.example.dndapp._data.DataCache;
 import com.example.dndapp._data.DrawerListData;
 import com.example.dndapp._data.MyPlayerCharacterList;
-import com.example.dndapp._data.PlayerData;
-import com.example.dndapp._data.PlayerStatsData;
 import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.IgnoreFunctionCall;
@@ -48,23 +44,19 @@ import com.example.dndapp.login.LoginActivity;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.Adapters.DrawerListAdapter;
 import com.example.dndapp.player.Adapters.DrawerPCListAdapter;
-import com.example.dndapp.player.Fragments.ClassInformationFragment;
+import com.example.dndapp.player.MainFragments.ClassInformationFragment;
 import com.example.dndapp.player.Fragments.PlayerAddSpellFragment;
 import com.example.dndapp.player.Fragments.PlayerSpellFragment;
 import com.example.dndapp.player.Fragments.StatsFragment;
 import com.example.dndapp.player.Fragments.TableInfoFragment;
-import com.example.dndapp.player.Listeners.TextOnChangeSaveListener;
 import com.example.dndapp.player.MainFragments.ItemViewFragment;
 import com.example.dndapp.player.MainFragments.PlayerViewFragment;
 import com.example.dndapp.player.MainFragments.SpellViewFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -136,6 +128,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 fragment = new PlayerViewFragment();
             } else if (item.getItemId() == R.id.page_items) {
                 fragment = new ItemViewFragment();
+            } else if (item.getItemId() == R.id.page_class) {
+                fragment = ClassInformationFragment.newInstance(0);
             }
             assert fragment != null;
 
@@ -180,13 +174,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void openDefaultFragment() {
-        Fragment fragment = new PlayerViewFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction ft = fragmentManager.beginTransaction();
-
-        ft.replace(R.id.main_content_view, fragment);
-        ft.addToBackStack(null);
-        ft.commit();
+        bottomNavigation.setSelectedItemId(R.id.page_account);
     }
 
     @Override
@@ -288,19 +276,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 return true;
             }
             requestDeletePlayer();
-        } else if (id == R.id.action_show_abilities) {
-            if (selectedPlayer == null) {
-                Toast.makeText(this, "There is no player currently selected.", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-
-            Fragment fragment = ClassInformationFragment.newInstance(0);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction ft = fragmentManager.beginTransaction();
-
-            ft.replace(R.id.player_info_drawer_layout, fragment);
-            ft.addToBackStack(null);
-            ft.commit();
+        } else if (id == R.id.action_update_app) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(HttpUtils.getUrl() + "/app"));
+            startActivity(browserIntent);
         } else if (id == R.id.action_create_player) {
             Intent intent = new Intent(this, CreatePlayerActivity.class);
             intent.putExtra("create", true);

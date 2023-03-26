@@ -1,4 +1,4 @@
-package com.example.dndapp.player.Fragments;
+package com.example.dndapp.player.MainFragments;
 
 
 import static com.example.dndapp._data.DataCache.selectedPlayer;
@@ -9,15 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.SearchView;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.dndapp.R;
 import com.example.dndapp._data.classinfo.ClassAbility;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
+import com.example.dndapp.campaign.Listeners.SwipeDismissListener;
 import com.example.dndapp.player.Adapters.ClassAbilityAdapter;
 
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ import java.util.Objects;
  */
 public class ClassInformationFragment extends Fragment {
     private static final String ARG_PLAYER_IDX = "playerIdx";
+    private Toolbar toolbar;
+    private View view;
 
     private ArrayList<ClassAbility> abilities;
     private ClassAbilityAdapter adapter;
@@ -54,15 +58,6 @@ public class ClassInformationFragment extends Fragment {
         return fragment;
     }
 
-    private void registerExitFragmentButton(Toolbar tb) {
-        View btn = tb.findViewById(R.id.close_fragment_button);
-        btn.setOnClickListener(view -> {
-            // Remove current fragment
-            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-        });
-        btn.setOnTouchListener(new ShortHapticFeedback());
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,15 +68,14 @@ public class ClassInformationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_class_information, container, false);
-        final ListView lv = view.findViewById(R.id.class_info_abilities);
+        view = inflater.inflate(R.layout.fragment_class_information, container, false);
 
-        Toolbar tb = view.findViewById(R.id.toolbar);
-        tb.setTitle("Class Abilities");
-        registerExitFragmentButton(tb);
+        toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Class Abilities");
 
         abilities = selectedPlayer.getSortedAbilities();
         adapter = new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), abilities);
+        final ListView lv = view.findViewById(R.id.class_info_abilities);
         lv.setAdapter(adapter);
 
         SearchView searchView = view.findViewById(R.id.search_fragment_button);
@@ -91,13 +85,27 @@ public class ClassInformationFragment extends Fragment {
                 return false;
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.N)
+
+
             @Override
             public boolean onQueryTextChange(String s) {
                 lv.setAdapter(new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), filterAbilities(s)));
                 return false;
             }
         });
+
+        view.setOnTouchListener(new SwipeDismissListener(new CallBack() {
+
+            @Override
+            public void success() {
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            }
+
+            @Override
+            public void error(String errorMessage) {
+
+            }
+        }));
 
         return view;
     }
