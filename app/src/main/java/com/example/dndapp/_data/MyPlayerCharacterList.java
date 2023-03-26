@@ -22,8 +22,8 @@ public class MyPlayerCharacterList {
 
     public MyPlayerCharacterList() { /* Nothing for static class */ }
 
-    public static void initialize(final CallBack fn, boolean force) {
-        if (hasInitialized && !force) {
+    public static void initialize(final CallBack fn) {
+        if (hasInitialized) {
             fn.success();
             return;
         }
@@ -43,12 +43,7 @@ public class MyPlayerCharacterList {
         hasInitialized = true;
     }
 
-    public static void initialize(final CallBack fn) {
-        initialize(fn, false);
-    }
-
     public static void updatePlayerData(final CallBack fn) {
-        Log.d(TAG, "Loading player classes");
         HttpUtils.get("user/players", null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {

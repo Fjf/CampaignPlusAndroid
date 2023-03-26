@@ -18,6 +18,17 @@
             app:layout_constraintTop_toTopOf="parent"
             />
 
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:transitionName="navbar"
+            android:background="@color/colorAccent"
+            app:menu="@menu/bottom_navigation_menu"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <LinearLayout
             android:id="@+id/main_content_view"
             android:layout_width="match_parent"
@@ -28,87 +39,17 @@
             android:animateLayoutChanges="true"
             app:layout_constraintStart_toStartOf="parent">
 
-            <include
-                android:id="@+id/player_info_overview"
-                layout="@layout/player_info_overview"
+<!--            <include-->
+<!--                android:id="@+id/fragment_player_spell"-->
+<!--                layout="@layout/fragment_player_spell_list"/>-->
 
-                />
-        </LinearLayout>
+<!--            <include-->
+<!--                android:id="@+id/fragment_player_overview"-->
+<!--                layout="@layout/fragment_player_overview"/>-->
 
-        <LinearLayout
-            android:id="@+id/itemSettingsOverlayMenu"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@color/overlaySettingsLight"
-            android:gravity="bottom"
-            android:visibility="gone"
-            android:onClick="eatClickEvent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:gravity="center"
-                android:background="@color/overlaySettings"
-                android:textSize="8pt"
-                android:textStyle="bold"
-                android:text="Item Settings"/>
-
-            <TextView
-                android:id="@+id/deleteItemTextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:paddingBottom="16dp"
-                android:gravity="center"
-                android:textSize="10pt"
-                android:clickable="true"
-                android:background="@drawable/list_item_onclick_color"
-                android:onClick="requestDeleteItem"
-                android:focusable="true" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:paddingBottom="16dp"
-                android:gravity="center"
-                android:textSize="10pt"
-                android:clickable="true"
-                android:background="@drawable/list_item_onclick_color"
-                android:onClick="openItemFragment"
-                android:text="Show Item Info"
-                android:focusable="true" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:paddingBottom="16dp"
-                android:gravity="center"
-                android:textSize="10pt"
-                android:clickable="true"
-                android:background="@drawable/list_item_onclick_color"
-                android:onClick="showItemPHB"
-                android:text="Show Item in PHB"
-                android:focusable="true" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:paddingBottom="16dp"
-                android:gravity="center"
-                android:textSize="10pt"
-                android:clickable="true"
-                android:background="@drawable/list_item_onclick_color"
-                android:onClick="closeMenu"
-                android:text="Cancel"
-                android:focusable="true" />
+<!--            <include-->
+<!--                android:id="@+id/fragment_player_item"-->
+<!--                layout="@layout/fragment_player_item_list"/>-->
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

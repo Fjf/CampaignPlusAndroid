@@ -32,10 +32,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".campaign.QRCodeScannerActivity" />
         <activity
-            android:name=".player.AddSpellActivity"
-            android:label="@string/title_activity_add_spell"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".player.AddItemActivity"
             android:label="@string/title_activity_add_item"
             android:launchMode="singleInstance"
@@ -55,8 +51,21 @@
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
             android:exported="false"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
+            android:windowSoftInputMode="stateHidden"/>
+
+        <activity
+            android:name=".player.MainFragments.ItemViewFragment"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden"/>
+        <activity
+            android:name=".player.MainFragments.SpellViewFragment"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden"/>
+
         <activity android:name=".login.ForgotPasswordActivity" />
         <activity
             android:name=".PdfViewerActivity"

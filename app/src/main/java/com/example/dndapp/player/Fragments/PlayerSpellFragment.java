@@ -1,7 +1,7 @@
 package com.example.dndapp.player.Fragments;
 
 import static com.example.dndapp._data.DataCache.selectedPlayer;
-import static com.example.dndapp.player.PlayerInfoActivity.selectedSpellId;
+import static com.example.dndapp.player.MainFragments.SpellViewFragment.selectedSpellId;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -91,13 +91,24 @@ public class PlayerSpellFragment extends
         TextView du = view.findViewById(R.id.spell_info_duration);
         TextView le = view.findViewById(R.id.spell_info_level);
 
-        String description = current.getDescription();
-        ct.setText(current.getCastingTime());
-        hl.setText(current.getHigherLevel());
-        de.setText(description);
-        co.setText(current.getComponents());
-        du.setText(current.getDuration());
-        le.setText(Integer.toString(current.getLevel()));
+//        TextView rit = view.findViewById(R.id.spell_info_ritual);
+//        TextView con = view.findViewById(R.id.spell_info_concentration);
+        TextView mat = view.findViewById(R.id.spell_info_material);
+        TextView ran = view.findViewById(R.id.spell_info_range);
+        TextView sch = view.findViewById(R.id.spell_info_school);
+
+        ct.setText(current.castingTime);
+        hl.setText(current.higherLevel);
+        de.setText(current.description);
+        co.setText(current.components);
+        du.setText(current.duration);
+        le.setText(String.valueOf(current.level));
+
+        mat.setText(current.material);
+//        rit.setText(current.ritual ? "Yes" : "No");
+//        con.setText(current.concentration  ? "Yes" : "No");
+        ran.setText(current.range);
+        sch.setText(current.school);
     }
 
     public void setSpellData() {
@@ -112,7 +123,7 @@ public class PlayerSpellFragment extends
     private void createSpellDropdown() {
         String[] users = new String[selectedPlayer.getSpells().size()];
         for (int i = 0; i < selectedPlayer.getSpells().size(); i++) {
-            users[i] = selectedPlayer.getSpells().get(i).getName();
+            users[i] = selectedPlayer.getSpells().get(i).name;
         }
 
         Spinner spin = view.findViewById(R.id.name);

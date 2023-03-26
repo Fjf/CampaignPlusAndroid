@@ -8,12 +8,12 @@
         <item>@drawable/ic_skills_24dp</item>
     </array>
     <string name="app_name">Dndapp</string>
-    <string name="title_activity_server_settings">ServerSettingsActivity</string>
-    <string name="title_activity_add_item">AddItemActivity</string>
-    <string name="title_activity_player_stats">PlayerStatsActivity</string>
-    <string name="title_activity_add_spell">AddSpellActivity</string>
-    <string name="title_activity_player_spell">PlayerSpellActivity</string>
-    <string name="title_activity_player_item">PlayerItemActivity</string>
+    <string name="title_activity_server_settings">Settings</string>
+    <string name="title_activity_add_item">Create Items</string>
+    <string name="title_activity_player_stats">Stats</string>
+    <string name="title_activity_add_spell">Add Spells</string>
+    <string name="title_activity_player_spell">Spells</string>
+    <string name="title_activity_player_item">Items</string>
     <string name="speed">Speed</string>
     <string name="max_hp">Max HP</string>
     <string name="exhaustion">Exhaustion</string>

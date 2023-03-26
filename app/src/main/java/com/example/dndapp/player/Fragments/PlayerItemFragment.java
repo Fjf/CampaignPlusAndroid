@@ -25,7 +25,7 @@ import com.example.dndapp._data.items.ItemData;
 import com.example.dndapp._data.items.ItemType;
 import com.example.dndapp._utils.HttpUtils;
 import com.example.dndapp._utils.eventlisteners.ShortHapticFeedback;
-import com.example.dndapp.player.PlayerInfoActivity;
+import com.example.dndapp.player.MainFragments.ItemViewFragment;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import java.io.UnsupportedEncodingException;
@@ -33,8 +33,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 import static com.example.dndapp._data.DataCache.selectedPlayer;
-import static com.example.dndapp.player.PlayerInfoActivity.pidDataSet;
-import static com.example.dndapp.player.PlayerInfoActivity.selectedItemId;
+import static com.example.dndapp.player.MainFragments.ItemViewFragment.pidDataSet;
+import static com.example.dndapp.player.MainFragments.ItemViewFragment.selectedItemId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,20 +149,6 @@ public class PlayerItemFragment extends Fragment {
             }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
-    }
-    private PlayerInfoActivity parentContext;
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        parentContext = (PlayerInfoActivity) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if(parentContext != null){
-            parentContext.refreshItems();
-        }
     }
 
     private void getItems() {

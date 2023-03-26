@@ -2,21 +2,22 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/activity_player_info"
     android:id="@+id/content_wrapper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".player.MainFragments.PlayerViewFragment"
+    tools:showIn="@layout/activity_player_info">
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        tools:layout_editor_absoluteX="-1dp"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="-1dp">
 
         <LinearLayout
             android:id="@+id/StatsLayout"
@@ -146,7 +147,7 @@
                     android:layout_width="56dp"
                     android:layout_height="16dp"
                     android:gravity="center_horizontal"
-                    android:text="Constutition"
+                    android:text="Constitution"
                     android:textSize="11dp"
                     app:autoSizeMaxTextSize="11sp"
                     app:autoSizeMinTextSize="8sp"
@@ -306,23 +307,88 @@
                     android:textSize="7pt"
                     android:textStyle="bold"
 
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/level_value"
                     app:layout_constraintEnd_toEndOf="@id/level_value"
-                    />
+                    app:layout_constraintStart_toStartOf="@id/level_value"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/level_value"
                     android:layout_width="56dp"
                     android:layout_height="wrap_content"
 
-                    android:textSize="10pt"
                     android:gravity="center_horizontal"
                     android:text="0"
+                    android:textSize="10pt"
 
-                    app:layout_constraintTop_toBottomOf="@id/level_text"
                     app:layout_constraintStart_toStartOf="parent"
-                    />
+                    app:layout_constraintTop_toBottomOf="@id/level_text" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    app:hintTextAppearance="@style/TextLabel"
+
+                    android:id="@+id/money_copper_wrapper"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                     >
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/money_copper"
+                        android:hint="Copper"
+                        android:imeOptions="actionNext"
+                        android:inputType="number"
+                        android:selectAllOnFocus="true"
+                        android:textSize="10sp"
+                        android:textAlignment="center"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    app:hintTextAppearance="@style/TextLabel"
+
+                    android:id="@+id/money_silver_wrapper"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/money_copper_wrapper"
+                    >
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/money_silver"
+                        android:hint="Silver"
+                        android:imeOptions="actionNext"
+                        android:inputType="number"
+                        android:selectAllOnFocus="true"
+                        android:textSize="10sp"
+                        android:textAlignment="center"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    app:hintTextAppearance="@style/TextLabel"
+
+                    android:id="@+id/money_gold_wrapper"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/money_silver_wrapper"
+                    >
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/money_gold"
+                        android:hint="Gold"
+                        android:imeOptions="actionNext"
+                        android:inputType="number"
+                        android:selectAllOnFocus="true"
+                        android:textSize="10sp"
+                        android:textAlignment="center"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <EditText
                     android:id="@+id/statCurrentHP"
@@ -372,11 +438,10 @@
 
                     android:src="@drawable/ic_shield_24dp"
 
-                    app:layout_constraintTop_toTopOf="@id/statArmorClass"
-                    app:layout_constraintStart_toStartOf="@id/statArmorClass"
-                    app:layout_constraintEnd_toEndOf="@id/statArmorClass"
                     app:layout_constraintBottom_toBottomOf="@id/statArmorClass"
-                    />
+                    app:layout_constraintEnd_toEndOf="@id/statArmorClass"
+                    app:layout_constraintStart_toStartOf="@id/statArmorClass"
+                    app:layout_constraintTop_toTopOf="@id/statArmorClass" />
 
                 <TextView
                     android:id="@+id/statArmorClass"
@@ -455,63 +520,9 @@
                     app:layout_constraintTop_toTopOf="@+id/statCurrentHP" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout2"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="4dp"
-                android:layout_weight="4">
-
-                <TextView
-                    android:id="@+id/no_items_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="You have no items."
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/player_item_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout3"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="4dp"
-        android:minHeight="150dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-        <TextView
-            android:id="@+id/no_spells_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="You have no spells."
-            android:textColor="@android:color/darker_gray"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/player_spell_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

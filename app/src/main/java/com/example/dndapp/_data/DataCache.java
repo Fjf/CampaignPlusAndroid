@@ -22,11 +22,18 @@ public class DataCache {
         }
     }
 
+    /**
+     * Returns either the player from the list, or a new player if this player id does not exist in the list.
+     */
     public static PlayerData getPlayer(int id) {
         for (PlayerData player : playerData) {
             if (player.getId() == id) return player;
         }
-        return null;
+
+        if (playerData.size() > 0)
+            return playerData.get(0);
+
+        return new PlayerData();
     }
 
     public static MainClassInfo getClass(int id) {

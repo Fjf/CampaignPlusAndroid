@@ -7,7 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
-
+        <item name="android:windowActivityTransitions">true</item>
 <!--        <item name="android:fastScrollOverlayPosition">atThumb</item>-->
 <!--        <item name="android:fastScrollTextColor">@color/colorAccent</item>-->
     </style>
@@ -15,6 +15,9 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+    <style name="TextLabel" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">8dp</item>
     </style>
 
     <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">

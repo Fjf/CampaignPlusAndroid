@@ -85,13 +85,32 @@
                 app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
 
             <TextView
-                android:id="@+id/textView27"
+                android:id="@+id/spell_info_cast_time_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Casting Time"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@+id/textView28"
-                app:layout_constraintStart_toEndOf="@+id/textView24"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
+
+
+
+            <TextView
+                android:id="@+id/spell_info_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 minutes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range_header" />
+
+            <TextView
+                android:id="@+id/spell_info_range_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Casting Range"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
 
             <TextView
@@ -102,31 +121,66 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView24" />
 
-            <TextView
-                android:id="@+id/textView28"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Components"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
 
             <TextView
                 android:id="@+id/spell_info_casting_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TextView"
-                app:layout_constraintEnd_toEndOf="@+id/textView27"
-                app:layout_constraintStart_toStartOf="@+id/textView27"
-                app:layout_constraintTop_toBottomOf="@+id/textView27" />
+                app:layout_constraintEnd_toEndOf="@+id/spell_info_cast_time_header"
+                app:layout_constraintStart_toStartOf="@+id/spell_info_cast_time_header"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_cast_time_header" />
 
+            <TextView
+                android:id="@+id/spell_info_school_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="School"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range" />
+            <TextView
+                android:id="@+id/spell_info_school"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Abjuration"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_school_header" />
+
+
+            <TextView
+                android:id="@+id/spell_info_material_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Material"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range" />
+            <TextView
+                android:id="@+id/spell_info_material"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pinch of sand"
+                app:layout_constraintStart_toStartOf="@+id/spell_info_material_header"
+                app:layout_constraintEnd_toEndOf="@+id/spell_info_material_header"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_material_header" />
+
+            <TextView
+                android:id="@+id/spell_info_components_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Components"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range" />
             <TextView
                 android:id="@+id/spell_info_components"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                android:text="V"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView28" />
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_components_header" />
 
             <TextView
                 android:id="@+id/textView31"
@@ -137,7 +191,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView23"
                 app:layout_constraintStart_toStartOf="@+id/textView23"
-                app:layout_constraintTop_toBottomOf="@+id/spell_info_casting_time" />
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_components" />
 
             <TextView
                 android:id="@+id/spell_info_higher_level"

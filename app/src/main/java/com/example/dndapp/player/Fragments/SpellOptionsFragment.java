@@ -60,7 +60,7 @@ public class SpellOptionsFragment extends Fragment {
 
 
         TextView tv = view.findViewById(R.id.deleteSpellTextButton);
-        tv.setText("Delete " + selectedPlayer.getSpells().get(selectedSpellId).getName());
+        tv.setText("Delete " + selectedPlayer.getSpells().get(selectedSpellId).name);
         view.findViewById(R.id.spellSettingsOverlayMenu).setVisibility(View.VISIBLE);
 
         return view;

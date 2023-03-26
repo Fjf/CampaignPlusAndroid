@@ -4,6 +4,7 @@ import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -19,12 +20,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.security.auth.callback.Callback;
+
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlayerData {
     private static final String TAG = "PlayerData";
@@ -67,13 +72,17 @@ public class PlayerData {
         }
     }
 
-    private ArrayList<SpellData> spells = new ArrayList<SpellData>();
+    private ArrayList<SpellData> spells = new ArrayList<>();
     private String name;
+
+    public int gold;
+    public int silver;
+    public int copper;
 
     private String race;
 
     private String backstory = "";
-    public PlayerStatsData statsData = null;
+    public PlayerStatsData statsData = new PlayerStatsData();
 
     public PlayerProficiencyData proficiencies = new PlayerProficiencyData();
     private final ArrayList<Integer> mainClassIds = new ArrayList<>();
@@ -163,6 +172,10 @@ public class PlayerData {
         this.userName = obj.getString("owner");
         this.race = obj.getString("race");
 
+        JSONObject money = obj.getJSONObject("money");
+        this.gold = money.getInt("gold");
+        this.silver = money.getInt("silver");
+        this.copper = money.getInt("copper");
 
         if (!obj.isNull("backstory")) {
             this.backstory = obj.getString("backstory");
@@ -211,6 +224,14 @@ public class PlayerData {
 
         obj.put("info", infoObj);
 
+        JSONObject money = new JSONObject();
+        money.put("gold", this.gold);
+        money.put("silver", this.silver);
+        money.put("copper", this.copper);
+        money.put("electron", 0);
+        money.put("platinum", 0);
+        obj.put("money", money);
+
         return obj;
     }
 
@@ -247,6 +268,23 @@ public class PlayerData {
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 Log.d("updatePlayerData::HttpUtils::get()", "Response failure.");
                 func.error(response);
+            }
+        });
+    }
+
+    public void upload(final CallBack func) throws JSONException, UnsupportedEncodingException {
+        String url = String.format("player/%s", selectedPlayer.getId());
+        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
+        // Upload changed data to the server.
+        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                func.success();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+                func.error(response.toString());
             }
         });
     }

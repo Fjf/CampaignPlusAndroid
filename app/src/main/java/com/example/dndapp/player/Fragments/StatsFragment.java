@@ -104,15 +104,10 @@ public class StatsFragment extends Fragment {
         } catch (UnsupportedEncodingException | JSONException e) {
             e.printStackTrace();
         }
-        Activity act = getActivity();
-        if (act instanceof PlayerInfoActivity) {
-            ((PlayerInfoActivity) act).setStatsFields();
-        }
     }
 
     private void setOnChangeRefreshListeners() {
         int[] checkboxIds = new int[]{
-
                 R.id.saving_throws_cha,
                 R.id.saving_throws_dex,
                 R.id.saving_throws_str,

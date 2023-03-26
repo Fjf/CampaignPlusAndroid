@@ -52,8 +52,8 @@ public class SpellListAdapter extends RecyclerView.Adapter<SpellListAdapter.Item
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.spellName.setText(psdDataSet.get(position).getName());
-        holder.spellLevel.setText(String.valueOf(psdDataSet.get(position).getLevel()));
+        holder.spellName.setText(psdDataSet.get(position).name);
+        holder.spellLevel.setText(String.valueOf(psdDataSet.get(position).level));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

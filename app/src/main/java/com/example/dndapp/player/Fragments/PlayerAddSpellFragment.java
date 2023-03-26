@@ -1,15 +1,11 @@
 package com.example.dndapp.player.Fragments;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -29,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
@@ -124,8 +119,8 @@ public class PlayerAddSpellFragment extends Fragment {
         for (int i = 0; i < arrayAdapter.getCount(); i++) {
             SpellData data = arrayAdapter.getItem(i);
             assert data != null;
-            if (data.getName().equals(text)) {
-                id = data.getId();
+            if (data.name.equals(text)) {
+                id = data.id;
                 break;
             }
         }
@@ -145,7 +140,7 @@ public class PlayerAddSpellFragment extends Fragment {
         HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                SpellData spell = null;
+                SpellData spell;
                 try {
                     spell = new SpellData(response);
                     DataCache.selectedPlayer.addSpell(spell);

@@ -62,9 +62,9 @@ public class SpellInstantAutoCompleteAdapter extends ArrayAdapter<SpellData> {
         assert obj != null;
 
         //this code sets the values of the objects to values from the arrays
-        nameTextField.setText(obj.getName());
-        levelTextField.setText(Integer.toString(obj.getLevel()));
-        idTextField.setText(Integer.toString(obj.getId()));
+        nameTextField.setText(obj.name);
+        levelTextField.setText(Integer.toString(obj.level));
+        idTextField.setText(Integer.toString(obj.id));
 
         return rowView;
     }
@@ -75,7 +75,7 @@ public class SpellInstantAutoCompleteAdapter extends ArrayAdapter<SpellData> {
         return new Filter() {
             @Override
             public String convertResultToString(Object resultValue) {
-                return ((SpellData) resultValue).getName();
+                return ((SpellData) resultValue).name;
             }
 
             @Override
@@ -85,7 +85,7 @@ public class SpellInstantAutoCompleteAdapter extends ArrayAdapter<SpellData> {
                     constraint = "";
                 }
                 for (SpellData spell : originalSpells) {
-                    if (spell.getName().toLowerCase().startsWith(constraint.toString().toLowerCase())) {
+                    if (spell.name.toLowerCase().startsWith(constraint.toString().toLowerCase())) {
                         filteredSpells.add(spell);
                     }
                 }

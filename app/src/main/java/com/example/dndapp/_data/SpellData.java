@@ -6,89 +6,43 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SpellData {
-    private final int level;
-    private final String name;
-    private final int phb;
-    private final int id;
+    public final int level;
+    public final String name;
+    public final int id;
 
-    private final String castingTime;
-    private final String higherLevel;
-    private final String duration;
-    private final String components;
-    private final String description;
-
-    public String getCastingTime() {
-        return castingTime;
-    }
-
-    public String getHigherLevel() {
-        return higherLevel;
-    }
-
-    public String getDuration() {
-        return duration;
-    }
-
-    public String getComponents() {
-        return components;
-    }
-
-    public String getDescription() {
-        return description;
-    }
+    public final String castingTime;
+    public final String higherLevel;
+    public final String duration;
+    public final String components;
+    public final String range;
+    public final boolean concentration;
+    public final boolean ritual;
+    public final String school;
+    public final String material;
+    public final String description;
 
     public SpellData(JSONObject obj, boolean simple) throws JSONException {
         this.level = obj.getInt("level");
-        this.phb = obj.getInt("phb_page");
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
 
-        if (simple) {
-            this.castingTime = "null";
-            this.higherLevel = "null";
-            this.description = "null";
-            this.components = "null";
-            this.duration = "null";
-        } else {
-            this.castingTime = obj.getString("casting_time");
-            this.higherLevel = obj.getString("higher_level");
-            this.description = obj.getString("description");
-            this.components = obj.getString("components");
-            this.duration = obj.getString("duration");
-        }
+        this.duration = obj.getString("duration");
+        this.higherLevel = obj.getString("higher_level");
+        this.castingTime = obj.getString("casting_time");
+
+        this.concentration = obj.optBoolean("concentration", false);
+        this.ritual = obj.optBoolean("ritual", false);
+
+        this.material = obj.optString("material", "None");
+
+        this.components = obj.getString("components");
+        this.range = obj.getString("spell_range");
+        this.description = obj.getString("description");
+        this.school = obj.optString("school", "None");
     }
 
     public SpellData(JSONObject obj) throws JSONException {
         this(obj, false);
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getPhb() {
-        return phb;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public SpellData(String name, int level, int phb, int id) {
-        this.name = name;
-        this.level = level;
-        this.phb = phb;
-        this.id = id;
-
-        this.castingTime = "null";
-        this.higherLevel = "null";
-        this.description = "null";
-        this.components = "null";
-        this.duration = "null";
     }
 
     @NonNull
