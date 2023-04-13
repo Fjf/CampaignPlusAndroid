@@ -8,10 +8,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SubClassInfo {
-    private final String mainClassName;
+    public final String mainClassName;
+    public String name;
+
     private int id;
     private int mainClassId;
-    private String name;
     private ArrayList<ClassAbility> abilities;
 
     public int getId() {

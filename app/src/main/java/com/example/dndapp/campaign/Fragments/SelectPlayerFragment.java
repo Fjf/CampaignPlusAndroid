@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,18 +37,14 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SelectPlayerFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link SelectPlayerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class SelectPlayerFragment extends Fragment {
     private static final String PARAM_CAMPAIGN_CODE = "campaignCode";
-    private OnFragmentInteractionListener mListener;
-    private Toolbar tb;
-    private Spinner playerSpinner;
     private String campaignCode;
-    private String TAG = "SelectPlayerFragment2";
+    private final String TAG = "SelectPlayerFragment2";
 
     public SelectPlayerFragment() {
         // Required empty public constructor
@@ -78,11 +75,13 @@ public class SelectPlayerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        assert campaignCode != null;
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_select_player, container, false);
 
-        tb = view.findViewById(R.id.fragment_toolbar);
-        playerSpinner = view.findViewById(R.id.player_spinner);
+        Toolbar tb = view.findViewById(R.id.fragment_toolbar);
+        Spinner playerSpinner = view.findViewById(R.id.player_spinner);
         
         tb.setTitle("Campaign Character");
 
@@ -115,50 +114,9 @@ public class SelectPlayerFragment extends Fragment {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
     /**
      * Updates the campaign for the selected character.
      * @param playerId the id of the player character
-     * @throws UnsupportedEncodingException
-     * @throws JSONException
      */
     private void updatePlayerCampaign(int playerId) throws UnsupportedEncodingException, JSONException {
         final JSONObject data = new JSONObject();
@@ -169,21 +127,12 @@ public class SelectPlayerFragment extends Fragment {
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    // Go back to parent.
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign.", Toast.LENGTH_SHORT).show();
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + response.toString(), Toast.LENGTH_SHORT).show();
                 // Go back to parent.
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }

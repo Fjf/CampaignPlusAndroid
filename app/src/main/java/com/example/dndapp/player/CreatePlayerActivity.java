@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import com.example.dndapp._data.DataCache;
 import com.example.dndapp._data.PlayerData;
+import com.example.dndapp._utils.IgnoreCallback;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -34,7 +36,9 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -49,13 +53,18 @@ public class CreatePlayerActivity extends AppCompatActivity {
     private TextView playerName;
     private TextView playerRace;
     private TextInputEditText playerBackstory;
-    private Spinner availableClassesSpinner;
+    private Spinner classSelector;
+    private Spinner subclassSelector;
+
     private ClassAdapter classAdapter;
     private Button addPlayerButton;
     private ArrayList<String> names;
     private boolean isCreation;
 
-    private ArrayList<Integer> selectedClassIds;
+    private final ArrayList<Integer> selectedClassIds = new ArrayList<>();
+    // A map linking a main class id to a Subclass id.
+    // As every main class can have only 1 subclass, this will automatically enforce this restriction.
+    private final HashMap<Integer, Integer> selectedSubclassIds = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,13 +74,12 @@ public class CreatePlayerActivity extends AppCompatActivity {
         // Load toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
 
-        selectedClassIds = new ArrayList<>();
 
         // Find views
         playerName = findViewById(R.id.player_name_field);
         playerRace = findViewById(R.id.player_race_field);
         playerBackstory = findViewById(R.id.player_backstory_field);
-        availableClassesSpinner = findViewById(R.id.player_class_field);
+        classSelector = findViewById(R.id.player_class_field);
 
         Intent intent = getIntent();
         isCreation = intent.getBooleanExtra("create", true);
@@ -88,21 +96,15 @@ public class CreatePlayerActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
-        ListView lv = findViewById(R.id.player_class_list);
+        ListView classList = findViewById(R.id.player_class_list);
 
-        classAdapter = new ClassAdapter(this, selectedClassIds);
-        lv.setAdapter(classAdapter);
-
-        // Onclick, remove the clicked entry from the list, and update the ListView.
-        lv.setOnItemClickListener((adapterView, view, i, l) -> {
-            selectedClassIds.remove(i);
-            classAdapter.notifyDataSetChanged();
-        });
+        classAdapter = new ClassAdapter(this, selectedClassIds, selectedSubclassIds);
+        classList.setAdapter(classAdapter);
 
         ImageButton bt = findViewById(R.id.player_class_add);
-        bt.setOnClickListener(view -> addSelectedClass(availableClassesSpinner.getSelectedItemId()));
+        bt.setOnClickListener(view -> addSelectedClass(classSelector.getSelectedItemId()));
 
-        addPlayerButton = findViewById(R.id.player_create_new_button);
+        addPlayerButton = findViewById(R.id.player_save_created);
         addPlayerButton.setOnClickListener(view -> {
             try {
                 if (isCreation)
@@ -159,7 +161,15 @@ public class CreatePlayerActivity extends AppCompatActivity {
         MyPlayerCharacterList.updateClassData(new CallBack() {
             @Override
             public void success() {
-                updateClassSpinner();
+                names = new ArrayList<>();
+                for (MainClassInfo mci : DataCache.availableClasses.values()) {
+                    names.add(mci.getName());
+                }
+                Collections.sort(names);
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(CreatePlayerActivity.this, android.R.layout.simple_spinner_item, names);
+                arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                classSelector.setAdapter(arrayAdapter);
             }
 
             @Override
@@ -167,19 +177,10 @@ public class CreatePlayerActivity extends AppCompatActivity {
                 Toast.makeText(CreatePlayerActivity.this, "Something went wrong retrieving classes from server: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+
+        MyPlayerCharacterList.updateSubClassData(new IgnoreCallback());
     }
 
-    private void updateClassSpinner() {
-        names = new ArrayList<>();
-        for (MainClassInfo mci : DataCache.availableClasses.values()) {
-            names.add(mci.getName());
-        }
-        Collections.sort(names);
-
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, names);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        availableClassesSpinner.setAdapter(arrayAdapter);
-    }
 
     public void createNewCharacter() throws UnsupportedEncodingException, JSONException {
         String name = playerName.getText().toString();
@@ -189,15 +190,16 @@ public class CreatePlayerActivity extends AppCompatActivity {
         selectedPlayer.setRace(race);
         selectedPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());
         selectedPlayer.setMainClassIds(selectedClassIds);
+        selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
         StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
 
-        findViewById(R.id.player_create_new_button).setEnabled(false);
+        findViewById(R.id.player_save_created).setEnabled(false);
 
         HttpUtils.post("user/player", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                findViewById(R.id.player_create_new_button).setEnabled(true);
+                findViewById(R.id.player_save_created).setEnabled(true);
                 try {
                     Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
 
@@ -219,14 +221,14 @@ public class CreatePlayerActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 Toast.makeText(CreatePlayerActivity.this, response, Toast.LENGTH_SHORT).show();
-                findViewById(R.id.player_create_new_button).setEnabled(true);
+                findViewById(R.id.player_save_created).setEnabled(true);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
                 Toast.makeText(CreatePlayerActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
-                findViewById(R.id.player_create_new_button).setEnabled(true);
+                findViewById(R.id.player_save_created).setEnabled(true);
             }
         });
     }
@@ -239,10 +241,11 @@ public class CreatePlayerActivity extends AppCompatActivity {
         selectedPlayer.setRace(race);
         selectedPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());
         selectedPlayer.setMainClassIds(selectedClassIds);
+        selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
         StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
 
-        findViewById(R.id.player_create_new_button).setEnabled(false);
+        findViewById(R.id.player_save_created).setEnabled(false);
 
         String url = String.format(Locale.ENGLISH, "player/%d", selectedPlayer.getId());
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
@@ -263,12 +266,12 @@ public class CreatePlayerActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                findViewById(R.id.player_create_new_button).setEnabled(true);
+                findViewById(R.id.player_save_created).setEnabled(true);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                findViewById(R.id.player_create_new_button).setEnabled(true);
+                findViewById(R.id.player_save_created).setEnabled(true);
             }
         });
     }

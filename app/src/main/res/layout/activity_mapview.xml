@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/campaign_content_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".campaign.CampaignActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
+
+        <ImageView
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/left_drawer_wrapper"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:layout_gravity="start">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:background="@color/colorAccentLight"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+
+                android:background="@drawable/bottom_line"
+                android:layout_marginBottom="3dp"
+
+                android:text="Options"
+                android:textStyle="bold"
+                android:textSize="10pt"
+                android:gravity="center"
+                />
+
+            <ListView
+                android:id="@+id/left_drawer_items"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccentLight"
+
+                android:choiceMode="singleChoice"
+                android:focusableInTouchMode="true"
+
+                android:divider="@color/colorAccent"
+                android:dividerHeight="1px"/>
+        </LinearLayout>
+    </ScrollView>
+</androidx.drawerlayout.widget.DrawerLayout>

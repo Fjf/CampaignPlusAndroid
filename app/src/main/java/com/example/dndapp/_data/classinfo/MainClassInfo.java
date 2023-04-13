@@ -1,5 +1,7 @@
 package com.example.dndapp._data.classinfo;
 
+import com.example.dndapp._data.DataCache;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 public class MainClassInfo {
     private int id = -1;
 
-    private String name = "";
+    public String name = "";
     private final ArrayList<ClassAbility> abilities;
 
     private final ArrayList<String> tableKeys = new ArrayList<>();
@@ -64,5 +66,23 @@ public class MainClassInfo {
         for (int i = 0; i < jsonArray.length(); i++) {
             abilities.add(new ClassAbility(jsonArray.getJSONObject(i), this));
         }
+    }
+
+    /**
+     * Filters the DataCache object for Subclasses which match the main class name with this class.
+     * Filtering is capitalization-agnostic, meaning any capitalization will work for a match.
+     * Returns an arraylist with the SubClassInfo objects which matched the above condition.
+     * An empty list may be returned if no SubClasses can be found.
+     *
+     * @return arraylist with SubClassInfo
+     */
+    public ArrayList<SubClassInfo> getSubclasses() {
+
+        ArrayList<SubClassInfo> subclasses = new ArrayList<>();
+        for (SubClassInfo subclass : DataCache.availableSubClasses.values()) {
+            if (subclass.mainClassName.equalsIgnoreCase(this.name))
+                subclasses.add(subclass);
+        }
+        return subclasses;
     }
 }

@@ -8,37 +8,57 @@
     android:orientation="vertical"
     tools:context=".campaign.CampaignActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        >
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar" />
+         app:layout_constraintBottom_toTopOf="@+id/main_content_view"/>
+
+    <LinearLayout
+        android:id="@+id/main_content_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <com.example.dndapp._utils.ExpandedListView
             android:id="@+id/playerList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
-            android:fadeScrollbars="false"
-            android:scrollbars="vertical"
             android:descendantFocusability="blocksDescendants"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            android:fadeScrollbars="false"
+            android:scrollbars="vertical" />
 
 
-        <Button
-            android:id="@+id/player_create_new_button"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Create new character"
-            android:onClick="createNewCharacter"/>
+            android:layout_height="wrap_content">
 
+            <Button
+                android:id="@+id/player_save_created"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create new character"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/player_add_existing_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/player_add_existing_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add existing character"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/player_save_created"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

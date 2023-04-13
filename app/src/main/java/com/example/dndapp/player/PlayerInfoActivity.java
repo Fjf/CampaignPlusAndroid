@@ -37,15 +37,13 @@ import com.example.dndapp._data.DrawerListData;
 import com.example.dndapp._data.MyPlayerCharacterList;
 import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
-import com.example.dndapp._utils.IgnoreFunctionCall;
+import com.example.dndapp._utils.IgnoreCallback;
 import com.example.dndapp._utils.PlayerInfoFragment;
 import com.example.dndapp.campaign.CampaignOverviewActivity;
 import com.example.dndapp.login.LoginActivity;
 import com.example.dndapp.login.UserService.UserService;
 import com.example.dndapp.player.Adapters.DrawerListAdapter;
 import com.example.dndapp.player.Adapters.DrawerPCListAdapter;
-import com.example.dndapp.player.Fragments.AddItemFragment;
-import com.example.dndapp.player.Fragments.ItemInfoFragment;
 import com.example.dndapp.player.MainFragments.ClassInformationFragment;
 import com.example.dndapp.player.Fragments.AddSpellFragment;
 import com.example.dndapp.player.Fragments.SpellInfoFragment;
@@ -335,7 +333,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         if (requestCode == UPDATE_STATS) {
             // After updating your stats, update player stats.
-            selectedPlayer.updatePlayerData(new IgnoreFunctionCall());
+            selectedPlayer.updatePlayerData(new IgnoreCallback());
         } else if (requestCode == UPDATE_SPELL) {
             Log.d("------------------------", "got response");
 

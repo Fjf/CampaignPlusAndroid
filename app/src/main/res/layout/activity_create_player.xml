@@ -70,10 +70,11 @@
                 <Spinner
                     android:id="@+id/player_class_field"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_height="48dp"
 
                     android:spinnerMode="dialog"
 
+                    android:background="@drawable/round_corner"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -93,6 +94,7 @@
 
             <com.example.dndapp._utils.ExpandedListView
                 android:id="@+id/player_class_list"
+
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/player_class_field_wrapper"
@@ -114,7 +116,7 @@
                     android:minLines="5" />
             </com.google.android.material.textfield.TextInputLayout>
             <Button
-                android:id="@+id/player_create_new_button"
+                android:id="@+id/player_save_created"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/player_backstory_field_wrapper"

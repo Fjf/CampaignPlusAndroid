@@ -3,33 +3,33 @@ package com.example.dndapp.campaign;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.transition.Slide;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.transition.Slide;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ListView;
-import android.widget.Toast;
-
 import com.example.dndapp.PdfViewerActivity;
-import com.example.dndapp._data.DataCache;
-import com.example.dndapp.campaign.Adapters.PlayerListAdapter;
-import com.example.dndapp.campaign.Fragments.SelectPlayerFragment;
-import com.example.dndapp.campaign.Fragments.ShowQRFragment;
 import com.example.dndapp.R;
+import com.example.dndapp._data.DataCache;
 import com.example.dndapp._data.PlayerData;
 import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp.campaign.Adapters.PlayerListAdapter;
+import com.example.dndapp.campaign.Fragments.ShowQRFragment;
 import com.example.dndapp.player.CreatePlayerActivity;
 import com.example.dndapp.player.PlayerInfoActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +40,7 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class CampaignActivity extends AppCompatActivity {
+public class MapViewActivity extends AppCompatActivity {
     private static final int CREATE_CHARACTER_INTENT = 0;
     private final String TAG = "CampaignActivity";
     private ListView playerList;
@@ -48,7 +48,7 @@ public class CampaignActivity extends AppCompatActivity {
     private int campaignId;
     private String campaignCode;
 
-    public CampaignActivity() {
+    public MapViewActivity() {
     }
 
     @Override
@@ -65,31 +65,13 @@ public class CampaignActivity extends AppCompatActivity {
         userName = preferences.getString("username", null);
 
         playerList = findViewById(R.id.playerList);
-        updatePlayerList(DataCache.getPlayers(campaignId));
+        getPlayers();
 
         // Attaching the layout to the toolbar object
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(campaignName);
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
-
-        setEventListeners();
-    }
-
-    private void setEventListeners() {
-        findViewById(R.id.player_add_existing_button).setOnClickListener(view -> {
-            Fragment fragment = SelectPlayerFragment.newInstance(campaignCode);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction ft = fragmentManager.beginTransaction();
-
-            ft.replace(R.id.campaign_content_layout, fragment);
-            ft.addToBackStack(null);
-            ft.commit();
-        });
-        findViewById(R.id.player_save_created).setOnClickListener(view -> {
-            Intent intent = new Intent(this, CreatePlayerActivity.class);
-            startActivityForResult(intent, CREATE_CHARACTER_INTENT);
-        });
     }
 
     @Override
@@ -103,9 +85,8 @@ public class CampaignActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CREATE_CHARACTER_INTENT) {
-            if (data == null) // Player returned without creating a character
-                return;
-
+            // Player id can maybe be used here.
+            assert data != null;
             int pid = data.getIntExtra("player_id", -1);
 
             try {
@@ -126,17 +107,12 @@ public class CampaignActivity extends AppCompatActivity {
         HttpUtils.put(url, args, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    DataCache.updatePlayer(new PlayerData(response));
-                    updatePlayerList(DataCache.getPlayers(campaignId));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+                getPlayers();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(CampaignActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapViewActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -149,11 +125,11 @@ public class CampaignActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_show_phb) {
-            Intent intent = new Intent(CampaignActivity.this, PdfViewerActivity.class);
+            Intent intent = new Intent(MapViewActivity.this, PdfViewerActivity.class);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_showpc) {
-            Intent intent = new Intent(CampaignActivity.this, PlayerInfoActivity.class);
+            Intent intent = new Intent(MapViewActivity.this, PlayerInfoActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             return true;
@@ -163,6 +139,7 @@ public class CampaignActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
     private void openFragment(ShowQRFragment fragment) {
         fragment.setEnterTransition(new Slide(Gravity.TOP));
@@ -174,6 +151,36 @@ public class CampaignActivity extends AppCompatActivity {
         ft.replace(R.id.campaign_content_layout, fragment);
         ft.addToBackStack(null);
         ft.commit();
+    }
+
+    private void getPlayers() {
+        String url = String.format(Locale.ENGLISH, "campaign/%d/players", campaignId);
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                try {
+                    if (!response.getBoolean("success")) {
+                        // Maybe do something here
+                        return;
+                    }
+
+                    JSONArray array = response.getJSONArray("players");
+                    DataCache.setPlayerData(array);
+
+                    updatePlayerList(DataCache.playerData);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Log.d(TAG, "Invalid response: " + response);
+            }
+        });
     }
 
     private void updatePlayerList(final ArrayList<PlayerData> entries) {

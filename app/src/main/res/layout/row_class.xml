@@ -1,35 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    android:background="@drawable/round_corner"
+    android:padding="4dp">
 
     <TextView
         android:id="@+id/class_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:textSize="12pt"
-        android:hint="Class Name"
-
-        app:layout_constraintEnd_toStartOf="@id/class_info"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <TextView
-        android:id="@+id/class_info"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
-        android:textSize="8pt"
-        android:hint="Class Info"
+        android:hint="Class Name"
+        android:textSize="12pt"
+
+        app:layout_constraintBottom_toTopOf="@id/class_subclass"
+        app:layout_constraintEnd_toStartOf="@id/class_info"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/class_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:hint="Hold to remove"
+        android:textAlignment="textEnd"
+        android:textSize="6pt"
 
         app:layout_constraintBottom_toBottomOf="@id/class_name"
-        app:layout_constraintTop_toTopOf="@id/class_name"
-        app:layout_constraintStart_toEndOf="@+id/class_name"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintStart_toEndOf="@+id/class_name"
+        app:layout_constraintTop_toTopOf="@id/class_name" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/class_split_barrier"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:barrierDirection="bottom"
+        app:layout_constraintBottom_toTopOf="@id/class_subclass"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/class_name" />
+
+    <Spinner
+        android:id="@+id/class_subclass"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/class_split_barrier" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

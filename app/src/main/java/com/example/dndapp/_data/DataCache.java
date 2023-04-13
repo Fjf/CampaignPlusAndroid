@@ -6,6 +6,7 @@ import com.example.dndapp._data.classinfo.SubClassInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,6 +35,31 @@ public class DataCache {
             return playerData.get(0);
 
         return new PlayerData();
+    }
+
+    public static void updatePlayer(PlayerData newPlayer) {
+        for (int i = 0; i < playerData.size(); i++) {
+            PlayerData player = playerData.get(i);
+            if (player.getId() == newPlayer.getId()) {
+                playerData.set(i, newPlayer);
+                return;
+            }
+        }
+
+        // This player didnt exist yet
+        playerData.add(newPlayer);
+    }
+
+
+    public static ArrayList<PlayerData> getPlayers(int campaignId) {
+        ArrayList<PlayerData> data = new ArrayList<>();
+
+        for (PlayerData player : playerData) {
+            if (player.campaignId == campaignId)
+                data.add(player);
+        }
+
+        return data;
     }
 
     public static MainClassInfo getClass(int id) {

@@ -1,5 +1,6 @@
 package com.example.dndapp._data;
 
+import static com.example.dndapp._data.DataCache.availableSubClasses;
 import static com.example.dndapp._data.DataCache.selectedPlayer;
 
 import android.os.Build;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.security.auth.callback.Callback;
 
@@ -35,6 +37,7 @@ public class PlayerData {
     private static final String TAG = "PlayerData";
     private int id = -1;
     private String userName = "";
+    public int campaignId;
 
     public ArrayList<SpellData> getSpells() {
         return spells;
@@ -128,6 +131,16 @@ public class PlayerData {
         return mainClassIds;
     }
 
+    public SubClassInfo getSubclassForMainclass(MainClassInfo info) {
+        for (int id : subClassIds) {
+            SubClassInfo subclass = availableSubClasses.get(id);
+            assert subclass != null;
+            if (Objects.equals(subclass.mainClassName, info.getName()))
+                return availableSubClasses.get(id);
+        }
+        return null;
+    }
+
     public ArrayList<ClassAbility> getAllAbilities() {
         ArrayList<ClassAbility> arrayList = new ArrayList<>();
         for (Integer id : mainClassIds) {
@@ -171,6 +184,7 @@ public class PlayerData {
         this.name = obj.getString("name");
         this.userName = obj.getString("owner");
         this.race = obj.getString("race");
+        this.campaignId = obj.optInt("campaign_id", -1);
 
         JSONObject money = obj.getJSONObject("money");
         this.gold = money.getInt("gold");
