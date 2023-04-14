@@ -12,11 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,11 +74,10 @@ public class MapViewActivity extends AppCompatActivity {
         // Attaching the layout to the toolbar object
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Map View");
+        toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
 
-        // Setting toolbar as the ActionBar with setSupportActionBar() call
         Intent intent = getIntent();
         campaignId = intent.getIntExtra("campaign_id", -1);
-
 
         rootMap = new MapData(campaignId, new CallBack() {
             @Override
@@ -96,6 +98,10 @@ public class MapViewActivity extends AppCompatActivity {
             for (MapData child : currentMap.children) {
                 if (child.name.equals(item)) {
                     selectMap(child);
+
+                    DrawerLayout drawer = findViewById(R.id.campaign_content_layout);
+                    ScrollView drawerWrapper = findViewById(R.id.left_drawer_wrapper);
+                    drawer.closeDrawer(drawerWrapper);
                     return;
                 }
             }
@@ -204,11 +210,11 @@ public class MapViewActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_show_phb) {
-            Intent intent = new Intent(MapViewActivity.this, PdfViewerActivity.class);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_showpc) {
+        DrawerLayout drawer = findViewById(R.id.campaign_content_layout);
+        ScrollView drawerWrapper = findViewById(R.id.left_drawer_wrapper);
+        if (id == android.R.id.home) {
+            drawer.openDrawer(drawerWrapper);
+        } if (id == R.id.action_showpc) {
             Intent intent = new Intent(MapViewActivity.this, PlayerInfoActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
