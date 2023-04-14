@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.dndapp">
+    package="com.example.campaignplus">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -17,10 +17,10 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".player.CreatePlayerActivity"
+            android:name="com.example.campaignplus.player.CreatePlayerActivity"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".login.LandingActivity"
+            android:name="com.example.campaignplus.login.LandingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,50 +28,50 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".login.LoginActivity"
+            android:name="com.example.campaignplus.login.LoginActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".campaign.QRCodeScannerActivity" />
+        <activity android:name="com.example.campaignplus.campaign.QRCodeScannerActivity" />
         <activity
-            android:name=".player.AddItemActivity"
+            android:name="com.example.campaignplus.player.AddItemActivity"
             android:label="@string/title_activity_add_item"
             android:launchMode="singleInstance"
             android:exported="false"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".login.ServerSettingsActivity"
+            android:name="com.example.campaignplus.login.ServerSettingsActivity"
             android:label="@string/title_activity_server_settings"
-            android:parentActivityName=".login.LoginActivity"
+            android:parentActivityName="com.example.campaignplus.login.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dndapp.login.LoginActivity" />
+                android:value="com.example.campaignplus.login.LoginActivity" />
         </activity>
         <activity
-            android:name=".player.PlayerInfoActivity"
+            android:name="com.example.campaignplus.player.PlayerInfoActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
             android:exported="false"
             android:windowSoftInputMode="stateHidden"/>
 
         <activity
-            android:name=".campaign.MapViewActivity"
+            android:name="com.example.campaignplus.campaign.MapViewActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
             android:exported="false"
             android:windowSoftInputMode="stateHidden"/>
 
-        <activity android:name=".login.ForgotPasswordActivity" />
+        <activity android:name="com.example.campaignplus.login.ForgotPasswordActivity" />
         <activity
-            android:name=".PdfViewerActivity"
+            android:name="com.example.campaignplus.PdfViewerActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleTop" />
         <activity
-            android:name=".login.RegisterActivity"
+            android:name="com.example.campaignplus.login.RegisterActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".campaign.CampaignActivity"
+            android:name="com.example.campaignplus.campaign.CampaignActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".campaign.CampaignOverviewActivity" />
+        <activity android:name="com.example.campaignplus.campaign.CampaignOverviewActivity" />
     </application>
 
 </manifest>

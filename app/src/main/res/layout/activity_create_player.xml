@@ -92,7 +92,7 @@
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.example.dndapp._utils.ExpandedListView
+            <com.example.campaignplus._utils.ExpandedListView
                 android:id="@+id/player_class_list"
 
                 android:layout_width="match_parent"
