@@ -54,13 +54,7 @@
             android:windowSoftInputMode="stateHidden"/>
 
         <activity
-            android:name=".player.MainFragments.ItemViewFragment"
-            android:alwaysRetainTaskState="true"
-            android:launchMode="singleInstance"
-            android:exported="false"
-            android:windowSoftInputMode="stateHidden"/>
-        <activity
-            android:name=".player.MainFragments.SpellViewFragment"
+            android:name=".campaign.MapViewActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
             android:exported="false"

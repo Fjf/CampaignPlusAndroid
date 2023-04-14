@@ -2,6 +2,7 @@ package com.example.dndapp.campaign;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -36,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -86,7 +88,6 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         // Setting toolbar as the ActionBar with setSupportActionBar() call
         setSupportActionBar(toolbar);
     }
-
 
 
     @Override
@@ -156,7 +157,7 @@ public class CampaignOverviewActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == QR_CODE) {
-            if(resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 String campaign_code = data.getStringExtra("QR_CODE");
                 if (campaign_code != null && campaign_code.length() != 6)
                     return;
@@ -178,7 +179,7 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         try {
             joinCampaign(campaignCode);
         } catch (UnsupportedEncodingException | JSONException e) {
-            e.printStackTrace();
+            Log.d("Error:", Objects.requireNonNull(e.getMessage()));
         }
     }
 
@@ -222,39 +223,28 @@ public class CampaignOverviewActivity extends AppCompatActivity {
             @Override
             public void onPreProcessResponse(ResponseHandlerInterface instance, HttpResponse response) {
                 // Stop the loading bar
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() { progressBar.setVisibility(View.GONE); }
-                });
+                runOnUiThread(() -> progressBar.setVisibility(View.GONE));
                 super.onPreProcessResponse(instance, response);
             }
 
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 try {
-                    if (!response.getBoolean("success")) {
-                        Toast.makeText(CampaignOverviewActivity.this, "Something went wrong obtaining players.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    JSONArray arr = response.getJSONArray("players");
-                    DataCache.setPlayerData(arr);
-
-
-                    SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(campaignCode);
-                    fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
-                    fragment.setExitTransition(new Slide(Gravity.TOP));
-
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    FragmentTransaction ft = fragmentManager.beginTransaction();
-
-                    ft.replace(R.id.campaign_content_layout, fragment);
-                    ft.addToBackStack(null);
-                    ft.commit();
-
+                    DataCache.setPlayerData(response);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
+
+                SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(campaignCode);
+                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                fragment.setExitTransition(new Slide(Gravity.TOP));
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+
+                ft.replace(R.id.campaign_content_layout, fragment);
+                ft.addToBackStack(null);
+                ft.commit();
             }
 
             @Override
@@ -265,11 +255,11 @@ public class CampaignOverviewActivity extends AppCompatActivity {
     }
 
 
-
     public void startQRScanner(View view) {
         Intent intent = new Intent(CampaignOverviewActivity.this, QRCodeScannerActivity.class);
         startActivityForResult(intent, QR_CODE);
     }
 
-    public void eatClickEvent(View view) { }
+    public void eatClickEvent(View view) {
+    }
 }

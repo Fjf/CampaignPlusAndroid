@@ -1,7 +1,7 @@
 package com.example.dndapp.campaign;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.transition.Slide;
 import android.util.Log;
@@ -9,6 +9,8 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,17 +19,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dndapp.PdfViewerActivity;
 import com.example.dndapp.R;
 import com.example.dndapp._data.DataCache;
+import com.example.dndapp._data.MapData;
 import com.example.dndapp._data.PlayerData;
+import com.example.dndapp._utils.CallBack;
 import com.example.dndapp._utils.HttpUtils;
+import com.example.dndapp.campaign.Adapters.MapSelectionAdapter;
 import com.example.dndapp.campaign.Adapters.PlayerListAdapter;
 import com.example.dndapp.campaign.Fragments.ShowQRFragment;
-import com.example.dndapp.player.CreatePlayerActivity;
 import com.example.dndapp.player.PlayerInfoActivity;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.otaliastudios.zoom.ZoomImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,30 +55,103 @@ public class MapViewActivity extends AppCompatActivity {
     private int campaignId;
     private String campaignCode;
 
+    private MapData rootMap;
+    private MapData currentMap;
+    private ArrayList<String> mapNameList = new ArrayList<>();
+    private MapSelectionAdapter drawerMapListAdapter;
+
     public MapViewActivity() {
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_campaign);
-
-        Intent intent = getIntent();
-        campaignId = intent.getIntExtra("campaign_id", -1);
-        campaignCode = intent.getStringExtra("campaign_code");
-        String campaignName = intent.getStringExtra("campaign_name");
-
-        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
-        userName = preferences.getString("username", null);
-
-        playerList = findViewById(R.id.playerList);
-        getPlayers();
+        setContentView(R.layout.activity_mapview);
 
         // Attaching the layout to the toolbar object
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(campaignName);
+        toolbar.setTitle("Map View");
+
         // Setting toolbar as the ActionBar with setSupportActionBar() call
+        Intent intent = getIntent();
+        campaignId = intent.getIntExtra("campaign_id", -1);
+
+
+        rootMap = new MapData(campaignId, new CallBack() {
+            @Override
+            public void success() {
+                selectMap(rootMap);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+
+            }
+        });
+
+
+        RecyclerView mapItems = findViewById(R.id.left_drawer_items);
+        mapItems.setLayoutManager(new LinearLayoutManager(this));
+        drawerMapListAdapter = new MapSelectionAdapter(mapNameList, item -> {
+            for (MapData child : currentMap.children) {
+                if (child.name.equals(item)) {
+                    selectMap(child);
+                    return;
+                }
+            }
+        });
+        mapItems.setAdapter(drawerMapListAdapter);
+
         setSupportActionBar(toolbar);
+        findViewById(R.id.back_to_parent_button).setOnClickListener(view -> {
+            backToParent();
+        });
+
+    }
+
+    private void backToParent() {
+        selectMap(currentMap.parent);
+    }
+
+    private void selectMap(MapData data) {
+        currentMap = data;
+        getImage();
+        setDrawerLocations();
+
+        boolean hasParent = currentMap.parent != null;
+        findViewById(R.id.back_to_parent_button).setVisibility(hasParent ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void setDrawerLocations() {
+        drawerMapListAdapter.notifyItemRangeRemoved(0, mapNameList.size());
+        mapNameList.clear();
+        for (MapData child : currentMap.children) {
+            mapNameList.add(child.name);
+        }
+
+        RecyclerView mapItems = findViewById(R.id.left_drawer_items);
+        mapItems.post(() -> {
+            drawerMapListAdapter.notifyItemRangeInserted(0, mapNameList.size());
+            mapItems.smoothScrollToPosition(0);
+        });
+    }
+
+
+    private void getImage() {
+        ZoomImageView imageView = findViewById(R.id.map_container);
+        currentMap.fetchImage(new CallBack() {
+            @Override
+            public void success() {
+                BitmapDrawable image = new BitmapDrawable(getResources(), currentMap.bitmap);
+                imageView.setImageDrawable(image);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+
+            }
+        });
+
     }
 
     @Override

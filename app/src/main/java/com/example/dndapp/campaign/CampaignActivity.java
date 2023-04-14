@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.transition.Slide;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -148,8 +149,9 @@ public class CampaignActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_show_phb) {
-            Intent intent = new Intent(CampaignActivity.this, PdfViewerActivity.class);
+        if (id == R.id.action_show_map) {
+            Intent intent = new Intent(CampaignActivity.this, MapViewActivity.class);
+            intent.putExtra("campaign_id", this.campaignId);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_showpc) {

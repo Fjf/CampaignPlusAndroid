@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:id="@+id/action_show_phb"
+        android:id="@+id/action_show_map"
         android:orderInCategory="200"
-        android:title="@string/show_phb"
-        android:icon="@drawable/ic_rule_book_24dp"
+        android:title="@string/show_map"
+        android:icon="@drawable/ic_map_24dp"
         app:showAsAction="ifRoom"/>
 
     <item

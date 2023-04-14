@@ -36,6 +36,7 @@
     <string name="default_port">5000</string>
     <string name="campaign_qr">Campaign QR</string>
     <string name="title_activity_player_class">Class Info</string>
+    <string name="show_map">Show Map</string>
 
 
     <string-array name="player_info_left_drawer_titles">

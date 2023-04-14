@@ -16,6 +16,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
@@ -33,4 +40,5 @@ dependencies {
     implementation 'com.github.barteksc:android-pdf-viewer:2.6.1'
     implementation 'me.dm7.barcodescanner:zxing:1.9.13'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation('com.otaliastudios:zoomlayout:1.9.0')
 }

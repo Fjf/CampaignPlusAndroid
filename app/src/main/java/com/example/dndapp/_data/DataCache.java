@@ -12,6 +12,7 @@ import java.util.HashMap;
 
 public class DataCache {
     public static PlayerData selectedPlayer = new PlayerData();
+    public static CampaignData selectedCampaign = new CampaignData();
     public static ArrayList<PlayerData> playerData = new ArrayList<>();
     public static HashMap<Integer, MainClassInfo> availableClasses = new HashMap<>();
     public static HashMap<Integer, SubClassInfo> availableSubClasses = new HashMap<>();
