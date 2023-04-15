@@ -7,33 +7,34 @@
     tools:context=".player.CreatePlayerActivity">
 
     <include
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        layout="@layout/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <ScrollView
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
 
-        <RelativeLayout
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp"
-            >
+            android:orientation="vertical"
+            android:padding="4dp">
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/player_name_field_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/player_name_field"
@@ -47,9 +48,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/player_race_field_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/player_name_field_wrapper"
-                android:layout_alignParentStart="true">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/player_race_field"
@@ -61,51 +60,43 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/player_class_field_wrapper"
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/player_race_field_wrapper"
-                android:layout_alignParentStart="true">
+                android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/player_class_field"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
 
-                    android:spinnerMode="dialog"
-
                     android:background="@drawable/round_corner"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:spinnerMode="dialog"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/player_class_add"
-                    />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <ImageButton
                     android:id="@+id/player_class_add"
                     android:layout_width="24pt"
                     android:layout_height="24pt"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:src="@android:drawable/ic_menu_add"
                     android:backgroundTint="@color/colorPrimary"
-                    />
+                    android:src="@android:drawable/ic_menu_add"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.example.campaignplus._utils.ExpandedListView
                 android:id="@+id/player_class_list"
 
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/player_class_field_wrapper"
-                />
+                android:layout_height="match_parent" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/player_backstory_field_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/player_class_list"
-                android:layout_alignParentStart="true">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/player_backstory_field"
@@ -115,12 +106,22 @@
                     android:inputType="textMultiLine"
                     android:minLines="5" />
             </com.google.android.material.textfield.TextInputLayout>
+
             <Button
                 android:id="@+id/player_save_created"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/player_backstory_field_wrapper"
                 android:text="Save" />
-        </RelativeLayout>
+        </LinearLayout>
     </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/main_content_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

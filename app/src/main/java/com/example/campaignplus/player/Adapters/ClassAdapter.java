@@ -4,21 +4,31 @@ import static com.example.campaignplus._data.DataCache.availableClasses;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Context;
+import android.os.Handler;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.DataCache;
 import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._data.classinfo.SubClassInfo;
+import com.example.campaignplus.player.MainFragments.ClassInformationFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,19 +37,26 @@ import java.util.HashMap;
 public class ClassAdapter extends ArrayAdapter {
 
     private final ArrayList<Integer> classes;
-    private final HashMap<Integer, Integer> selectedSubclasses;
+    private final SubclassSelectedCallback callback;
+
     private final int resource;
     private final Context context;
 
 
-    public ClassAdapter(Context context, @NonNull ArrayList<Integer> classes, @NonNull HashMap<Integer, Integer> selectedSubclasses) {
+    public interface SubclassSelectedCallback {
+        void onSelected(int mainClassId, int subclassId);
+
+        void onInfoButtonPressed(int mainClassId, int subclassId);
+    }
+
+
+    public ClassAdapter(Context context, @NonNull ArrayList<Integer> classes, SubclassSelectedCallback callback) {
         super(context, R.layout.row_class, R.id.class_name, classes);
 
         this.context = context;
         this.resource = R.layout.row_class;
         this.classes = classes;
-        this.selectedSubclasses = selectedSubclasses;
-
+        this.callback = callback;
     }
 
 
@@ -87,31 +104,32 @@ public class ClassAdapter extends ArrayAdapter {
         if (subclass != null)
             subclasses.setSelection(subclassList.indexOf(subclass.name));
 
-
-        final Integer[] lastSelected = {null};
-
         // Add default subclass to selection based on current state (previous state or default)
         String currentSubclass = (String) subclasses.getSelectedItem();
         for (SubClassInfo sci : currentSubclasses) {
             if (currentSubclass.equals(sci.name)) {
-                selectedSubclasses.put(mainClass.getId(), sci.getId());
+                callback.onSelected(mainClass.getId(), sci.getId());
                 break;
             }
         }
-
 
         // Update the subclass tracker list if the spinner selects an item.
         subclasses.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d("--------------------------------- Selecting;;;;;", "Currently:" + i + " in " + selectedSubclasses);
-                selectedSubclasses.put(mainClass.getId(), currentSubclasses.get(i).getId());
+                callback.onSelected(mainClass.getId(), currentSubclasses.get(i).getId());
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
+        });
+
+        ImageButton infoButton = rowView.findViewById(R.id.subclass_info_button);
+        infoButton.setOnClickListener(view -> {
+            Log.d("____________________________________", "got " +  subclasses.getSelectedItem() + " and " +  subclasses.getSelectedItemId());
+            callback.onInfoButtonPressed(mainClass.getId(), currentSubclasses.get((int) subclasses.getSelectedItemId()).getId());
         });
 
         return rowView;

@@ -129,7 +129,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.page_items) {
                 fragment = new ItemViewFragment();
             } else if (item.getItemId() == R.id.page_class) {
-                fragment = ClassInformationFragment.newInstance(0);
+                fragment = ClassInformationFragment.newInstance(selectedPlayer.mainClassIds, selectedPlayer.subClassIds);
             }
             assert fragment != null;
 

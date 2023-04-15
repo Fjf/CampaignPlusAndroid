@@ -1,5 +1,11 @@
 package com.example.campaignplus._data;
 
+import android.os.Build;
+import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+
+import com.example.campaignplus._data.classinfo.ClassAbility;
 import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._data.classinfo.SubClassInfo;
 
@@ -7,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class DataCache {
@@ -67,5 +74,39 @@ public class DataCache {
             if (availableClass.getId() == id) return availableClass;
         }
         return null;
+    }
+
+
+    public static ArrayList<ClassAbility> getAllAbilities(ArrayList<Integer> mainClassIds, ArrayList<Integer> subClassIds) {
+        ArrayList<ClassAbility> arrayList = new ArrayList<>();
+        for (Integer id : mainClassIds) {
+            // Locate class from list and add to this PlayerData.
+            MainClassInfo mci = DataCache.getClass(id);
+            if (mci == null) {
+                continue;
+            }
+            arrayList.addAll(mci.getAbilities());
+        }
+        for (Integer id : subClassIds) {
+            SubClassInfo sci = DataCache.availableSubClasses.get(id);
+            if (sci == null) {
+                continue;
+            }
+            arrayList.addAll(sci.getAbilities());
+        }
+
+        return arrayList;
+    }
+    /**
+     * Gets the abilities sorted by level for a given mainclass and subclass id.
+     * If either of those are irrelevant, they can be set to -1.
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static ArrayList<ClassAbility> getSortedAbilities(ArrayList<Integer> mainClassIds, ArrayList<Integer> subClassIds) {
+        ArrayList<ClassAbility> abilities = getAllAbilities(mainClassIds, subClassIds);
+
+        abilities.sort(Comparator.comparingInt(ClassAbility::getLevel));
+        return abilities;
     }
 }

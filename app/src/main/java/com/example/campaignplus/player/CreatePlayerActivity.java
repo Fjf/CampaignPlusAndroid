@@ -5,6 +5,7 @@ import android.content.Intent;
 import com.example.campaignplus._data.DataCache;
 import com.example.campaignplus._data.PlayerData;
 import com.example.campaignplus._utils.IgnoreCallback;
+import com.example.campaignplus.player.MainFragments.ClassInformationFragment;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,7 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.transition.Fade;
+import android.transition.Slide;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -89,15 +98,43 @@ public class CreatePlayerActivity extends AppCompatActivity {
             playerName.setText(selectedPlayer.getName());
             playerRace.setText(selectedPlayer.getRace());
             playerBackstory.setText(selectedPlayer.getBackstory());
-            selectedClassIds.addAll(selectedPlayer.getMainClassIds());
+            selectedClassIds.addAll(selectedPlayer.mainClassIds);
         }
 
         setSupportActionBar(toolbar);
 
         ListView classList = findViewById(R.id.player_class_list);
 
-        classAdapter = new ClassAdapter(this, selectedClassIds, selectedSubclassIds);
+        classAdapter = new ClassAdapter(this, selectedClassIds, new ClassAdapter.SubclassSelectedCallback() {
+            @Override
+            public void onSelected(int mainClassId, int subclassId) {
+                selectedSubclassIds.put(mainClassId, subclassId);
+            }
+
+            @Override
+            public void onInfoButtonPressed(int mainClassId, int subclassId) {
+                // Create arrays to create class info fragment for specific selected classes
+                ArrayList<Integer> subclassArray = new ArrayList<Integer>() {{
+                    add(subclassId);
+                }};
+                ArrayList<Integer> mainclassArray = new ArrayList<Integer>() {{
+                    add(mainClassId);
+                }};
+                Fragment fragment = ClassInformationFragment.newInstance(mainclassArray, subclassArray);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+
+                fragment.setEnterTransition(new Slide(Gravity.START));
+                fragment.setExitTransition(new Slide(Gravity.END));
+
+                ft.replace(R.id.main_content_view, fragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+        });
         classList.setAdapter(classAdapter);
+
+
 
         ImageButton bt = findViewById(R.id.player_class_add);
         bt.setOnClickListener(view -> addSelectedClass(classSelector.getSelectedItemId()));

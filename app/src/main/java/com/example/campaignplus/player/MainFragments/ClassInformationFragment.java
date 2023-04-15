@@ -5,6 +5,7 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.campaignplus.R;
+import com.example.campaignplus._data.DataCache;
 import com.example.campaignplus._data.classinfo.ClassAbility;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus.campaign.Listeners.SwipeDismissListener;
@@ -30,7 +32,6 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class ClassInformationFragment extends Fragment {
-    private static final String ARG_PLAYER_IDX = "playerIdx";
     private Toolbar toolbar;
     private View view;
 
@@ -45,14 +46,16 @@ public class ClassInformationFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param playerIdx The player's idx for which to show information.
+     * @param mainClassIds the mainClass ids for which to show abilities
+     * @param subClassIds the subClass ids for which to show abilities
      * @return A new instance of fragment ClassInformationFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ClassInformationFragment newInstance(int playerIdx) {
+    public static ClassInformationFragment newInstance(ArrayList<Integer> mainClassIds, ArrayList<Integer> subClassIds) {
         ClassInformationFragment fragment = new ClassInformationFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_PLAYER_IDX, playerIdx);
+        args.putIntegerArrayList("main_class_ids", mainClassIds);
+        args.putIntegerArrayList("sub_class_ids", subClassIds);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,7 +75,12 @@ public class ClassInformationFragment extends Fragment {
         toolbar = getActivity().findViewById(R.id.toolbar);
         toolbar.setTitle("Class Abilities");
 
-        abilities = selectedPlayer.getSortedAbilities();
+        Bundle args = getArguments();
+        assert args != null;
+        ArrayList<Integer> mainClassIds = args.getIntegerArrayList("main_class_ids");
+        ArrayList<Integer> subclassIds = args.getIntegerArrayList("sub_class_ids");
+
+        abilities = DataCache.getSortedAbilities(mainClassIds, subclassIds);
         adapter = new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), abilities);
         final ListView lv = view.findViewById(R.id.class_info_abilities);
         lv.setAdapter(adapter);

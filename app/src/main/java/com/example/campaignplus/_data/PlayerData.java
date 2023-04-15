@@ -85,8 +85,8 @@ public class PlayerData {
     public PlayerStatsData statsData = new PlayerStatsData();
 
     public PlayerProficiencyData proficiencies = new PlayerProficiencyData();
-    private final ArrayList<Integer> mainClassIds = new ArrayList<>();
-    private final ArrayList<Integer> subClassIds = new ArrayList<>();
+    public final ArrayList<Integer> mainClassIds = new ArrayList<>();
+    public final ArrayList<Integer> subClassIds = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -122,10 +122,6 @@ public class PlayerData {
 
     public void setBackstory(String backstory) {
         this.backstory = backstory;
-    }
-
-    public List<Integer> getMainClassIds() {
-        return mainClassIds;
     }
 
     public SubClassInfo getSubclassForMainclass(MainClassInfo info) {

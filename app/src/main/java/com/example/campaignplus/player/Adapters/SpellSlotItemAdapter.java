@@ -45,7 +45,7 @@ public class SpellSlotItemAdapter extends ArrayAdapter {
         // Count the amount of available items.
         ArrayList<ArrayList<String>> aggregation = new ArrayList<>();
         ArrayList<String> keyList = new ArrayList<>();
-        for (int i : selectedPlayer.getMainClassIds()) {
+        for (int i : selectedPlayer.mainClassIds) {
             MainClassInfo info = DataCache.availableClasses.get(i);
 
             keyList.addAll(info.getTableKeys());
