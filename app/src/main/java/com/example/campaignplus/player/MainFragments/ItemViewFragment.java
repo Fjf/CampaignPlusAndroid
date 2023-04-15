@@ -78,9 +78,9 @@ public class ItemViewFragment extends PlayerInfoFragment {
         itemLayoutManager = new LinearLayoutManager(container.getContext());
         itemRecyclerView.setLayoutManager(itemLayoutManager);
 
-        setEventListeners();
 
         onUpdateCurrentPlayer();
+        setEventListeners();
 
         return view;
     }

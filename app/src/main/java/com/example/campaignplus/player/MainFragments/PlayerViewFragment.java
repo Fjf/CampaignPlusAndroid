@@ -5,6 +5,12 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +25,15 @@ import com.example.campaignplus.R;
 import com.example.campaignplus._data.PlayerStatsData;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.PlayerInfoFragment;
+import com.example.campaignplus._utils.TextProcessor;
 import com.example.campaignplus.player.Listeners.TextOnChangeSaveListener;
 import com.example.campaignplus.player.PlayerInfoActivity;
 
 import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class PlayerViewFragment extends PlayerInfoFragment {
     private static final String TAG = "ItemViewActivity";
@@ -75,6 +84,35 @@ public class PlayerViewFragment extends PlayerInfoFragment {
 
         registerStatViews();
         setStatsFields();
+        setEventHandlers();
+
+
+        return view;
+    }
+
+    private void setEventHandlers() {
+        Log.d(TAG, "--------------------------Setting event handlers");
+        // Only update the money remotely after a short delay
+        View.OnKeyListener sharedTextWatcher = new View.OnKeyListener() {
+            final Handler handler = new Handler(Looper.getMainLooper() /*UI thread*/);
+            Runnable workRunnable;
+
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                selectedPlayer.gold = TextProcessor.parseInt(gold.getText().toString(), 0);
+                selectedPlayer.silver = TextProcessor.parseInt(silver.getText().toString(), 0);
+                selectedPlayer.copper = TextProcessor.parseInt(copper.getText().toString(), 0);
+
+                handler.removeCallbacks(workRunnable);
+                workRunnable = () -> uploadPlayerData(view);
+                handler.postDelayed(workRunnable, 2000 /*delay*/);
+                return false;
+            }
+        };
+
+        gold.setOnKeyListener(sharedTextWatcher);
+        silver.setOnKeyListener(sharedTextWatcher);
+        copper.setOnKeyListener(sharedTextWatcher);
 
         /*
          *  Get player information and try to load the correct player object into local views.
@@ -90,7 +128,6 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         ((EditText) view.findViewById(R.id.statTemporaryHP)).setText(preferences.getString("temporary_hp", "0"));
         view.findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "temporary_hp"));
 
-        return view;
     }
 
     private void registerStatViews() {
@@ -104,21 +141,6 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         gold = view.findViewById(R.id.money_gold);
         silver = view.findViewById(R.id.money_silver);
         copper = view.findViewById(R.id.money_copper);
-        gold.setOnKeyListener((view, i, keyEvent) -> {
-            selectedPlayer.gold = Integer.parseInt(gold.getText().toString());
-            uploadPlayerData(view);
-            return false;
-        });
-        silver.setOnKeyListener((view, i, keyEvent) -> {
-            selectedPlayer.silver = Integer.parseInt(silver.getText().toString());
-            uploadPlayerData(view);
-            return false;
-        });
-        copper.setOnKeyListener((view, i, keyEvent) -> {
-            selectedPlayer.copper = Integer.parseInt(copper.getText().toString());
-            uploadPlayerData(view);
-            return false;
-        });
 
         strengthMod = view.findViewById(R.id.stStrength);
         constitutionMod = view.findViewById(R.id.stConstitution);
@@ -133,6 +155,7 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     }
 
     public void setStatsFields() {
+        Log.d(TAG, "------------------Setting stats fields");
         PlayerStatsData sd = selectedPlayer.statsData;
         TextView tv;
 
