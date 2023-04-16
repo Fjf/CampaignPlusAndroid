@@ -37,11 +37,15 @@
     <string name="campaign_qr">Campaign QR</string>
     <string name="title_activity_player_class">Class Info</string>
     <string name="show_map">Show Map</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="ritual">Ritual</string>
+    <string name="concentration">Concentration</string>
 
 
     <string-array name="player_info_left_drawer_titles">
-        <item>My Items</item>
         <item>Add Item</item>
+        <item>Create Spell</item>
         <item>My Spells</item>
         <item>Add Spell</item>
         <item>Table Info</item>

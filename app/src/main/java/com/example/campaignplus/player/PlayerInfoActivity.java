@@ -49,6 +49,7 @@ import com.example.campaignplus.player.Fragments.AddSpellFragment;
 import com.example.campaignplus.player.Fragments.SpellInfoFragment;
 import com.example.campaignplus.player.Fragments.StatsFragment;
 import com.example.campaignplus.player.Fragments.TableInfoFragment;
+import com.example.campaignplus.player.Fragments.CreateSpellFragment;
 import com.example.campaignplus.player.MainFragments.ItemViewFragment;
 import com.example.campaignplus.player.MainFragments.PlayerViewFragment;
 import com.example.campaignplus.player.MainFragments.SpellViewFragment;
@@ -453,7 +454,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
         if (this.getSupportFragmentManager().getBackStackEntryCount() != 0)
             this.getSupportFragmentManager().popBackStackImmediate();
 
-        final int FRAGMENT_ID_ADD_ITEM = 1;
+        final int FRAGMENT_ID_ADD_ITEM = 0;
+        final int FRAGMENT_ID_CREATE_SPELL = 1;
         final int FRAGMENT_ID_SPELL = 2;
         final int FRAGMENT_ID_ADD_SPELL = 3;
         final int FRAGMENT_ID_SPELL_SLOTS = 4;
@@ -464,6 +466,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 intent = new Intent(this, AddItemActivity.class);
                 startActivity(intent);
                 return;
+            case FRAGMENT_ID_CREATE_SPELL:
+                fragment = new CreateSpellFragment();
+                fragment.setEnterTransition(new Slide(Gravity.START));
+                fragment.setExitTransition(new Slide(Gravity.END));
+                break;
             case FRAGMENT_ID_SPELL: // My Spells
                 if (selectedPlayer.getSpells().size() == 0) {
                     Toast.makeText(this, "You have no spells.", Toast.LENGTH_SHORT).show();

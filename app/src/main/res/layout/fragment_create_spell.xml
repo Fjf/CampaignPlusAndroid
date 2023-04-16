@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:onClick="eatClickEvent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <include
+        android:id="@+id/fragment_toolbar"
+        layout="@layout/fragment_toolbar_save" />
+
+    <ScrollView
+        android:id="@+id/fragment_player_spell"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/overlaySettings"
+                android:gravity="center"
+                android:hint="Spell name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Level"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/spell_info_level"
+                app:layout_constraintEnd_toStartOf="@+id/spell_info_level"
+                app:layout_constraintTop_toBottomOf="@+id/name" />
+
+            <EditText
+                android:id="@+id/spell_info_level"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:gravity="center"
+                android:inputType="numberSigned"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/name" />
+
+            <EditText
+                android:id="@+id/spell_info_description"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Specify the spell's description here."
+                android:padding="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_level" />
+
+            <TextView
+                android:id="@+id/textView23"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="Description"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/spell_info_description"
+                app:layout_constraintEnd_toStartOf="@+id/textView20"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textView24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duration"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
+
+            <TextView
+                android:id="@+id/spell_info_cast_time_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Casting Time"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
+
+
+            <EditText
+                android:id="@+id/spell_info_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Range"
+                android:textSize="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range_header" />
+
+            <TextView
+                android:id="@+id/spell_info_range_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Casting Range"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_description" />
+
+            <EditText
+                android:id="@+id/spell_info_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Duration"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView24" />
+
+
+            <EditText
+                android:id="@+id/spell_info_casting_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Casting time"
+                android:textSize="16dp"
+                app:layout_constraintEnd_toEndOf="@+id/spell_info_cast_time_header"
+                app:layout_constraintStart_toStartOf="@+id/spell_info_cast_time_header"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_cast_time_header" />
+
+            <TextView
+                android:id="@+id/spell_info_school_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="School"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range" />
+
+            <Spinner
+                android:id="@+id/spell_info_school"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toStartOf="@+id/spell_info_material"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_school_header" />
+
+
+            <TextView
+                android:id="@+id/spell_info_material_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Material"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range" />
+
+            <EditText
+                android:id="@+id/spell_info_material"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Material"
+                android:textSize="16dp"
+                app:layout_constraintEnd_toEndOf="@+id/spell_info_material_header"
+                app:layout_constraintStart_toStartOf="@+id/spell_info_material_header"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_material_header" />
+
+            <TextView
+                android:id="@+id/spell_info_components_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Components"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_range" />
+
+            <EditText
+                android:id="@+id/spell_info_components"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="V"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/spell_info_material"
+                app:layout_constraintTop_toBottomOf="@+id/spell_info_components_header" />
+
+            <TextView
+                android:id="@+id/ritual_header_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ritual"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/spell_info_components" />
+
+            <ToggleButton
+                android:id="@+id/ritual_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="@string/no"
+                android:textOn="@string/yes"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ritual_header_text" />
+
+            <TextView
+                android:id="@+id/concentration_header_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/concentration"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/spell_info_components" />
+
+            <ToggleButton
+                android:id="@+id/concentration_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="@string/no"
+                android:textOn="@string/yes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ritual_header_text" />
+
+            <TextView
+                android:id="@+id/textView31"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Higher Level"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/textView23"
+                app:layout_constraintStart_toStartOf="@+id/textView23"
+                app:layout_constraintTop_toBottomOf="@+id/ritual_button" />
+
+            <EditText
+                android:id="@+id/spell_info_higher_level"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:hint="Specify what happens on higher level casting here."
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView31" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</LinearLayout>

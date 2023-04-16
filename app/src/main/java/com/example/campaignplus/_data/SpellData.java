@@ -6,22 +6,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SpellData {
-    public final int level;
-    public final String name;
-    public final int id;
+    public int level = 0;
+    public String name = "";
+    public int id = -1;
 
-    public final String castingTime;
-    public final String higherLevel;
-    public final String duration;
-    public final String components;
-    public final String range;
-    public final boolean concentration;
-    public final boolean ritual;
-    public final String school;
-    public final String material;
-    public final String description;
+    public String castingTime = "";
+    public String higherLevel = "";
+    public String duration = "";
+    public String components = "";
+    public String range = "";
+    public boolean concentration = false;
+    public boolean ritual = false;
+    public String school = "";
+    public String material = "";
+    public String description = "";
 
-    public SpellData(JSONObject obj, boolean simple) throws JSONException {
+    public SpellData(JSONObject obj) throws JSONException {
         this.level = obj.getInt("level");
         this.id = obj.getInt("id");
         this.name = obj.getString("name");
@@ -41,13 +41,33 @@ public class SpellData {
         this.school = obj.optString("school", "None");
     }
 
-    public SpellData(JSONObject obj) throws JSONException {
-        this(obj, false);
-    }
+    public SpellData() { };
 
     @NonNull
     @Override
     public String toString() {
         return this.name;
+    }
+
+    public JSONObject toJSON() throws JSONException {
+        JSONObject response = new JSONObject();
+        response.put("level", level);
+        response.put("id", id);
+        response.put("name", name);
+
+        response.put("duration", duration);
+        response.put("higher_level", higherLevel);
+        response.put("casting_time", castingTime);
+
+        response.put("concentration", concentration);
+        response.put("ritual", ritual);
+
+        response.put("material", material);
+
+        response.put("components", components);
+        response.put("spell_range", range);
+        response.put("description", description);
+        response.put("school", school);
+        return response;
     }
 }

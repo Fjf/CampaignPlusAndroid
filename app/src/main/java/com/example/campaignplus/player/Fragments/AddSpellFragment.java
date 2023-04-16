@@ -93,7 +93,7 @@ public class AddSpellFragment extends Fragment {
                 try {
                     arrayAdapter.clear();
                     for (int i = 0; i < spells.length(); i++) {
-                        SpellData spell = new SpellData(spells.getJSONObject(i), true);
+                        SpellData spell = new SpellData(spells.getJSONObject(i));
                         arrayAdapter.add(spell);
                     }
                     //Force the adapter to filter itself, necessary to show new data.
