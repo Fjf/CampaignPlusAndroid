@@ -7,7 +7,7 @@ public class ItemData {
 
     private int id;
     private int weight = 0;
-    private int value = 0;
+    public int cost = 0;
     private String name;
     private String category;
 
@@ -32,21 +32,17 @@ public class ItemData {
     }
 
     public String getNormalValue() {
-        if (value > 10000) {
-            return (value / 10000) + " gp";
-        } else if (value > 100) {
-            return (value / 100) + " sp";
+        if (cost > 10000) {
+            return (cost / 10000) + " gp";
+        } else if (cost > 100) {
+            return (cost / 100) + " sp";
         } else {
-            return value + " cp";
+            return cost + " cp";
         }
     }
 
     public int getWeight() {
         return weight;
-    }
-
-    public int getValue() {
-        return value;
     }
 
     public String getName() {
@@ -127,7 +123,7 @@ public class ItemData {
         this.id = itemJson.getInt("id");
         this.name = itemJson.getString("name");
         this.weight = itemJson.getInt("weight");
-        this.value = itemJson.getInt("raw_value");
+        this.cost = itemJson.getInt("cost");
         this.category = itemJson.getString("category");
         this.description = itemJson.getString("description");
 

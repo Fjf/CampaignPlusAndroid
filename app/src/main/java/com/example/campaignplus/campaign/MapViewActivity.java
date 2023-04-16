@@ -40,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -184,7 +185,7 @@ public class MapViewActivity extends AppCompatActivity {
 
         JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity args = new StringEntity(data.toString());
+        StringEntity args = new StringEntity(data.toString(), Charset.defaultCharset());
 
         HttpUtils.put(url, args, new JsonHttpResponseHandler() {
             @Override

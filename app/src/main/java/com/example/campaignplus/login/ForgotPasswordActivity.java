@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -54,7 +55,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
         data.put("email", email);
-        StringEntity entity = new StringEntity(data.toString());
+        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
         HttpUtils.post("forgot_password", entity, new JsonHttpResponseHandler() {
             @Override

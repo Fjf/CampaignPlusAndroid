@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -117,7 +118,7 @@ public class SelectPlayerFragment extends Fragment {
     private void updatePlayerCampaign(int playerId) throws UnsupportedEncodingException, JSONException {
         final JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity entity = new StringEntity(data.toString());
+        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
         String url = String.format(Locale.ENGLISH, "player/%s/campaign", playerId);
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {

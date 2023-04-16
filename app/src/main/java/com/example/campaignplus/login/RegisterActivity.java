@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -71,7 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
         data.put("name", name);
         data.put("password", password);
         data.put("email", email);
-        StringEntity entity = new StringEntity(data.toString());
+        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
         HttpUtils.post("register", entity, new JsonHttpResponseHandler() {
             @Override

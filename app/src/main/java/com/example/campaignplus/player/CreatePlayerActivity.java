@@ -42,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -227,7 +228,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
         selectedPlayer.setMainClassIds(selectedClassIds);
         selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
+        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
 
         findViewById(R.id.player_save_created).setEnabled(false);
 
@@ -271,14 +272,14 @@ public class CreatePlayerActivity extends AppCompatActivity {
     private void updateExistingCharacter() throws JSONException, UnsupportedEncodingException {
         String name = playerName.getText().toString();
         String race = playerRace.getText().toString();
-
+        Log.d("---------------------------", name);
         selectedPlayer.setName(name);
         selectedPlayer.setRace(race);
         selectedPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());
         selectedPlayer.setMainClassIds(selectedClassIds);
         selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
+        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
 
         findViewById(R.id.player_save_created).setEnabled(false);
 
@@ -305,7 +306,9 @@ public class CreatePlayerActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+                Log.d("CreatePlayerActivity.updateExistingCharacter", response.toString());
+                Toast.makeText(CreatePlayerActivity.this, response.toString(), Toast.LENGTH_LONG).show();
                 findViewById(R.id.player_save_created).setEnabled(true);
             }
         });

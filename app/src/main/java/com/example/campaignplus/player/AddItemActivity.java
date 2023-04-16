@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -243,7 +244,7 @@ public class AddItemActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
         data.put("item_id", selectedItem.getId());
         data.put("amount", amountText.toString());
-        StringEntity entity = new StringEntity(data.toString());
+        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
         submitButton.setEnabled(false);
 
@@ -284,7 +285,7 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     private void createItem(JSONObject data) throws UnsupportedEncodingException {
-        StringEntity entity = new StringEntity(data.toString());
+        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
         HttpUtils.post("user/items", entity, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

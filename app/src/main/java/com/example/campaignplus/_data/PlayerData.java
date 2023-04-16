@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -179,10 +180,9 @@ public class PlayerData {
         this.race = obj.getString("race");
         this.campaignId = obj.optInt("campaign_id", -1);
 
-        JSONObject money = obj.getJSONObject("money");
-        this.gold = money.getInt("gold");
-        this.silver = money.getInt("silver");
-        this.copper = money.getInt("copper");
+        this.gold = obj.getInt("gold");
+        this.silver = obj.getInt("silver");
+        this.copper = obj.getInt("copper");
 
         if (!obj.isNull("backstory")) {
             this.backstory = obj.getString("backstory");
@@ -281,7 +281,7 @@ public class PlayerData {
 
     public void upload(final CallBack func) throws JSONException, UnsupportedEncodingException {
         String url = String.format("player/%s", selectedPlayer.getId());
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
+        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
         // Upload changed data to the server.
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override

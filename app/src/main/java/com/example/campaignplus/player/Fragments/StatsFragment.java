@@ -30,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
@@ -84,7 +85,7 @@ public class StatsFragment extends Fragment {
 
         try {
             String url = String.format("player/%s", selectedPlayer.getId());
-            StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString());
+            StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
             // Upload changed data to the server.
             HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
                 @Override
@@ -97,7 +98,7 @@ public class StatsFragment extends Fragment {
                     Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + response.toString(), Toast.LENGTH_LONG).show();
                 }
             });
-        } catch (UnsupportedEncodingException | JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }

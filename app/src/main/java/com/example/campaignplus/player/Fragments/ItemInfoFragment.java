@@ -28,6 +28,7 @@ import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -94,7 +95,7 @@ public class ItemInfoFragment extends Fragment {
         item.setAmount(Integer.parseInt(String.valueOf(amount.getText())));
         item.setDescription(String.valueOf(information.getText()));
 
-        StringEntity data = new StringEntity(item.toJSON().toString());
+        StringEntity data = new StringEntity(item.toJSON().toString(), Charset.defaultCharset());
 
         String url = String.format(Locale.ENGLISH, "player/%d/item/%d", selectedPlayer.getId(), item.getInstanceId());
         HttpUtils.put(url, data, new JsonHttpResponseHandler() {
