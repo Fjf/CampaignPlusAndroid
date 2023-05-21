@@ -1044,6 +1044,7 @@
 
                     android:hint="@string/level"
                     android:inputType="numberSigned"
+                    android:selectAllOnFocus="true"
 
                     app:layout_constraintBottom_toBottomOf="@id/level_text"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -1069,6 +1070,7 @@
                     android:layout_height="wrap_content"
 
                     android:hint="Armor"
+                    android:selectAllOnFocus="true"
                     android:inputType="numberSigned"
 
                     app:layout_constraintBottom_toBottomOf="@id/armor_text"
@@ -1098,6 +1100,7 @@
                     android:layout_height="wrap_content"
 
                     android:hint="@string/max_hp"
+                    android:selectAllOnFocus="true"
                     android:inputType="numberSigned"
 
                     app:layout_constraintBottom_toBottomOf="@id/hp_text"
@@ -1126,6 +1129,7 @@
                     android:layout_height="wrap_content"
 
                     android:hint="@string/speed"
+                    android:selectAllOnFocus="true"
                     android:inputType="numberSigned"
 
                     app:layout_constraintBottom_toBottomOf="@id/speed_text"
@@ -1175,17 +1179,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/exhaustion_text">
 
-                    <Space
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
                     <RadioButton
                         android:id="@+id/exhaustion_0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <Space
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
@@ -1193,52 +1188,38 @@
                     <RadioButton
                         android:id="@+id/exhaustion_1"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <Space
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
 
                     <RadioButton
                         android:id="@+id/exhaustion_2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <Space
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
 
                     <RadioButton
                         android:id="@+id/exhaustion_3"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <Space
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
 
                     <RadioButton
                         android:id="@+id/exhaustion_4"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <Space
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
 
                     <RadioButton
                         android:id="@+id/exhaustion_5"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <Space
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
+
+
                 </RadioGroup>
 
                 <TextView

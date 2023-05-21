@@ -1,5 +1,7 @@
 package com.example.campaignplus._data;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,7 +69,7 @@ public class PlayerStatsData {
     }
 
     public void setLevel(int level) {
-        this.level = level;
+        this.level = Math.max(level, 1);
     }
 
     public String getDexterity() {
@@ -137,6 +139,11 @@ public class PlayerStatsData {
         this.armorClass = obj.getInt("armor_class");
         this.maxHP = obj.getInt("max_hp");
         this.level = obj.getInt("level");
+
+        if (this.level < 1) {
+            this.level = 1;
+            Log.w("PlayerStatsData", "Invalid level passed, autocorrecting to 1. This should be handled server side.");
+        }
     }
 
     /**

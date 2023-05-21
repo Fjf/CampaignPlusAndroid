@@ -9,7 +9,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,18 +22,23 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.PlayerStatsData;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus._utils.TextProcessor;
+import com.example.campaignplus.player.Fragments.StatsFragment;
 import com.example.campaignplus.player.Listeners.TextOnChangeSaveListener;
 import com.example.campaignplus.player.PlayerInfoActivity;
 
 import org.json.JSONException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -86,7 +93,6 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         setStatsFields();
         setEventHandlers();
 
-
         return view;
     }
 
@@ -110,6 +116,12 @@ public class PlayerViewFragment extends PlayerInfoFragment {
             }
         };
 
+        /*
+         * Open statsview when clicking the stats layout
+         */
+        view.findViewById(R.id.StatsLayout).setOnClickListener(view -> openStatsFragment());
+        view.findViewById(R.id.levelGroup).setOnClickListener(view -> openStatsFragment());
+
         gold.setOnKeyListener(sharedTextWatcher);
         silver.setOnKeyListener(sharedTextWatcher);
         copper.setOnKeyListener(sharedTextWatcher);
@@ -128,6 +140,17 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         ((EditText) view.findViewById(R.id.statTemporaryHP)).setText(preferences.getString("temporary_hp", "0"));
         view.findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "temporary_hp"));
 
+    }
+
+    private void openStatsFragment() {
+        FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        Fragment fragment = new StatsFragment();
+        fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+        fragment.setExitTransition(new Slide(Gravity.TOP));
+        ft.replace(R.id.player_info_drawer_layout, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     private void registerStatViews() {
