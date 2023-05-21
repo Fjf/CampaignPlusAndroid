@@ -97,7 +97,6 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     }
 
     private void setEventHandlers() {
-        Log.d(TAG, "--------------------------Setting event handlers");
         // Only update the money remotely after a short delay
         View.OnKeyListener sharedTextWatcher = new View.OnKeyListener() {
             final Handler handler = new Handler(Looper.getMainLooper() /*UI thread*/);
@@ -178,7 +177,6 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     }
 
     public void setStatsFields() {
-        Log.d(TAG, "------------------Setting stats fields");
         PlayerStatsData sd = selectedPlayer.statsData;
         TextView tv;
 

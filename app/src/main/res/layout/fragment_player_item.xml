@@ -10,7 +10,7 @@
 
     <include
         android:id="@+id/fragment_toolbar"
-        layout="@layout/fragment_toolbar" />
+        layout="@layout/fragment_toolbar_save" />
 
     <ScrollView
         android:id="@+id/fragment_player_item"

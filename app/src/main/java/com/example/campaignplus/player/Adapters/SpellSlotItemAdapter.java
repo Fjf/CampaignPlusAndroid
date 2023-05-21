@@ -86,7 +86,7 @@ public class SpellSlotItemAdapter extends ArrayAdapter {
 
         final String itemName = this.keyList.get(position);
         final int level = Integer.parseInt(selectedPlayer.statsData.getLevel());
-        final int index = Math.min(level - 1, this.aggregation.get(position).size());
+        final int index = Math.min(level, this.aggregation.get(position).size()) - 1;
         final String strValue = this.aggregation.get(position).get(index);
 
         textView.setText(itemName);

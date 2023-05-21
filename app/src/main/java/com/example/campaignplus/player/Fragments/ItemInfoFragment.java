@@ -63,14 +63,22 @@ public class ItemInfoFragment extends Fragment {
         tb.setTitle("Player Item Overview");
         registerExitFragmentButton(tb);
 
+        // Update item on pressing save button
+        tb.findViewById(R.id.save_fragment_button).setOnClickListener(view -> {
+            try {
+                updateItem();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            } catch (JSONException | UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        amount = view.findViewById(R.id.item_info_amount);
+        information = view.findViewById(R.id.item_info_description);
+
         // Update item
         TextView.OnEditorActionListener listener = (textView, i, keyEvent) -> {
             if (i == EditorInfo.IME_ACTION_SEND) {
-                try {
-                    updateItem();
-                } catch (JSONException | UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
-                }
                 amount.clearFocus();
                 InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(amount.getWindowToken(), 0);
@@ -78,11 +86,7 @@ public class ItemInfoFragment extends Fragment {
             return true;
         };
 
-        amount = view.findViewById(R.id.item_info_amount);
         amount.setOnEditorActionListener(listener);
-
-        information = view.findViewById(R.id.item_info_description);
-        information.setOnEditorActionListener(listener);
 
         getItems();
 
