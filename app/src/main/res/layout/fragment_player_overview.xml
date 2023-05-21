@@ -367,7 +367,7 @@
                         android:id="@+id/money_silver"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="Silver"
+                        android:hint="@string/silver"
 
                         android:imeOptions="actionNext"
                         android:inputType="number"
@@ -391,7 +391,7 @@
                         android:id="@+id/money_copper"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="Copper"
+                        android:hint="@string/copper"
                         android:imeOptions="actionNext"
                         android:nextFocusForward="@id/statTemporaryHP"
                         android:inputType="number"
@@ -421,7 +421,7 @@
                         android:ems="10"
 
                         android:gravity="center"
-                        android:hint="Temp HP"
+                        android:hint="@string/temp_hp"
                         android:imeOptions="actionNext"
                         android:inputType="number"
                         android:selectAllOnFocus="true"
@@ -453,7 +453,7 @@
                         android:ems="10"
 
                         android:gravity="center"
-                        android:hint="Current HP"
+                        android:hint="@string/current_hp"
 
                         android:imeOptions="actionDone"
                         android:inputType="number"
@@ -469,7 +469,8 @@
                     app:layout_constraintBottom_toBottomOf="@id/statArmorClass"
                     app:layout_constraintEnd_toEndOf="@id/statArmorClass"
                     app:layout_constraintStart_toStartOf="@id/statArmorClass"
-                    app:layout_constraintTop_toTopOf="@id/statArmorClass" />
+                    app:layout_constraintTop_toTopOf="@id/statArmorClass"
+                    android:contentDescription="@string/armor_class" />
 
                 <TextView
                     android:id="@+id/statArmorClass"
@@ -487,12 +488,12 @@
                     android:layout_width="55dp"
                     android:layout_height="15dp"
                     android:layout_marginTop="8dp"
-                    android:text="Armor Class"
+                    android:text="@string/armor_class"
                     app:autoSizeMinTextSize="3dp"
                     app:autoSizeTextType="uniform"
                     app:layout_constraintBottom_toTopOf="@+id/statArmorClass"
-                    app:layout_constraintEnd_toStartOf="@+id/statMaxHP"
-                    app:layout_constraintTop_toTopOf="@+id/textView13"
+                    app:layout_constraintEnd_toEndOf="@+id/statArmorClass"
+                    app:layout_constraintStart_toStartOf="@+id/statArmorClass"
                     app:layout_constraintVertical_bias="1.0" />
 
                 <TextView
