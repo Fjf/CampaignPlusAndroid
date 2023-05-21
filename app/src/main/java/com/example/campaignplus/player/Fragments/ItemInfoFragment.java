@@ -67,7 +67,6 @@ public class ItemInfoFragment extends Fragment {
         tb.findViewById(R.id.save_fragment_button).setOnClickListener(view -> {
             try {
                 updateItem();
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             } catch (JSONException | UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
@@ -106,6 +105,7 @@ public class ItemInfoFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 Toast.makeText(getContext(), "Updated item.", Toast.LENGTH_SHORT).show();
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
 
             @Override
