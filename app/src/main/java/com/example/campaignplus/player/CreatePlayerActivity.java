@@ -222,13 +222,14 @@ public class CreatePlayerActivity extends AppCompatActivity {
         String name = playerName.getText().toString();
         String race = playerRace.getText().toString();
 
-        selectedPlayer.setName(name);
-        selectedPlayer.setRace(race);
-        selectedPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());
-        selectedPlayer.setMainClassIds(selectedClassIds);
-        selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
+        PlayerData newPlayer = new PlayerData();
+        newPlayer.setName(name);
+        newPlayer.setRace(race);
+        newPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());
+        newPlayer.setMainClassIds(selectedClassIds);
+        newPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
+        StringEntity entity = new StringEntity(newPlayer.toJSON().toString(), Charset.defaultCharset());
 
         findViewById(R.id.player_save_created).setEnabled(false);
 
@@ -239,11 +240,11 @@ public class CreatePlayerActivity extends AppCompatActivity {
                 try {
                     Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
 
-                    // After creating new character, this overlay may close.
-
+                    // Add new player to datacache
                     PlayerData player = new PlayerData(response);
                     playerData.add(player);
 
+                    // After creating new character, this overlay may close.
                     Intent data = new Intent();
                     data.putExtra("player_id", player.getId());
                     setResult(RESULT_OK, data);
@@ -272,7 +273,6 @@ public class CreatePlayerActivity extends AppCompatActivity {
     private void updateExistingCharacter() throws JSONException, UnsupportedEncodingException {
         String name = playerName.getText().toString();
         String race = playerRace.getText().toString();
-        Log.d("---------------------------", name);
         selectedPlayer.setName(name);
         selectedPlayer.setRace(race);
         selectedPlayer.setBackstory(Objects.requireNonNull(playerBackstory.getText()).toString());

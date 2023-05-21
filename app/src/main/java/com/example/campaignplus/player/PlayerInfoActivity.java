@@ -112,6 +112,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
         leftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         leftDrawerPCList.setOnItemClickListener(new DrawerPCItemClickListener());
+        drawerPCListAdapter = new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, DataCache.playerData);
+        leftDrawerPCList.setAdapter(drawerPCListAdapter);
 
         justifyListViewHeightBasedOnChildren(leftDrawerList);
 
@@ -199,15 +201,13 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 Toast.makeText(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG).show();
             }
         });
+        updatePlayerDrawer();
         openDefaultFragment();
         super.onResume();
     }
 
     public void updatePlayerDrawer() {
-        // TODO: Update this to reuse adapters
-        drawerPCListAdapter = new DrawerPCListAdapter(PlayerInfoActivity.this, R.layout.left_drawer_menu_item, DataCache.playerData);
-        leftDrawerPCList.setAdapter(drawerPCListAdapter);
-
+        drawerPCListAdapter.notifyDataSetChanged();
         justifyListViewHeightBasedOnChildren(leftDrawerPCList);
     }
 
@@ -395,7 +395,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 MyPlayerCharacterList.updatePlayerData(new CallBack() {
                     @Override
                     public void success() {
-                        selectedPlayer = DataCache.playerData.get(0);
+                        updatePlayerInfo(DataCache.playerData.get(0).getId());
+                        updatePlayerDrawer();
                     }
 
                     @Override
