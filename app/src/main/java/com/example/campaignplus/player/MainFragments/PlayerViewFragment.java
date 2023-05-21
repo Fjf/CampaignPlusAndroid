@@ -89,6 +89,8 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         toolbar.setTitle(selectedPlayer.getName());
         toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
 
+        preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+
         registerStatViews();
         setStatsFields();
         setEventHandlers();
@@ -125,20 +127,8 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         silver.setOnKeyListener(sharedTextWatcher);
         copper.setOnKeyListener(sharedTextWatcher);
 
-        /*
-         *  Get player information and try to load the correct player object into local views.
-         */
-        preferences = view.getContext().getSharedPreferences("PlayerData", MODE_PRIVATE);
-        int playerId = preferences.getInt("player_id", -1);
-
-        // Set onchange listener for current hp.
-        ((EditText) view.findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
         view.findViewById(R.id.statCurrentHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "current_hp"));
-
-        // Set onchange listener for bonus hp.
-        ((EditText) view.findViewById(R.id.statTemporaryHP)).setText(preferences.getString("temporary_hp", "0"));
         view.findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "temporary_hp"));
-
     }
 
     private void openStatsFragment() {
@@ -205,6 +195,10 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         gold.setText(String.valueOf(selectedPlayer.gold));
         silver.setText(String.valueOf(selectedPlayer.silver));
         copper.setText(String.valueOf(selectedPlayer.copper));
+
+        ((EditText) view.findViewById(R.id.statCurrentHP)).setText(preferences.getString("current_hp", "0"));
+        ((EditText) view.findViewById(R.id.statTemporaryHP)).setText(preferences.getString("temporary_hp", "0"));
+
     }
 
     private void uploadPlayerData(View view) {
@@ -227,7 +221,10 @@ public class PlayerViewFragment extends PlayerInfoFragment {
 
     @Override
     public void onUpdateCurrentPlayer() {
+        // Update the shared preferences to be updated for this player
+        preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
         setStatsFields();
         toolbar.setTitle(selectedPlayer.getName());
+
     }
 }

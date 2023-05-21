@@ -1,6 +1,7 @@
 package com.example.campaignplus.player.Listeners;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -21,6 +22,7 @@ public class TextOnChangeSaveListener implements View.OnKeyListener {
 
         SharedPreferences.Editor edit = preferences.edit();
         edit.putString(entry, value);
+        Log.d("ASDASDASDHAISODHOIDSAHODAHOD", "Updating with value " + value);
         edit.apply();
         return false;
     }

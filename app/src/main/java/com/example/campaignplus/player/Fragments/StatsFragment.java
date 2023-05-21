@@ -1,12 +1,11 @@
 package com.example.campaignplus.player.Fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.campaignplus._data.DataCache.selectedPlayer;
+
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
 import com.example.campaignplus.R;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
@@ -29,15 +31,11 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
-
-import static android.content.Context.MODE_PRIVATE;
-import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
 public class StatsFragment extends Fragment {
     private String[] arr;
@@ -76,12 +74,12 @@ public class StatsFragment extends Fragment {
         String in = ((TextView) view.findViewById(R.id.totInt)).getText().toString();
         String ch = ((TextView) view.findViewById(R.id.totCha)).getText().toString();
 
-        selectedPlayer.statsData.setStrength(Integer.valueOf(st));
-        selectedPlayer.statsData.setDexterity(Integer.valueOf(de));
-        selectedPlayer.statsData.setConstitution(Integer.valueOf(co));
-        selectedPlayer.statsData.setWisdom(Integer.valueOf(wi));
-        selectedPlayer.statsData.setIntelligence(Integer.valueOf(in));
-        selectedPlayer.statsData.setCharisma(Integer.valueOf(ch));
+        selectedPlayer.statsData.setStrength(Integer.parseInt(st));
+        selectedPlayer.statsData.setDexterity(Integer.parseInt(de));
+        selectedPlayer.statsData.setConstitution(Integer.parseInt(co));
+        selectedPlayer.statsData.setWisdom(Integer.parseInt(wi));
+        selectedPlayer.statsData.setIntelligence(Integer.parseInt(in));
+        selectedPlayer.statsData.setCharisma(Integer.parseInt(ch));
 
         try {
             String url = String.format("player/%s", selectedPlayer.getId());
@@ -115,18 +113,15 @@ public class StatsFragment extends Fragment {
         for (int id : checkboxIds) {
             CheckBox vw = view.findViewById(id);
 
-            vw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    try {
-                        getPlayerProficiencies();
-                        getPlayerSavingThrows();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    setPlayerProficiencies();
-                    setPlayerProficiencyBonus();
+            vw.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                try {
+                    getPlayerProficiencies();
+                    getPlayerSavingThrows();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                setPlayerProficiencies();
+                setPlayerProficiencyBonus();
             });
         }
 
@@ -183,7 +178,7 @@ public class StatsFragment extends Fragment {
         arr = res.getStringArray(R.array.exhaustion_info_text);
 
         // Load the preferences storage to save player's current exhaustion.
-        SharedPreferences preferences = getActivity().getSharedPreferences("PlayerData", MODE_PRIVATE);
+        SharedPreferences preferences = getActivity().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
         editor = preferences.edit();
 
         // Load the currently selected exhaustion button and the corresponding informational text.
@@ -273,50 +268,38 @@ public class StatsFragment extends Fragment {
             }
         });
 
-        view.findViewById(R.id.hp_input).setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                EditText et = (EditText) v;
+        view.findViewById(R.id.hp_input).setOnKeyListener((v, keyCode, event) -> {
+            EditText et = (EditText) v;
 
-                String text = et.getText().toString();
-                if (text.length() > 0)
-                    selectedPlayer.statsData.setMaxHP(Integer.parseInt(text));
-                return false;
-            }
+            String text = et.getText().toString();
+            if (text.length() > 0)
+                selectedPlayer.statsData.setMaxHP(Integer.parseInt(text));
+            return false;
         });
 
-        view.findViewById(R.id.armor_input).setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                EditText et = (EditText) v;
-                String text = et.getText().toString();
-                if (text.length() > 0)
-                    selectedPlayer.statsData.setArmorClass(Integer.parseInt(text));
-                return false;
-            }
+        view.findViewById(R.id.armor_input).setOnKeyListener((v, keyCode, event) -> {
+            EditText et = (EditText) v;
+            String text = et.getText().toString();
+            if (text.length() > 0)
+                selectedPlayer.statsData.setArmorClass(Integer.parseInt(text));
+            return false;
         });
 
-        view.findViewById(R.id.speed_input).setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                EditText et = (EditText) v;
-                String text = et.getText().toString();
-                if (text.length() > 0)
-                    selectedPlayer.statsData.setSpeed(Integer.valueOf(text));
-                return false;
-            }
+        view.findViewById(R.id.speed_input).setOnKeyListener((v, keyCode, event) -> {
+            EditText et = (EditText) v;
+            String text = et.getText().toString();
+            if (text.length() > 0)
+                selectedPlayer.statsData.setSpeed(Integer.valueOf(text));
+            return false;
         });
 
         // Add eventlisteners for every stat input field.
         int[] statsIds = new int[]{R.id.totCha, R.id.totStr, R.id.totDex, R.id.totInt, R.id.totWis};
         for (int id : statsIds) {
-            view.findViewById(id).setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (!hasFocus) {
-                        getPlayerStats();
-                        setPlayerProficiencyBonus();
-                    }
+            view.findViewById(id).setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    getPlayerStats();
+                    setPlayerProficiencyBonus();
                 }
             });
         }
@@ -324,12 +307,12 @@ public class StatsFragment extends Fragment {
 
     public void getPlayerStats() {
         try {
-            selectedPlayer.statsData.setDexterity(Integer.valueOf(((EditText) view.findViewById(R.id.totDex)).getText().toString()));
-            selectedPlayer.statsData.setStrength(Integer.valueOf(((EditText) view.findViewById(R.id.totStr)).getText().toString()));
-            selectedPlayer.statsData.setConstitution(Integer.valueOf(((EditText) view.findViewById(R.id.totCon)).getText().toString()));
-            selectedPlayer.statsData.setCharisma(Integer.valueOf(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
-            selectedPlayer.statsData.setIntelligence(Integer.valueOf(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
-            selectedPlayer.statsData.setWisdom(Integer.valueOf(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
+            selectedPlayer.statsData.setDexterity(Integer.parseInt(((EditText) view.findViewById(R.id.totDex)).getText().toString()));
+            selectedPlayer.statsData.setStrength(Integer.parseInt(((EditText) view.findViewById(R.id.totStr)).getText().toString()));
+            selectedPlayer.statsData.setConstitution(Integer.parseInt(((EditText) view.findViewById(R.id.totCon)).getText().toString()));
+            selectedPlayer.statsData.setCharisma(Integer.parseInt(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
+            selectedPlayer.statsData.setIntelligence(Integer.parseInt(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
+            selectedPlayer.statsData.setWisdom(Integer.parseInt(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
         } catch (NumberFormatException ignored) {
         }
     }

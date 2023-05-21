@@ -36,7 +36,7 @@ public class SpellSlotItemAdapter extends ArrayAdapter {
         this.aggregation = aggregation;
         this.keyList = keyList;
 
-        preferences = context.getSharedPreferences("PlayerData", MODE_PRIVATE);
+        preferences = context.getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
         editor = preferences.edit();
     }
 

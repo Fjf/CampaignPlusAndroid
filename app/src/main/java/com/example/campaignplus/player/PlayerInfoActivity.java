@@ -96,7 +96,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
         setSupportActionBar(toolbar);
 
-        preferences = getSharedPreferences("PlayerData", MODE_PRIVATE);
+        preferences = getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
 
         String[] leftDrawerItemTitles = getResources().getStringArray(R.array.player_info_left_drawer_titles);
         TypedArray leftDrawerItemIcons = getResources().obtainTypedArray(R.array.player_info_left_drawer_icons);
@@ -301,7 +301,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivity(intent);
 
-                    String[] toClearPreferences = {"LoginData", "PlayerData"};
+                    String[] toClearPreferences = {"LoginData"};
                     for (String pref : toClearPreferences) {
                         SharedPreferences preferences = getSharedPreferences(pref, MODE_PRIVATE);
                         SharedPreferences.Editor edit = preferences.edit();
