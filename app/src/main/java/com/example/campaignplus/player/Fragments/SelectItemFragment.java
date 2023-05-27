@@ -17,20 +17,31 @@ import com.example.campaignplus._data.items.AvailableItems;
 import com.example.campaignplus._data.items.ItemData;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
-import com.example.campaignplus.login.LandingActivity;
 import com.example.campaignplus.player.Adapters.SelectItemListAdapter;
-import com.example.campaignplus.player.AddItemActivity;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class AddItemFragment extends Fragment {
+public class SelectItemFragment extends Fragment {
     @Nullable
     private Listener listener;
     private SelectItemListAdapter  adapter;
     private final ArrayList<ItemData> items = new ArrayList<>();
 
-    public AddItemFragment() {
+    public static abstract class OnCompleteCallback {
+        /*
+         * This class can be implemented if the user wishes to get a callback function executed.
+         * It success will pass the selected item's id, and cancel is called upon exiting without
+         *  selecting an item.
+         */
+        abstract public void success(int selectedItem);
+        abstract public void cancel();
+    }
+
+    private OnCompleteCallback callback = null;
+
+    public SelectItemFragment(OnCompleteCallback cb) {
+        this.callback = cb;
         // Required empty public constructor
     }
 
@@ -40,19 +51,17 @@ public class AddItemFragment extends Fragment {
      *
      * @return A new instance of fragment SelectItemFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static AddItemFragment newInstance() {
-        return new AddItemFragment();
+    public static SelectItemFragment newInstance(OnCompleteCallback callback) {
+        return new SelectItemFragment(callback);
     }
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove current fragment
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+        btn.setOnClickListener(view -> {
+            // Remove current fragment
+            if (callback != null)
+                callback.cancel();
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }
@@ -84,16 +93,15 @@ public class AddItemFragment extends Fragment {
         final ListView lv = view.findViewById(R.id.selectable_items);
 
         Toolbar tb = view.findViewById(R.id.toolbar);
-        tb.setTitle("Add Item");
+        tb.setTitle("Select Item");
         registerExitFragmentButton(tb);
 
         adapter = new SelectItemListAdapter(Objects.requireNonNull(this.getActivity()), items);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener((parent, view1, position, id) -> {
-            // Set selected item.
-            int idx = view1.getId();
-            AddItemActivity.selectedItem = AvailableItems.getItem(idx);
-
+            // Tell parent we are done.
+            if (callback != null)
+                callback.success(view1.getId());
             // Remove current fragment.
             Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
@@ -133,10 +141,6 @@ public class AddItemFragment extends Fragment {
     }
 
     public interface Listener {
-        void onDetached(AddItemFragment fragment);
-    }
-
-    public void setListener(@Nullable Listener listener) {
-        this.listener = listener;
+        void onDetached(SelectItemFragment fragment);
     }
 }

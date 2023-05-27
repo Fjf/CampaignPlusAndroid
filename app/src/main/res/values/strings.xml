@@ -46,6 +46,7 @@
     <string name="temp_hp">Temp HP</string>
     <string name="current_hp">Current HP</string>
     <string name="armor_class">Armor Class</string>
+    <string name="add_item">Add Item</string>
 
 
     <string-array name="player_info_left_drawer_titles">

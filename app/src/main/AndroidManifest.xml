@@ -32,7 +32,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name="com.example.campaignplus.campaign.QRCodeScannerActivity" />
         <activity
-            android:name="com.example.campaignplus.player.AddItemActivity"
+            android:name="com.example.campaignplus.player.CreateItemActivity"
             android:label="@string/title_activity_add_item"
             android:launchMode="singleInstance"
             android:exported="false"

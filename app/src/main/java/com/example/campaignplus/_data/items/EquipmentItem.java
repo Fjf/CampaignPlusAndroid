@@ -41,6 +41,12 @@ public class EquipmentItem {
         this.item = new ItemData(obj.getJSONObject("info"));
     }
 
+    public EquipmentItem(ItemData item) {
+        this.item = item;
+        this.description = "";
+        this.amount = 1;
+    }
+
     public JSONObject toJSON() throws JSONException {
         JSONObject response = new JSONObject();
         response.put("item_id", this.instanceId);

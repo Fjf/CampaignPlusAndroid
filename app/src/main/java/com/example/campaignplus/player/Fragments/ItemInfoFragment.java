@@ -48,8 +48,15 @@ public class ItemInfoFragment extends Fragment {
     private EditText amount;
     private EditText information;
 
-    public ItemInfoFragment() {
+    abstract public static class OnCompleteCallback {
+        abstract public void success(int itemId);
+        abstract public void cancel();
+    }
 
+    private OnCompleteCallback callback;
+
+    public ItemInfoFragment(OnCompleteCallback cb) {
+        this.callback = cb;
     }
 
     @Override
@@ -104,6 +111,7 @@ public class ItemInfoFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 Toast.makeText(getContext(), "Updated item.", Toast.LENGTH_SHORT).show();
+                callback.success(selectedItemId);
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
 
@@ -132,6 +140,7 @@ public class ItemInfoFragment extends Fragment {
                     // Only activate when not moving down much, but moving a lot horizontally.
                     if (Math.abs(y1 - y2) < 100 &&
                             x2 - x1 > 100) {
+                        callback.cancel();
                         // Close fragment
                         Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
                     }
@@ -147,6 +156,7 @@ public class ItemInfoFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                callback.cancel();
                 // Remove current fragment
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }

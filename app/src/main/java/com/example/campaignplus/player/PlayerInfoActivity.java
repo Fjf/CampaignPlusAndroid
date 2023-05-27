@@ -464,7 +464,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         switch (position) {
             case FRAGMENT_ID_ADD_ITEM:
-                intent = new Intent(this, AddItemActivity.class);
+                intent = new Intent(this, CreateItemActivity.class);
                 startActivity(intent);
                 return;
             case FRAGMENT_ID_CREATE_SPELL:

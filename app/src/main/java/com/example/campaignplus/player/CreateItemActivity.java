@@ -6,12 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.text.Editable;
 import android.util.Log;
@@ -29,7 +26,6 @@ import com.example.campaignplus._data.items.ItemData;
 import com.example.campaignplus.player.Adapters.ItemSpinnerArrayAdapter;
 import com.example.campaignplus.R;
 import com.example.campaignplus._utils.HttpUtils;
-import com.example.campaignplus.player.Fragments.AddItemFragment;
 import com.google.android.material.button.MaterialButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -44,7 +40,7 @@ import java.util.Objects;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class AddItemActivity extends AppCompatActivity {
+public class CreateItemActivity extends AppCompatActivity {
 
     final String[] gearCategories = new String[]{
             "Select gear category...", "Armor", "Tools", "Adventuring Gear",
@@ -62,8 +58,6 @@ public class AddItemActivity extends AppCompatActivity {
     public static ItemData selectedItem;
 
     private MaterialButton button;
-    private AppCompatEditText amount;
-    private ImageButton submitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +65,13 @@ public class AddItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_item);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Add Item");
+        toolbar.setTitle("Create Item");
         setSupportActionBar(toolbar);
 
         Spinner gearCategoryDropdown = findViewById(R.id.gear_category_dropdown);
         Spinner diceDropdown = findViewById(R.id.dice_selection);
         Spinner damageTypeDropdown = findViewById(R.id.damage_type_selection);
         button = findViewById(R.id.autocomplete_items);
-        amount = findViewById(R.id.add_items_amount);
-        submitButton = findViewById(R.id.add_items_submit);
 
         Button createItemButton = findViewById(R.id.create_item_button);
 
@@ -103,14 +95,6 @@ public class AddItemActivity extends AppCompatActivity {
         ItemSpinnerArrayAdapter damageArrayAdapter = new ItemSpinnerArrayAdapter(this, R.layout.spinner_row, damageTypes);
         damageArrayAdapter.setDropDownViewResource(R.layout.spinner_row);
         damageTypeDropdown.setAdapter(damageArrayAdapter);
-
-        button.setOnClickListener(v -> {
-            Fragment fragment = new AddItemFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.add_item_activity, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
-        });
 
         gearCategoryDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -152,23 +136,8 @@ public class AddItemActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onAttachFragment(@NonNull Fragment fragment) {
-        super.onAttachFragment(fragment);
-        if (fragment instanceof AddItemFragment)
-            ((AddItemFragment) fragment).setListener(new AddItemFragment.Listener() {
-                @Override
-                public void onDetached(AddItemFragment fragment) {
-                    if (selectedItem != null)
-                        button.setText(selectedItem.getName());
-                }
-            });
-    }
-
     public void buttonCreateItem(View view) throws JSONException {
         long categoryId = ((Spinner) findViewById(R.id.gear_category_dropdown)).getSelectedItemId();
-
-        ItemData itemData = null;
 
         String name = ((EditText) findViewById(R.id.item_name)).getText().toString();
         String description = ((EditText) findViewById(R.id.item_information)).getText().toString();
@@ -227,63 +196,6 @@ public class AddItemActivity extends AppCompatActivity {
         return -1;
     }
 
-    public void playerAddItem(View view) throws JSONException, UnsupportedEncodingException {
-        Editable amountText = amount.getText();
-
-        // Input validation.
-        if (selectedItem == null) {
-            Toast.makeText(this, "No item selected.", Toast.LENGTH_SHORT).show();
-            return;
-        } else if (amountText == null) {
-            Toast.makeText(this, "No amount defined.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-
-        // Store all parameters in json object.
-        JSONObject data = new JSONObject();
-        data.put("item_id", selectedItem.getId());
-        data.put("amount", amountText.toString());
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
-
-        submitButton.setEnabled(false);
-
-        String url = String.format(Locale.ENGLISH, "player/%s/item", selectedPlayer.getId());
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                /*
-                 * Close the window
-                 */
-                View view = getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-
-                submitButton.setEnabled(true);
-                Toast.makeText(AddItemActivity.this, "Successfully added item.", Toast.LENGTH_SHORT).show();
-
-                Intent data = new Intent();
-                setResult(RESULT_OK, data);
-                finish();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                submitButton.setEnabled(true);
-                Toast.makeText(AddItemActivity.this, "Error adding item: Status code.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                String response = errorResponse == null ? null : errorResponse.toString();
-                onFailure(statusCode, headers, response, throwable);
-            }
-
-        });
-    }
-
     private void createItem(JSONObject data) throws UnsupportedEncodingException {
         StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
         HttpUtils.post("user/items", entity, new JsonHttpResponseHandler() {
@@ -292,7 +204,7 @@ public class AddItemActivity extends AppCompatActivity {
                 try {
                     AvailableItems.updateItem(response);
                 } catch (JSONException e) {
-                    Toast.makeText(AddItemActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(CreateItemActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 finish();
             }

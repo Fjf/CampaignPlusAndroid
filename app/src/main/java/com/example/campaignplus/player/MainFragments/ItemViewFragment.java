@@ -2,7 +2,9 @@ package com.example.campaignplus.player.MainFragments;
 
 import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.transition.Slide;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,23 +27,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campaignplus.R;
+import com.example.campaignplus._data.items.AvailableItems;
 import com.example.campaignplus._data.items.EquipmentItem;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus.player.Adapters.EquipmentListAdapter;
+import com.example.campaignplus.player.CreateItemActivity;
+import com.example.campaignplus.player.Fragments.SelectItemFragment;
 import com.example.campaignplus.player.Fragments.ItemInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class ItemViewFragment extends PlayerInfoFragment {
     private static final String TAG = "ItemViewFragment";
@@ -137,6 +144,8 @@ public class ItemViewFragment extends PlayerInfoFragment {
         view.findViewById(R.id.delete_item_button).setOnClickListener(this::requestDeleteItem);
         view.findViewById(R.id.show_item_info_button).setOnClickListener(this::openItemFragment);
         view.findViewById(R.id.close_menu_button).setOnClickListener(this::closeMenu);
+
+        view.findViewById(R.id.add_item_fab).setOnClickListener(this::openAddItemFragment);
     }
 
     public void openItemFragment(View view) {
@@ -145,11 +154,77 @@ public class ItemViewFragment extends PlayerInfoFragment {
             return;
         }
 
-        Fragment fragment = new ItemInfoFragment();
+        Fragment fragment = new ItemInfoFragment(new ItemInfoFragment.OnCompleteCallback() {
+            @Override
+            public void success(int itemId) {
+                itemAdapter.notifyItemChanged(itemId);
+            }
+
+            @Override
+            public void cancel() {
+
+            }
+        });
         fragment.setEnterTransition(new Slide(Gravity.END));
         fragment.setExitTransition(new Slide(Gravity.START));
 
         openFragment(fragment);
+    }
+
+    public void openAddItemFragment(View view) {
+        Fragment fragment = new SelectItemFragment(new SelectItemFragment.OnCompleteCallback() {
+            @Override
+            public void success(int itemId) {
+                // Push added item to remote.
+                try {
+                    uploadItemRemote(itemId);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void cancel() {
+                // Don't do anything on cancel
+            }
+        });
+        fragment.setEnterTransition(new Slide(Gravity.END));
+        fragment.setExitTransition(new Slide(Gravity.START));
+        openFragment(fragment);
+    }
+
+    public void uploadItemRemote(int itemId) throws JSONException {
+        // Store all parameters in json object.
+        JSONObject data = new JSONObject();
+        data.put("item_id", itemId);
+        data.put("amount", 1);
+        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+
+        String url = String.format(Locale.ENGLISH, "player/%s/item", selectedPlayer.getId());
+        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                // Update list if we added an item
+                try {
+                    selectedPlayer.equipment.add(new EquipmentItem(response));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                itemAdapter.notifyItemInserted(selectedPlayer.equipment.size() - 1);
+                Toast.makeText(getContext(), "Successfully added item.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
+                Toast.makeText(getContext(), "Error adding item: Status code.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                String response = errorResponse == null ? null : errorResponse.toString();
+                onFailure(statusCode, headers, response, throwable);
+            }
+        });
     }
 
     public void closeMenu(View view) {

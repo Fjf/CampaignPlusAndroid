@@ -5,7 +5,7 @@
     android:id="@+id/add_item_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".player.AddItemActivity">
+    tools:context=".player.CreateItemActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -31,18 +31,7 @@
 
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
-            tools:context=".player.AddItemActivity">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_horizontal"
-                android:text="Find existing items"
-                android:textColor="@android:color/black"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/toolbar" />
+            tools:context=".player.CreateItemActivity">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -52,7 +41,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/autocomplete_items"
                     style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="4"
                     android:text="Select item..."
@@ -63,24 +52,6 @@
                     app:strokeColor="@color/colorAccent"
                     app:strokeWidth="2dp" />
 
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/add_items_amount"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:hint="Amount"
-                    android:inputType="numberSigned"
-                    tools:layout_editor_absoluteY="619dp" />
-
-                <ImageButton
-                    android:id="@+id/add_items_submit"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Add item"
-                    android:onClick="playerAddItem"
-                    android:src="@android:drawable/ic_menu_add" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </LinearLayout>
 
