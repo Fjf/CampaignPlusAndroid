@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
@@ -14,7 +15,9 @@ import androidx.fragment.app.Fragment;
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.items.AvailableItems;
 import com.example.campaignplus._data.items.ItemData;
+import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
+import com.example.campaignplus.login.LandingActivity;
 import com.example.campaignplus.player.Adapters.SelectItemListAdapter;
 import com.example.campaignplus.player.AddItemActivity;
 
@@ -25,7 +28,7 @@ public class AddItemFragment extends Fragment {
     @Nullable
     private Listener listener;
     private SelectItemListAdapter  adapter;
-    private ArrayList<ItemData> items = new ArrayList<>();
+    private final ArrayList<ItemData> items = new ArrayList<>();
 
     public AddItemFragment() {
         // Required empty public constructor
@@ -57,6 +60,20 @@ public class AddItemFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AvailableItems.updateItems(new CallBack() {
+            @Override
+            public void success() {
+                // Update item list
+                items.clear();
+                items.addAll(AvailableItems.items);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                Toast.makeText(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -69,8 +86,6 @@ public class AddItemFragment extends Fragment {
         Toolbar tb = view.findViewById(R.id.toolbar);
         tb.setTitle("Add Item");
         registerExitFragmentButton(tb);
-
-        items.addAll(AvailableItems.items);
 
         adapter = new SelectItemListAdapter(Objects.requireNonNull(this.getActivity()), items);
         lv.setAdapter(adapter);

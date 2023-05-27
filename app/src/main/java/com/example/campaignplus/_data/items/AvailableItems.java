@@ -15,19 +15,14 @@ import cz.msebera.android.httpclient.Header;
 public class AvailableItems {
     public static ArrayList<ItemData> items = new ArrayList<>();
 
-    private AvailableItems() {
+    public AvailableItems() {
         // Override default constructor to ignore initialization.
     }
 
-    public static void setItems(JSONArray items) throws JSONException {
-        for (int i = 0; i < items.length(); i++) {
-            // Available items are never weapons, additional weapon data has to be retrieved separately.
-            AvailableItems.items.add(new ItemData(items.getJSONObject(i)));
+    public static void setItems(JSONArray newItems) throws JSONException {
+        for (int i = 0; i < newItems.length(); i++) {
+            items.add(new ItemData(newItems.getJSONObject(i)));
         }
-    }
-
-    public static void initialize(final CallBack fn) {
-       updateItems(fn);
     }
 
     public static void updateItems(final CallBack fn) {

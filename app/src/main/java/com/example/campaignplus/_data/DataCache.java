@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi;
 import com.example.campaignplus._data.classinfo.ClassAbility;
 import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._data.classinfo.SubClassInfo;
+import com.example.campaignplus._data.items.AvailableItems;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ public class DataCache {
     public static PlayerData selectedPlayer = new PlayerData();
     public static CampaignData selectedCampaign = new CampaignData();
     public static ArrayList<PlayerData> playerData = new ArrayList<>();
+
     public static HashMap<Integer, MainClassInfo> availableClasses = new HashMap<>();
     public static HashMap<Integer, SubClassInfo> availableSubClasses = new HashMap<>();
 

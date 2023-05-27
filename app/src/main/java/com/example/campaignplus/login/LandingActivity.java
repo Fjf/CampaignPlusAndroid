@@ -56,18 +56,6 @@ public class LandingActivity extends AppCompatActivity {
         UserService.login(username, password, new CallBack() {
             @Override
             public void success() {
-                AvailableItems.initialize(new CallBack() {
-                    @Override
-                    public void success() {
-
-                    }
-
-                    @Override
-                    public void error(String errorMessage) {
-                        Toast.makeText(LandingActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                    }
-                });
-
                 Intent intent = new Intent(LandingActivity.this, PlayerInfoActivity.class);
                 startActivity(intent);
                 finish();
