@@ -5,15 +5,19 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
 import android.os.Build;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.example.campaignplus.R;
 import com.example.campaignplus._data.classinfo.ClassAbility;
 import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._data.classinfo.SubClassInfo;
+import com.example.campaignplus._data.items.EquipmentItem;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
+import com.example.campaignplus.player.Adapters.EquipmentListAdapter;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -88,6 +92,8 @@ public class PlayerData {
     public PlayerProficiencyData proficiencies = new PlayerProficiencyData();
     public final ArrayList<Integer> mainClassIds = new ArrayList<>();
     public final ArrayList<Integer> subClassIds = new ArrayList<>();
+
+    public final ArrayList<EquipmentItem> equipment = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -274,6 +280,31 @@ public class PlayerData {
             @Override
             public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 Log.d("updatePlayerData::HttpUtils::get()", "Response failure.");
+                func.error(response);
+            }
+        });
+    }
+
+    public void getEquipment(final CallBack func) {
+        String url = String.format(Locale.ENGLISH, "player/%s/items", selectedPlayer.getId());
+        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
+                try {
+                    selectedPlayer.equipment.clear();
+                    for (int i = 0; i < items.length(); i++) {
+                        JSONObject obj = items.getJSONObject(i);
+                        selectedPlayer.equipment.add(new EquipmentItem(obj));
+                    }
+                } catch (JSONException e) {
+                    func.error(e.getMessage());
+                }
+
+                func.success();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
                 func.error(response);
             }
         });

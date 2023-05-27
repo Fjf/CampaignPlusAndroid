@@ -10,8 +10,10 @@ import android.widget.TextView;
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.items.EquipmentItem;
 
-public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemViewHolder> {
-    private EquipmentItem[] pidDataSet;
+import java.util.ArrayList;
+
+public class EquipmentListAdapter extends RecyclerView.Adapter<EquipmentListAdapter.ItemViewHolder> {
+    private final ArrayList<EquipmentItem> pidDataSet;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -29,7 +31,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ItemListAdapter(EquipmentItem[] pidDataSet) {
+    public EquipmentListAdapter(ArrayList<EquipmentItem> pidDataSet) {
         this.pidDataSet = pidDataSet;
     }
 
@@ -49,14 +51,14 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemVi
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.itemName.setText(pidDataSet[position].getItem().getName());
-        holder.itemAmount.setText(String.valueOf(pidDataSet[position].getAmount()));
+        holder.itemName.setText(pidDataSet.get(position).getItem().getName());
+        holder.itemAmount.setText(String.valueOf(pidDataSet.get(position).getAmount()));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return pidDataSet.length;
+        return pidDataSet.size();
     }
 
 }

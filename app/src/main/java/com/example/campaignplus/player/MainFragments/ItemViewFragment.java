@@ -25,9 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.items.EquipmentItem;
+import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.PlayerInfoFragment;
-import com.example.campaignplus.player.Adapters.ItemListAdapter;
+import com.example.campaignplus.player.Adapters.EquipmentListAdapter;
 import com.example.campaignplus.player.Fragments.ItemInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -37,21 +38,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 
 public class ItemViewFragment extends PlayerInfoFragment {
     private static final String TAG = "ItemViewFragment";
-    private Toolbar toolbar;
 
     private View view;
     public static int selectedItemId;
 
     private RecyclerView itemRecyclerView;
-    private RecyclerView.Adapter itemAdapter;
-    private RecyclerView.LayoutManager itemLayoutManager;
-
-    public static EquipmentItem[] pidDataSet = new EquipmentItem[0]; // TODO: Move to datacache
+    private EquipmentListAdapter itemAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +62,7 @@ public class ItemViewFragment extends PlayerInfoFragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_player_item_list, container, false);
 
-        toolbar = getActivity().findViewById(R.id.toolbar);
+        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
         toolbar.setTitle("Items");
         toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
 
@@ -75,9 +73,12 @@ public class ItemViewFragment extends PlayerInfoFragment {
         itemRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        itemLayoutManager = new LinearLayoutManager(container.getContext());
+        RecyclerView.LayoutManager itemLayoutManager = new LinearLayoutManager(container.getContext());
         itemRecyclerView.setLayoutManager(itemLayoutManager);
 
+        // Set the adapter based on currently selected player.
+        itemAdapter = new EquipmentListAdapter(selectedPlayer.equipment);
+        itemRecyclerView.setAdapter(itemAdapter);
 
         onUpdateCurrentPlayer();
         setEventListeners();
@@ -86,34 +87,21 @@ public class ItemViewFragment extends PlayerInfoFragment {
     }
 
     public void getPlayerItems() {
-        String url = String.format(Locale.ENGLISH, "player/%s/items", selectedPlayer.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        selectedPlayer.getEquipment(new CallBack() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
-                try {
-                    Log.d(TAG, "Response length:" + items.length());
-                    if (items.length() == 0) {
-                        view.findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
-                    } else {
-                        view.findViewById(R.id.no_items_text).setVisibility(View.GONE);
-                    }
-
-                    pidDataSet = new EquipmentItem[items.length()];
-                    for (int i = 0; i < items.length(); i++) {
-                        JSONObject obj = items.getJSONObject(i);
-                        pidDataSet[i] = new EquipmentItem(obj);
-                    }
-
-                    itemAdapter = new ItemListAdapter(pidDataSet);
-                    itemRecyclerView.setAdapter(itemAdapter);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void success() {
+                if (selectedPlayer.equipment.size() == 0) {
+                    view.findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
+                } else {
+                    view.findViewById(R.id.no_items_text).setVisibility(View.GONE);
                 }
+
+                itemAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void error(String errorMessage) {
+                Log.d(TAG, "Error while fetching player items: " + errorMessage);
             }
         });
     }
@@ -133,10 +121,10 @@ public class ItemViewFragment extends PlayerInfoFragment {
                         selectedItemId = position;
 
                         TextView tv = view.findViewById(R.id.delete_item_button);
-                        tv.setText("Delete " + pidDataSet[selectedItemId].getItem().getName());
+                        tv.setText("Delete " + selectedPlayer.equipment.get(selectedItemId).getItem().getName());
 
                         // Lock drawer and Show the Spell options.
-                        ((DrawerLayout) getActivity().findViewById(R.id.player_info_drawer_layout))
+                        ((DrawerLayout) Objects.requireNonNull(getActivity()).findViewById(R.id.player_info_drawer_layout))
                                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                         view.findViewById(R.id.overlay_item_options).setVisibility(View.VISIBLE);
                     }
@@ -152,7 +140,7 @@ public class ItemViewFragment extends PlayerInfoFragment {
     }
 
     public void openItemFragment(View view) {
-        if (pidDataSet.length == 0) {
+        if (selectedPlayer.equipment.isEmpty()) {
             Toast.makeText(this.getContext(), "You have no items.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -187,7 +175,7 @@ public class ItemViewFragment extends PlayerInfoFragment {
     }
 
     private void deleteItem() {
-        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", selectedPlayer.getId(), pidDataSet[selectedItemId].getInstanceId());
+        String url = String.format(Locale.ENGLISH, "player/%s/item/%d", selectedPlayer.getId(), selectedPlayer.equipment.get(selectedItemId).getInstanceId());
         HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

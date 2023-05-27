@@ -33,7 +33,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 import static com.example.campaignplus._data.DataCache.selectedPlayer;
-import static com.example.campaignplus.player.MainFragments.ItemViewFragment.pidDataSet;
 import static com.example.campaignplus.player.MainFragments.ItemViewFragment.selectedItemId;
 
 import org.json.JSONException;
@@ -93,7 +92,7 @@ public class ItemInfoFragment extends Fragment {
     }
 
     private void updateItem() throws JSONException, UnsupportedEncodingException {
-        EquipmentItem item = pidDataSet[selectedItemId];
+        EquipmentItem item = selectedPlayer.equipment.get(selectedItemId);
 
         item.setAmount(Integer.parseInt(String.valueOf(amount.getText())));
         item.setDescription(String.valueOf(information.getText()));
@@ -157,15 +156,15 @@ public class ItemInfoFragment extends Fragment {
 
     private void getItems() {
         // Default spell information is the first entry
-        EquipmentItem current = pidDataSet[selectedItemId];
+        EquipmentItem current = selectedPlayer.equipment.get(selectedItemId);
         createItemDropdown();
         fillItemData(current);
     }
 
     private void createItemDropdown() {
-        String[] itemNames = new String[pidDataSet.length];
-        for (int i = 0; i < pidDataSet.length; i++) {
-            itemNames[i] = pidDataSet[i].getItem().getName();
+        String[] itemNames = new String[selectedPlayer.equipment.size()];
+        for (int i = 0; i < selectedPlayer.equipment.size(); i++) {
+            itemNames[i] = selectedPlayer.equipment.get(i).getItem().getName();
         }
 
         Spinner spin = view.findViewById(R.id.name);
@@ -176,7 +175,7 @@ public class ItemInfoFragment extends Fragment {
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                fillItemData(pidDataSet[position]);
+                fillItemData(selectedPlayer.equipment.get(position));
             }
 
             @Override
