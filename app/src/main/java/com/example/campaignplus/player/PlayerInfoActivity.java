@@ -64,9 +64,6 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.Header;
 
 public class PlayerInfoActivity extends AppCompatActivity {
-    private static final String TAG = "PlayerInfoActivity";
-
-    private Toolbar toolbar;
 
     private final int UPDATE_STATS = 0;
     private final int UPDATE_SPELL = 2;
@@ -91,7 +88,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_player_info);
 
         // Attaching the layout to the toolbar object
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Character Sheet");
         toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
         setSupportActionBar(toolbar);
@@ -367,18 +364,15 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void requestDeletePlayer() {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        deletePlayer();
-                        break;
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    deletePlayer();
+                    break;
 
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        //No button clicked
-                        break;
-                }
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
             }
         };
 
@@ -417,14 +411,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
         if (count > 0) {
             getSupportFragmentManager().popBackStackImmediate();
         }
-    }
-
-    public void openItemFragment(View view) {
-        openFragment(0);
-    }
-
-    public void openSpellFragment(View view) {
-        openFragment(2);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -525,10 +511,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
         if (adapter == null) {
             return;
         }
-        ViewGroup vg = listView;
         int totalHeight = 0;
         for (int i = 0; i < adapter.getCount(); i++) {
-            View listItem = adapter.getView(i, null, vg);
+            View listItem = adapter.getView(i, null, listView);
             listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }

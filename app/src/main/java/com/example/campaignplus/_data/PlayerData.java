@@ -310,9 +310,14 @@ public class PlayerData {
         });
     }
 
-    public void upload(final CallBack func) throws JSONException, UnsupportedEncodingException {
+    public void upload(final CallBack func) {
         String url = String.format("player/%s", selectedPlayer.getId());
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
+        StringEntity entity = null;
+        try {
+            entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         // Upload changed data to the server.
         HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
             @Override

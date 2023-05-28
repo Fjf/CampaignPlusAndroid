@@ -7,13 +7,11 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.HapticFeedbackConstants;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -25,6 +23,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.campaignplus.R;
+import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -37,6 +36,7 @@ import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
 
 public class StatsFragment extends Fragment {
     private String[] arr;
@@ -63,8 +63,23 @@ public class StatsFragment extends Fragment {
         }
         return -1;
     }
+    public static class OnCompleteCallback {
+        public void success() {
+
+        }
+
+        public void cancel() {
+
+        }
+    }
+
+    StatsFragment.OnCompleteCallback callback;
+    public StatsFragment(StatsFragment.OnCompleteCallback callback) {
+        this.callback = callback;
+    }
 
     public StatsFragment() {
+        this(new StatsFragment.OnCompleteCallback());
     }
 
     private void savePlayerData() {
@@ -82,24 +97,17 @@ public class StatsFragment extends Fragment {
         selectedPlayer.statsData.setIntelligence(Integer.parseInt(in));
         selectedPlayer.statsData.setCharisma(Integer.parseInt(ch));
 
-        try {
-            String url = String.format("player/%s", selectedPlayer.getId());
-            StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
-            // Upload changed data to the server.
-            HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
-                }
+        selectedPlayer.upload(new CallBack() {
+            @Override
+            public void success() {
+                Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
+            }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
-                    Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + response.toString(), Toast.LENGTH_LONG).show();
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void error(String errorMessage) {
+                Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void setOnChangeRefreshListeners() {
@@ -179,26 +187,8 @@ public class StatsFragment extends Fragment {
         arr = res.getStringArray(R.array.exhaustion_info_text);
 
         // Load the preferences storage to save player's current exhaustion.
-        SharedPreferences preferences = getActivity().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+        SharedPreferences preferences = Objects.requireNonNull(getActivity()).getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
         editor = preferences.edit();
-
-        // Load the currently selected exhaustion button and the corresponding informational text.
-        int id = preferences.getInt("current_exhaustion", radioButtons[0]);
-
-        // See if the selected radiobutton still exists.
-        if (indexOf(radioButtons, id) == -1)
-            id = radioButtons[0];
-
-        RadioButton rb = view.findViewById(id);
-        rb.setChecked(true);
-        setExhaustionInfoText(id);
-
-        rg.setOnCheckedChangeListener((group, checkedId) -> {
-            setExhaustionInfoText(checkedId);
-
-            editor.putInt("current_exhaustion", checkedId);
-            editor.apply();
-        });
 
         // Load toolbar eventlisteners.
         Toolbar tb = view.findViewById(R.id.fragment_toolbar);
@@ -206,7 +196,6 @@ public class StatsFragment extends Fragment {
         registerExitFragmentButton(tb);
         registerSaveFragmentButton(tb);
 
-        setDefaultValues();
         setStats();
         setPlayerProficiencies();
         setPlayerProficiencyBonus();
@@ -222,6 +211,7 @@ public class StatsFragment extends Fragment {
         btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         btn.setOnClickListener(view -> {
             // Remove current fragment
+            callback.cancel();
             Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
@@ -229,14 +219,11 @@ public class StatsFragment extends Fragment {
 
     private void registerSaveFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.save_fragment_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove current fragment
-                savePlayerData();
-
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+        btn.setOnClickListener(view -> {
+            // Remove current fragment
+            savePlayerData();
+            callback.success();
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }
@@ -246,55 +233,7 @@ public class StatsFragment extends Fragment {
         super.onStart();
     }
 
-    private void setDefaultValues() {
-        ((EditText) view.findViewById(R.id.level_input)).setText(selectedPlayer.statsData.getLevel());
-        ((EditText) view.findViewById(R.id.hp_input)).setText(selectedPlayer.statsData.getMaxHP());
-        ((EditText) view.findViewById(R.id.armor_input)).setText(selectedPlayer.statsData.getArmorClass());
-        ((EditText) view.findViewById(R.id.speed_input)).setText(selectedPlayer.statsData.getSpeed());
-    }
-
-
     private void registerTextChangeListeners() {
-        // TODO: Make this generic and use less duplicate code.
-
-        view.findViewById(R.id.level_input).setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                EditText et = (EditText) v;
-                String text = et.getText().toString();
-                if (text.length() > 0) {
-                    selectedPlayer.statsData.setLevel(Integer.parseInt(text));
-                    setPlayerProficiencyBonus();
-                }
-                return false;
-            }
-        });
-
-        view.findViewById(R.id.hp_input).setOnKeyListener((v, keyCode, event) -> {
-            EditText et = (EditText) v;
-
-            String text = et.getText().toString();
-            if (text.length() > 0)
-                selectedPlayer.statsData.setMaxHP(Integer.parseInt(text));
-            return false;
-        });
-
-        view.findViewById(R.id.armor_input).setOnKeyListener((v, keyCode, event) -> {
-            EditText et = (EditText) v;
-            String text = et.getText().toString();
-            if (text.length() > 0)
-                selectedPlayer.statsData.setArmorClass(Integer.parseInt(text));
-            return false;
-        });
-
-        view.findViewById(R.id.speed_input).setOnKeyListener((v, keyCode, event) -> {
-            EditText et = (EditText) v;
-            String text = et.getText().toString();
-            if (text.length() > 0)
-                selectedPlayer.statsData.setSpeed(Integer.valueOf(text));
-            return false;
-        });
-
         // Add eventlisteners for every stat input field.
         int[] statsIds = new int[]{R.id.totCha, R.id.totStr, R.id.totDex, R.id.totInt, R.id.totWis};
         for (int id : statsIds) {
@@ -308,15 +247,12 @@ public class StatsFragment extends Fragment {
     }
 
     public void getPlayerStats() {
-        try {
-            selectedPlayer.statsData.setDexterity(Integer.parseInt(((EditText) view.findViewById(R.id.totDex)).getText().toString()));
-            selectedPlayer.statsData.setStrength(Integer.parseInt(((EditText) view.findViewById(R.id.totStr)).getText().toString()));
-            selectedPlayer.statsData.setConstitution(Integer.parseInt(((EditText) view.findViewById(R.id.totCon)).getText().toString()));
-            selectedPlayer.statsData.setCharisma(Integer.parseInt(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
-            selectedPlayer.statsData.setIntelligence(Integer.parseInt(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
-            selectedPlayer.statsData.setWisdom(Integer.parseInt(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
-        } catch (NumberFormatException ignored) {
-        }
+        selectedPlayer.statsData.setDexterity(Integer.parseInt(((EditText) view.findViewById(R.id.totDex)).getText().toString()));
+        selectedPlayer.statsData.setStrength(Integer.parseInt(((EditText) view.findViewById(R.id.totStr)).getText().toString()));
+        selectedPlayer.statsData.setConstitution(Integer.parseInt(((EditText) view.findViewById(R.id.totCon)).getText().toString()));
+        selectedPlayer.statsData.setCharisma(Integer.parseInt(((EditText) view.findViewById(R.id.totCha)).getText().toString()));
+        selectedPlayer.statsData.setIntelligence(Integer.parseInt(((EditText) view.findViewById(R.id.totInt)).getText().toString()));
+        selectedPlayer.statsData.setWisdom(Integer.parseInt(((EditText) view.findViewById(R.id.totWis)).getText().toString()));
     }
 
     public void getPlayerSavingThrows() {
@@ -336,7 +272,7 @@ public class StatsFragment extends Fragment {
         ((Button) view.findViewById(view_id)).setText(String.valueOf(value));
     }
 
-    public JSONObject getPlayerProficiencies() throws JSONException {
+    public void getPlayerProficiencies() throws JSONException {
         JSONObject obj = new JSONObject();
 
 
@@ -360,7 +296,6 @@ public class StatsFragment extends Fragment {
         obj.put("survival", getIntFromButton(R.id.proficiency_sur));
 
         selectedPlayer.proficiencies.setData(obj);
-        return obj;
     }
 
     public void setPlayerProficiencies() {

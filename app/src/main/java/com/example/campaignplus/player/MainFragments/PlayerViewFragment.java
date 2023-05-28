@@ -7,10 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.transition.Slide;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,16 +28,12 @@ import com.example.campaignplus._data.PlayerStatsData;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus._utils.TextProcessor;
+import com.example.campaignplus.player.Fragments.LevelFragment;
 import com.example.campaignplus.player.Fragments.StatsFragment;
 import com.example.campaignplus.player.Listeners.TextOnChangeSaveListener;
 import com.example.campaignplus.player.PlayerInfoActivity;
 
-import org.json.JSONException;
-
-import java.io.UnsupportedEncodingException;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class PlayerViewFragment extends PlayerInfoFragment {
     private static final String TAG = "ItemViewActivity";
@@ -120,8 +113,23 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         /*
          * Open statsview when clicking the stats layout
          */
-        view.findViewById(R.id.StatsLayout).setOnClickListener(view -> openStatsFragment());
-        view.findViewById(R.id.levelGroup).setOnClickListener(view -> openStatsFragment());
+        view.findViewById(R.id.StatsLayout).setOnClickListener(view -> openFragment(
+                new StatsFragment(new StatsFragment.OnCompleteCallback() {
+                    @Override
+                    public void success() {
+                        setStatsFields();
+                    }
+                })));
+
+        // Update the armorclass/level if we are done with updating the fields
+        LevelFragment.OnCompleteCallback statsFieldUpdateCallback = new LevelFragment.OnCompleteCallback() {
+            @Override
+            public void success() {
+                setStatsFields();
+            }
+        };
+        view.findViewById(R.id.levelGroup).setOnClickListener(view -> openFragment(new LevelFragment(statsFieldUpdateCallback)));
+        view.findViewById(R.id.statArmorClass).setOnClickListener(view -> openFragment(new LevelFragment(statsFieldUpdateCallback)));
 
         gold.setOnKeyListener(sharedTextWatcher);
         silver.setOnKeyListener(sharedTextWatcher);
@@ -131,10 +139,9 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         view.findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "temporary_hp"));
     }
 
-    private void openStatsFragment() {
+    private void openFragment(Fragment fragment) {
         FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        Fragment fragment = new StatsFragment();
         fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
         fragment.setExitTransition(new Slide(Gravity.TOP));
         ft.replace(R.id.player_info_drawer_layout, fragment);
@@ -202,21 +209,17 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     }
 
     private void uploadPlayerData(View view) {
-        try {
-            selectedPlayer.upload(new CallBack() {
-                @Override
-                public void success() {
-                    Toast.makeText(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT).show();
-                }
+        selectedPlayer.upload(new CallBack() {
+            @Override
+            public void success() {
+                Toast.makeText(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT).show();
+            }
 
-                @Override
-                public void error(String errorMessage) {
-                    Toast.makeText(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
-                }
-            });
-        } catch (JSONException | UnsupportedEncodingException e) {
-            Toast.makeText(view.getContext(), "Failed uploading player data: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+            @Override
+            public void error(String errorMessage) {
+                Toast.makeText(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
