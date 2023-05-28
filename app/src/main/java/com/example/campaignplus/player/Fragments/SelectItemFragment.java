@@ -1,6 +1,7 @@
 package com.example.campaignplus.player.Fragments;
 
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,7 @@ public class SelectItemFragment extends Fragment {
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
+        btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         btn.setOnClickListener(view -> {
             // Remove current fragment
             if (callback != null)

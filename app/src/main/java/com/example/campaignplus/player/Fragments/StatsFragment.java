@@ -6,6 +6,7 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -218,6 +219,7 @@ public class StatsFragment extends Fragment {
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
+        btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         btn.setOnClickListener(view -> {
             // Remove current fragment
             Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();

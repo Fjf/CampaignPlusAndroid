@@ -4,6 +4,7 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 import static com.example.campaignplus.player.MainFragments.SpellViewFragment.selectedSpellId;
 
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -75,6 +76,7 @@ public class SpellInfoFragment extends
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
+        btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         btn.setOnClickListener(view -> {
             // Remove current fragment
             Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();

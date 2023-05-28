@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -153,13 +154,11 @@ public class ItemInfoFragment extends Fragment {
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callback.cancel();
-                // Remove current fragment
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-            }
+        btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        btn.setOnClickListener(view -> {
+            callback.cancel();
+            // Remove current fragment
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }

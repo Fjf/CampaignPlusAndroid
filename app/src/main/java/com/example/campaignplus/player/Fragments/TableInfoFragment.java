@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,7 @@ public class TableInfoFragment extends Fragment {
 
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
+        btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         btn.setOnClickListener(view -> {
             // Remove current fragment
             Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();

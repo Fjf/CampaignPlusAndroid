@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:layout_gravity="end"
-
+        android:hapticFeedbackEnabled="true"
         android:gravity="center"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_close_primary_24dp"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:layout_gravity="end"
-
+        android:hapticFeedbackEnabled="true"
         android:gravity="center"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_file_upload_primary_24dp"
