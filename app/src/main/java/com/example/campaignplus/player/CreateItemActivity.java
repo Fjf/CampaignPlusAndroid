@@ -1,23 +1,15 @@
 package com.example.campaignplus.player;
 
-import static com.example.campaignplus._data.DataCache.selectedPlayer;
-
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.Toolbar;
 
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -27,17 +19,15 @@ import com.example.campaignplus.player.Adapters.ItemSpinnerArrayAdapter;
 import com.example.campaignplus.R;
 import com.example.campaignplus._utils.HttpUtils;
 import com.google.android.material.button.MaterialButton;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class CreateItemActivity extends AppCompatActivity {
@@ -143,7 +133,7 @@ public class CreateItemActivity extends AppCompatActivity {
         String description = ((EditText) findViewById(R.id.item_information)).getText().toString();
 
         // Dont allow empty strings.
-        if (name.length() == 0 || description.length() == 0) return;
+        if (name.isEmpty() || description.isEmpty()) return;
         if (categoryId == 0) return;
 
         String category = gearCategories[(int) categoryId];
@@ -197,29 +187,28 @@ public class CreateItemActivity extends AppCompatActivity {
     }
 
     private void createItem(JSONObject data) throws UnsupportedEncodingException {
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
-        HttpUtils.post("user/items", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("user/items", data.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    AvailableItems.updateItem(response);
-                } catch (JSONException e) {
-                    Toast.makeText(CreateItemActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                Log.d(TAG, "Error: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        AvailableItems.updateItem(jsonObject);
+                        runOnUiThread(() -> finish());
+                    } catch (JSONException e) {
+                        runOnUiThread(() -> Toast.makeText(CreateItemActivity.this, e.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                } else {
+                    Log.d(TAG, "Error: " + response.message());
                 }
-                finish();
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Error: " + response);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                String response = errorResponse == null ? null : errorResponse.toString();
-                onFailure(statusCode, headers, response, throwable);
-            }
-
         });
+
     }
 }

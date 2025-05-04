@@ -27,17 +27,16 @@ import com.example.campaignplus._data.PlayerData;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.player.CreatePlayerActivity;
 import com.example.campaignplus.player.PlayerInfoActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class CampaignActivity extends AppCompatActivity {
@@ -121,24 +120,30 @@ public class CampaignActivity extends AppCompatActivity {
 
         JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity args = new StringEntity(data.toString(), Charset.defaultCharset());
 
-        HttpUtils.put(url, args, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, data.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    DataCache.updatePlayer(new PlayerData(response));
-                    updatePlayerList(DataCache.getPlayers(campaignId));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            public void onFailure(okhttp3.Call call, IOException e) {
+                runOnUiThread(() -> Toast.makeText(CampaignActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        DataCache.updatePlayer(new PlayerData(jsonObject));
+                        updatePlayerList(DataCache.getPlayers(campaignId));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    runOnUiThread(() -> Toast.makeText(CampaignActivity.this, response.message(), Toast.LENGTH_SHORT).show());
                 }
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(CampaignActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
-            }
         });
+
     }
 
     @Override

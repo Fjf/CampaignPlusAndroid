@@ -37,11 +37,11 @@ import com.example.campaignplus.player.CreateItemActivity;
 import com.example.campaignplus.player.Fragments.SelectItemFragment;
 import com.example.campaignplus.player.Fragments.ItemInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
@@ -97,13 +97,14 @@ public class ItemViewFragment extends PlayerInfoFragment {
         selectedPlayer.getEquipment(new CallBack() {
             @Override
             public void success() {
-                if (selectedPlayer.equipment.size() == 0) {
-                    view.findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
-                } else {
-                    view.findViewById(R.id.no_items_text).setVisibility(View.GONE);
-                }
-
-                itemAdapter.notifyDataSetChanged();
+                getActivity().runOnUiThread(() -> {
+                    if (selectedPlayer.equipment.size() == 0) {
+                        view.findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
+                    } else {
+                        view.findViewById(R.id.no_items_text).setVisibility(View.GONE);
+                    }
+                    itemAdapter.notifyDataSetChanged();
+                });
             }
 
             @Override
@@ -198,33 +199,34 @@ public class ItemViewFragment extends PlayerInfoFragment {
         JSONObject data = new JSONObject();
         data.put("item_id", itemId);
         data.put("amount", 1);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
         String url = String.format(Locale.ENGLISH, "player/%s/item", selectedPlayer.getId());
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.post(url, data.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // Update list if we added an item
-                try {
-                    selectedPlayer.equipment.add(new EquipmentItem(response));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            public void onFailure(okhttp3.Call call, IOException e) {
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        selectedPlayer.equipment.add(new EquipmentItem(jsonObject));
+                        getActivity().runOnUiThread(() -> {
+                            itemAdapter.notifyItemInserted(selectedPlayer.equipment.size() - 1);
+                            Toast.makeText(getContext(), "Successfully added item.", Toast.LENGTH_SHORT).show();
+                        });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Error adding item: " + response.message(), Toast.LENGTH_SHORT).show());
                 }
-                itemAdapter.notifyItemInserted(selectedPlayer.equipment.size() - 1);
-                Toast.makeText(getContext(), "Successfully added item.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(getContext(), "Error adding item: Status code.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                String response = errorResponse == null ? null : errorResponse.toString();
-                onFailure(statusCode, headers, response, throwable);
             }
         });
+
     }
 
     public void closeMenu(View view) {
@@ -251,27 +253,36 @@ public class ItemViewFragment extends PlayerInfoFragment {
 
     private void deleteItem() {
         String url = String.format(Locale.ENGLISH, "player/%s/item/%d", selectedPlayer.getId(), selectedPlayer.equipment.get(selectedItemId).getInstanceId());
-        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong deleting your item.");
-                        return;
-                    }
+        HttpUtils.delete(url, new okhttp3.Callback() {
+    @Override
+    public void onFailure(okhttp3.Call call, IOException e) {
+        Log.d(TAG, "Invalid response: " + e.getMessage());
+    }
 
+    @Override
+    public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+        if (response.isSuccessful()) {
+            String responseBody = response.body().string();
+            try {
+                JSONObject jsonObject = new JSONObject(responseBody);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.d(TAG, "Something went wrong deleting your item.");
+                    return;
+                }
+
+                getActivity().runOnUiThread(() -> {
                     closeMenus();
                     getPlayerItems();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+        } else {
+            Log.d(TAG, "Invalid response: " + response.message());
+        }
+    }
+});
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
-            }
-        });
     }
 
     private void closeMenus() {

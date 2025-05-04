@@ -17,11 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.transition.Fade;
 import android.transition.Slide;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -36,11 +33,11 @@ import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.player.Adapters.ClassAdapter;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -50,7 +47,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 import static com.example.campaignplus._data.DataCache.availableClasses;
@@ -136,7 +132,6 @@ public class CreatePlayerActivity extends AppCompatActivity {
         classList.setAdapter(classAdapter);
 
 
-
         ImageButton bt = findViewById(R.id.player_class_add);
         bt.setOnClickListener(view -> addSelectedClass(classSelector.getSelectedItemId()));
 
@@ -204,8 +199,11 @@ public class CreatePlayerActivity extends AppCompatActivity {
                 Collections.sort(names);
 
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(CreatePlayerActivity.this, android.R.layout.simple_spinner_item, names);
-                arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                classSelector.setAdapter(arrayAdapter);
+                runOnUiThread(() -> {
+
+                    arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    classSelector.setAdapter(arrayAdapter);
+                });
             }
 
             @Override
@@ -229,48 +227,48 @@ public class CreatePlayerActivity extends AppCompatActivity {
         newPlayer.setMainClassIds(selectedClassIds);
         newPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(newPlayer.toJSON().toString(), Charset.defaultCharset());
 
         findViewById(R.id.player_save_created).setEnabled(false);
 
-        HttpUtils.post("user/player", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("user/player", newPlayer.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                findViewById(R.id.player_save_created).setEnabled(true);
-                try {
-                    Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
-
-                    // Add new player to datacache
-                    PlayerData player = new PlayerData(response);
-                    playerData.add(player);
-
-                    // After creating new character, this overlay may close.
-                    Intent data = new Intent();
-                    data.putExtra("player_id", player.getId());
-                    setResult(RESULT_OK, data);
-                    finish();
-                } catch (JSONException e) {
+            public void onFailure(okhttp3.Call call, IOException e) {
+                runOnUiThread(() -> {
                     Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+                    findViewById(R.id.player_save_created).setEnabled(true);
+                });
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                runOnUiThread(() -> findViewById(R.id.player_save_created).setEnabled(true));
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
+
+                        // Add new player to datacache
+                        PlayerData player = new PlayerData(jsonObject);
+                        playerData.add(player);
+
+                        // After creating new character, this overlay may close.
+                        Intent data = new Intent();
+                        data.putExtra("player_id", player.getId());
+                        setResult(RESULT_OK, data);
+                        finish();
+                    } catch (JSONException e) {
+                        Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                } else {
+                    runOnUiThread(() -> Toast.makeText(CreatePlayerActivity.this, response.message(), Toast.LENGTH_SHORT).show());
                 }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(CreatePlayerActivity.this, response, Toast.LENGTH_SHORT).show();
-                findViewById(R.id.player_save_created).setEnabled(true);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                Toast.makeText(CreatePlayerActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
-                findViewById(R.id.player_save_created).setEnabled(true);
             }
         });
     }
 
-    private void updateExistingCharacter() throws JSONException, UnsupportedEncodingException {
+    private void updateExistingCharacter() throws JSONException {
         String name = playerName.getText().toString();
         String race = playerRace.getText().toString();
         selectedPlayer.setName(name);
@@ -279,38 +277,43 @@ public class CreatePlayerActivity extends AppCompatActivity {
         selectedPlayer.setMainClassIds(selectedClassIds);
         selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
-
+        String json = selectedPlayer.toJSON().toString();
         findViewById(R.id.player_save_created).setEnabled(false);
 
         String url = String.format(Locale.ENGLISH, "player/%d", selectedPlayer.getId());
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, json, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    selectedPlayer.setData(response);
-
-                    // After creating new character, this overlay may close.
-                    Intent data = new Intent();
-                    data.putExtra("player_id", selectedPlayer.getId());
-                    setResult(RESULT_OK, data);
-
-                    Toast.makeText(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT).show();
-
-                    finish();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                findViewById(R.id.player_save_created).setEnabled(true);
+            public void onFailure(okhttp3.Call call, IOException e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    findViewById(R.id.player_save_created).setEnabled(true);
+                });
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
-                Log.d("CreatePlayerActivity.updateExistingCharacter", response.toString());
-                Toast.makeText(CreatePlayerActivity.this, response.toString(), Toast.LENGTH_LONG).show();
-                findViewById(R.id.player_save_created).setEnabled(true);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                runOnUiThread(() -> findViewById(R.id.player_save_created).setEnabled(true));
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        selectedPlayer.setData(new JSONObject(responseBody));
+
+                        // After creating new character, this overlay may close.
+                        Intent data = new Intent();
+                        data.putExtra("player_id", selectedPlayer.getId());
+                        setResult(RESULT_OK, data);
+
+                        Toast.makeText(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT).show();
+
+                        finish();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    runOnUiThread(() -> Toast.makeText(CreatePlayerActivity.this, response.message(), Toast.LENGTH_LONG).show());
+                }
             }
         });
     }
 }
+

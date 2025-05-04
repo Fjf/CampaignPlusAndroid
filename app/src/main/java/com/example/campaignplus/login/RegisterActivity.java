@@ -3,7 +3,9 @@ package com.example.campaignplus.login;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,11 +16,11 @@ import android.widget.TextView;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.R;
 import com.example.campaignplus.player.PlayerInfoActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
@@ -39,21 +41,21 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        registerName = (EditText)findViewById(R.id.registerName);
-        registerPassword = (EditText)findViewById(R.id.registerPassword);
-        registerReenterPassword = (EditText)findViewById(R.id.registerReenterPassword);
-        registerEmail = (EditText)findViewById(R.id.registerEmail);
-        registerInfo = (TextView)findViewById(R.id.registerInfo);
-        registerButton = (Button)findViewById(R.id.registerButton);
+        registerName = (EditText) findViewById(R.id.registerName);
+        registerPassword = (EditText) findViewById(R.id.registerPassword);
+        registerReenterPassword = (EditText) findViewById(R.id.registerReenterPassword);
+        registerEmail = (EditText) findViewById(R.id.registerEmail);
+        registerInfo = (TextView) findViewById(R.id.registerInfo);
+        registerButton = (Button) findViewById(R.id.registerButton);
 
         Typeface font = Typeface.createFromAsset(getApplicationContext().getAssets(), "font/dungeon.TTF");
         registerInfo.setTypeface(font);
     }
 
-    public void validateRegisterButton(View view){
+    public void validateRegisterButton(View view) {
         try {
 
-            if(registerPassword.getText().toString().equals(registerReenterPassword.getText().toString())) {
+            if (registerPassword.getText().toString().equals(registerReenterPassword.getText().toString())) {
                 validate(registerName.getText().toString(), registerPassword.getText().toString(), registerEmail.getText().toString());
             } else {
                 registerInfo.setText("Passwords did not match");
@@ -72,46 +74,46 @@ public class RegisterActivity extends AppCompatActivity {
         data.put("name", name);
         data.put("password", password);
         data.put("email", email);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
-        HttpUtils.post("register", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("register", data.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // TODO: This might be redundant as the function returns a JSONobject.
-                try {
-                    JSONObject serverResp = new JSONObject(response.toString());
-                    if (serverResp.getBoolean("success")) {
-                        // Store username/pw in SharedPreferences for next login to be automatic.
-                        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
-                        SharedPreferences.Editor edit = preferences.edit();
-                        edit.putString("username", name);
-                        edit.putString("password", password);
-                        edit.apply();
-
-                        Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        registerInfo.setText(serverResp.get("error").toString());
-                    }
-
-                } catch (JSONException e) {
-                    registerInfo.setText("Server response error.");
-                    Log.d(TAG, "Invalid response: " + response.toString());
-                }
-
-                // Re enable button after login response.
-                registerButton.setEnabled(true);
+            public void onFailure(okhttp3.Call call, IOException e) {
+                runOnUiThread(() -> {
+                    registerInfo.setText("Internal server error.");
+                    registerButton.setEnabled(true);
+                });
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                registerInfo.setText("Internal server error.");
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                runOnUiThread(() -> registerButton.setEnabled(true));
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject serverResp = new JSONObject(responseBody);
+                        if (serverResp.getBoolean("success")) {
+                            // Store username/pw in SharedPreferences for next login to be automatic.
+                            SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+                            SharedPreferences.Editor edit = preferences.edit();
+                            edit.putString("username", name);
+                            edit.putString("password", password);
+                            edit.apply();
 
-                // Re enable button after login response.
-                registerInfo.setEnabled(true);
+                            Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            String errTxt = serverResp.get("error").toString();
+                            runOnUiThread(() -> registerInfo.setText(errTxt));
+                        }
+                    } catch (JSONException e) {
+                        runOnUiThread(() -> registerInfo.setText("Server response error."));
+                    }
+                } else {
+                    runOnUiThread(() -> registerInfo.setText("Internal server error."));
+                }
             }
         });
+
     }
 }

@@ -32,16 +32,15 @@ import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus.player.Adapters.SpellListAdapter;
 import com.example.campaignplus.player.Fragments.SpellInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
-
-import cz.msebera.android.httpclient.Header;
 
 public class SpellViewFragment extends PlayerInfoFragment {
     private static final String TAG = "SpellViewActivity";
@@ -74,7 +73,6 @@ public class SpellViewFragment extends PlayerInfoFragment {
         spellRecyclerView.setLayoutManager(spellLayoutManager);
 
 
-
         getPlayerSpells();
         setEventListeners();
 
@@ -92,10 +90,13 @@ public class SpellViewFragment extends PlayerInfoFragment {
                     view.findViewById(R.id.no_spells_text).setVisibility(View.GONE);
                 }
 
-                Collections.sort(spells, (a, b) -> Integer.compare(a.level, b.level));
-                spellAdapter = new SpellListAdapter(spells);
-                spellRecyclerView.setAdapter(spellAdapter);
-                spellAdapter.notifyDataSetChanged();
+                Collections.sort(spells, Comparator.comparingInt(a -> a.level));
+
+                getActivity().runOnUiThread(() -> {
+                    spellAdapter = new SpellListAdapter(spells);
+                    spellRecyclerView.setAdapter(spellAdapter);
+                    spellAdapter.notifyDataSetChanged();
+                });
             }
 
             @Override
@@ -133,23 +134,32 @@ public class SpellViewFragment extends PlayerInfoFragment {
                 "player/%s/spells/%d",
                 selectedPlayer.getId(),
                 selectedPlayer.getSpells().get(selectedSpellId).id);
-        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.delete(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                try {
-                    selectedPlayer.setSpells(response);
-                    getPlayerSpells();
-                    view.findViewById(R.id.overlay_spell_options).setVisibility(View.GONE);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            public void onFailure(okhttp3.Call call, IOException e) {
+                Log.d(TAG, "Invalid response: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        selectedPlayer.setSpells(jsonArray);
+                        getActivity().runOnUiThread(() -> {
+                            getPlayerSpells();
+                            view.findViewById(R.id.overlay_spell_options).setVisibility(View.GONE);
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.d(TAG, "Invalid response: " + response.message());
+                }
             }
         });
+
     }
 
 

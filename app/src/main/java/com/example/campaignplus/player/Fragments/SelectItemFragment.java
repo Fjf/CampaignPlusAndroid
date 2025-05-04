@@ -26,7 +26,7 @@ import java.util.Objects;
 public class SelectItemFragment extends Fragment {
     @Nullable
     private Listener listener;
-    private SelectItemListAdapter  adapter;
+    private SelectItemListAdapter adapter;
     private final ArrayList<ItemData> items = new ArrayList<>();
 
     public static abstract class OnCompleteCallback {
@@ -36,6 +36,7 @@ public class SelectItemFragment extends Fragment {
          *  selecting an item.
          */
         abstract public void success(int selectedItem);
+
         abstract public void cancel();
     }
 
@@ -77,12 +78,17 @@ public class SelectItemFragment extends Fragment {
                 // Update item list
                 items.clear();
                 items.addAll(AvailableItems.items);
-                adapter.notifyDataSetChanged();
+                getActivity().runOnUiThread(() -> {
+                    adapter.notifyDataSetChanged();
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT).show();
+                getActivity().runOnUiThread(() -> {
+
+                    Toast.makeText(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }

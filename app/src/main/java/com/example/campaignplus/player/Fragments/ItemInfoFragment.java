@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.HapticFeedbackConstants;
@@ -28,6 +29,7 @@ import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -51,6 +53,7 @@ public class ItemInfoFragment extends Fragment {
 
     abstract public static class OnCompleteCallback {
         abstract public void success(int itemId);
+
         abstract public void cancel();
     }
 
@@ -105,23 +108,27 @@ public class ItemInfoFragment extends Fragment {
         item.setAmount(Integer.parseInt(String.valueOf(amount.getText())));
         item.setDescription(String.valueOf(information.getText()));
 
-        StringEntity data = new StringEntity(item.toJSON().toString(), Charset.defaultCharset());
-
         String url = String.format(Locale.ENGLISH, "player/%d/item/%d", selectedPlayer.getId(), item.getInstanceId());
-        HttpUtils.put(url, data, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, item.toJSON().toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                Toast.makeText(getContext(), "Updated item.", Toast.LENGTH_SHORT).show();
-                callback.success(selectedItemId);
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(getContext(), "Error:" + errorResponse.toString(), Toast.LENGTH_SHORT).show();
-                super.onFailure(statusCode, headers, throwable, errorResponse);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Updated item.", Toast.LENGTH_SHORT).show();
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    });
+                    callback.success(selectedItemId);
+                } else {
+                    getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Error: " + response.message(), Toast.LENGTH_SHORT).show());
+                }
             }
         });
+
     }
 
     private void registerSwipeRightExit(View viewById) {
@@ -164,10 +171,13 @@ public class ItemInfoFragment extends Fragment {
     }
 
     private void getItems() {
-        // Default spell information is the first entry
+        // Default item information is the first entry
+        if (selectedItemId < 0 || selectedItemId >= selectedPlayer.equipment.size()) {
+            selectedItemId = 0;
+        }
         EquipmentItem current = selectedPlayer.equipment.get(selectedItemId);
-        createItemDropdown();
         fillItemData(current);
+        createItemDropdown();
     }
 
     private void createItemDropdown() {

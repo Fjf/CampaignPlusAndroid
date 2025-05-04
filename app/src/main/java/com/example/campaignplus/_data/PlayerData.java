@@ -5,35 +5,27 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.example.campaignplus.R;
 import com.example.campaignplus._data.classinfo.ClassAbility;
 import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._data.classinfo.SubClassInfo;
 import com.example.campaignplus._data.items.EquipmentItem;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.example.campaignplus.player.Adapters.EquipmentListAdapter;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class PlayerData {
     private static final String TAG = "PlayerData";
@@ -51,22 +43,29 @@ public class PlayerData {
 
     public void updateSpells(final CallBack callback) {
         String url = String.format(Locale.ENGLISH, "player/%s/spells", selectedPlayer.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray newSpells) {
-                try {
-                    setSpells(newSpells);
-                    callback.success();
-                } catch (JSONException e) {
-                    callback.error(e.getMessage());
-                }
+            public void onFailure(okhttp3.Call call, IOException e) {
+                callback.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                callback.error(response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONArray newSpells = new JSONArray(responseBody);
+                        setSpells(newSpells);
+                        callback.success();
+                    } catch (JSONException e) {
+                        callback.error(e.getMessage());
+                    }
+                } else {
+                    callback.error(response.message());
+                }
             }
         });
+
     }
 
     public void setSpells(JSONArray newSpells) throws JSONException {
@@ -190,9 +189,7 @@ public class PlayerData {
         this.silver = obj.getInt("silver");
         this.copper = obj.getInt("copper");
 
-        if (!obj.isNull("backstory")) {
-            this.backstory = obj.getString("backstory");
-        }
+            this.backstory = obj.optString("backstory", "");
 
         JSONObject info = obj.getJSONObject("info");
         this.statsData = new PlayerStatsData(info.getJSONObject("stats"));
@@ -262,74 +259,80 @@ public class PlayerData {
             func.success();
 
         String url = String.format(Locale.ENGLISH, "player/%d", this.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    JSONObject info = response.getJSONObject("info");
-                    statsData = new PlayerStatsData(info.getJSONObject("stats"));
-                    proficiencies = new PlayerProficiencyData(info.getJSONObject("proficiencies"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    func.error(e.getMessage());
-                    return;
-                }
-                func.success();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                func.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d("updatePlayerData::HttpUtils::get()", "Response failure.");
-                func.error(response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject info = new JSONObject(responseBody).getJSONObject("info");
+                        statsData = new PlayerStatsData(info.getJSONObject("stats"));
+                        proficiencies = new PlayerProficiencyData(info.getJSONObject("proficiencies"));
+                        func.success();
+                    } catch (JSONException e) {
+                        func.error(e.getMessage());
+                    }
+                } else {
+                    func.error(response.message());
+                }
             }
         });
     }
 
     public void getEquipment(final CallBack func) {
         String url = String.format(Locale.ENGLISH, "player/%s/items", selectedPlayer.getId());
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
-                try {
-                    selectedPlayer.equipment.clear();
-                    for (int i = 0; i < items.length(); i++) {
-                        JSONObject obj = items.getJSONObject(i);
-                        selectedPlayer.equipment.add(new EquipmentItem(obj));
-                    }
-                } catch (JSONException e) {
-                    func.error(e.getMessage());
-                }
-
-                func.success();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                func.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                func.error(response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONArray items = new JSONArray(responseBody);
+                        selectedPlayer.equipment.clear();
+                        for (int i = 0; i < items.length(); i++) {
+                            JSONObject obj = items.getJSONObject(i);
+                            selectedPlayer.equipment.add(new EquipmentItem(obj));
+                        }
+                        func.success();
+                    } catch (JSONException e) {
+                        func.error(e.getMessage());
+                    }
+                } else {
+                    func.error(response.message());
+                }
             }
         });
     }
 
-    public void upload(final CallBack func) {
+    public void upload(final CallBack func) throws JSONException {
         String url = String.format("player/%s", selectedPlayer.getId());
-        StringEntity entity = null;
-        try {
-            entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        // Upload changed data to the server.
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+        String json = selectedPlayer.toJSON().toString();
+        HttpUtils.put(url, json, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                func.success();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                func.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
-                func.error(response.toString());
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    func.success();
+                } else {
+                    func.error(response.message());
+                }
             }
         });
+
     }
 
     @NonNull

@@ -6,17 +6,22 @@ import android.util.Log;
 
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MapData {
     int id = -1;
@@ -51,7 +56,7 @@ public class MapData {
         parentMapId = data.optInt("parent_map_id");
 
 
-        mapUrl = data.optString("map_url");
+        mapUrl = data.optString("filename");
 
         x = data.optDouble("x");
         y = data.optDouble("y");
@@ -73,43 +78,65 @@ public class MapData {
     }
 
     public void fetch(int campaignId, CallBack callback) {
-        HttpUtils.get("campaigns/" + campaignId + "/maps", null, new JsonHttpResponseHandler() {
+        HttpUtils.get("campaigns/" + campaignId + "/maps", new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                setData(response);
-                callback.success();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                callback.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                callback.error(responseString);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        setData(jsonObject);
+                        callback.success();
+                    } catch (JSONException e) {
+                        callback.error(e.getMessage());
+                    }
+                } else {
+                    callback.error(response.message());
+                }
             }
         });
     }
 
     public void fetchImage(CallBack callback) {
-        Thread thread = new Thread(() -> {
-            InputStream in = null;
-            int responseCode = -1;
+        try {
+            OkHttpClient client = new OkHttpClient();
+            String imageUrl = HttpUtils.getUrl() + "/static/images/uploads/" + mapUrl;
+            Log.d("MapData", imageUrl);
+            Request request = new Request.Builder()
+                    .url(imageUrl)
+                    .build();
 
-            try {
-                URL url = new URL(HttpUtils.getUrl() + mapUrl);
-                Log.d("MapData", "Fetching Image @ " + url.toString());
-
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setDoInput(true);
-                con.connect();
-                responseCode = con.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    in = con.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(in);
-                    in.close();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.error(e.getMessage());
                 }
-                callback.success();
-            } catch (Exception e) {
-                callback.error(e.getMessage());
-            }
-        });
-        thread.start();
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        InputStream in = response.body().byteStream();
+                        bitmap = BitmapFactory.decodeStream(in);
+                        in.close();
+                        if (bitmap == null) {
+                            Log.e("MapData", "Failed to decode bitmap!");
+                            callback.error("Failed to decode image!");
+                        } else {
+                            Log.d("MapData", "Bitmap decoded successfully: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+                            callback.success();
+                        }
+                    } else {
+                        callback.error(response.message());
+                    }
+                }
+            });
+        } catch (Exception e) {
+            callback.error(e.getMessage());
+        }
     }
 }

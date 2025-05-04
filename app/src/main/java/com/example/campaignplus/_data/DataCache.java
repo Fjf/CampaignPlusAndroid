@@ -25,10 +25,14 @@ public class DataCache {
     public static HashMap<Integer, MainClassInfo> availableClasses = new HashMap<>();
     public static HashMap<Integer, SubClassInfo> availableSubClasses = new HashMap<>();
 
-    public static void setPlayerData(JSONArray array) throws JSONException {
+    public static void setPlayerData(JSONArray array) {
         playerData.clear();
         for (int i = 0; i < array.length(); i++) {
-            playerData.add(new PlayerData(array.getJSONObject(i)));
+            try {
+                playerData.add(new PlayerData(array.getJSONObject(i)));
+            } catch (JSONException e) {
+                Log.e("DataCache", "Could not parse JSON for playerdata idx" + i);
+            }
         }
     }
 

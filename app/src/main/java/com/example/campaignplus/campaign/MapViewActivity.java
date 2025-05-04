@@ -32,19 +32,18 @@ import com.example.campaignplus.campaign.Adapters.MapSelectionAdapter;
 import com.example.campaignplus.campaign.Adapters.PlayerListAdapter;
 import com.example.campaignplus.campaign.Fragments.ShowQRFragment;
 import com.example.campaignplus.player.PlayerInfoActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.otaliastudios.zoom.ZoomImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class MapViewActivity extends AppCompatActivity {
@@ -146,7 +145,10 @@ public class MapViewActivity extends AppCompatActivity {
             @Override
             public void success() {
                 BitmapDrawable image = new BitmapDrawable(getResources(), currentMap.bitmap);
-                imageView.setImageDrawable(image);
+                image.setBounds(0, 0, currentMap.bitmap.getWidth(), currentMap.bitmap.getHeight());
+                runOnUiThread(() -> {
+                    imageView.setImageDrawable(image);
+                });
             }
 
             @Override
@@ -185,19 +187,23 @@ public class MapViewActivity extends AppCompatActivity {
 
         JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity args = new StringEntity(data.toString(), Charset.defaultCharset());
 
-        HttpUtils.put(url, args, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, data.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                getPlayers();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                runOnUiThread(() -> Toast.makeText(MapViewActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(MapViewActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> getPlayers());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(MapViewActivity.this, response.message(), Toast.LENGTH_SHORT).show());
+                }
             }
         });
+
     }
 
     @Override
@@ -211,7 +217,8 @@ public class MapViewActivity extends AppCompatActivity {
         ScrollView drawerWrapper = findViewById(R.id.left_drawer_wrapper);
         if (id == android.R.id.home) {
             drawer.openDrawer(drawerWrapper);
-        } if (id == R.id.action_showpc) {
+        }
+        if (id == R.id.action_showpc) {
             Intent intent = new Intent(MapViewActivity.this, PlayerInfoActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -238,32 +245,36 @@ public class MapViewActivity extends AppCompatActivity {
 
     private void getPlayers() {
         String url = String.format(Locale.ENGLISH, "campaign/%d/players", campaignId);
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                try {
-                    if (!response.getBoolean("success")) {
-                        // Maybe do something here
-                        return;
-                    }
-
-                    JSONArray array = response.getJSONArray("players");
-                    DataCache.setPlayerData(array);
-
-                    updatePlayerList(DataCache.playerData);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
+            public void onFailure(okhttp3.Call call, IOException e) {
+                Log.d(TAG, "Invalid response: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        if (!jsonObject.getBoolean("success")) {
+                            // Maybe do something here
+                            return;
+                        }
+
+                        JSONArray array = jsonObject.getJSONArray("players");
+                        DataCache.setPlayerData(array);
+
+                        runOnUiThread(() -> updatePlayerList(DataCache.playerData));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.d(TAG, "Invalid response: " + response.message());
+                }
             }
         });
+
     }
 
     private void updatePlayerList(final ArrayList<PlayerData> entries) {

@@ -96,7 +96,9 @@ public class LoginActivity extends AppCompatActivity {
                 edit.putString("username", userName); edit.putString("password", userPassword);
                 edit.apply();
 
-                login.setEnabled(true);
+                runOnUiThread(() -> {
+                    login.setEnabled(true);
+                });
 
                 Intent intent = new Intent(LoginActivity.this, PlayerInfoActivity.class);
                 startActivity(intent);
@@ -106,8 +108,10 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void error(String errorMessage) {
-                info.setText(errorMessage);
-                login.setEnabled(true);
+                runOnUiThread(() -> {
+                    info.setText(errorMessage);
+                    login.setEnabled(true);
+                });
             }
         });
     }

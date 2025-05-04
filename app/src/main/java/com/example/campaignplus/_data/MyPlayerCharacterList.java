@@ -4,13 +4,11 @@ import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._data.classinfo.SubClassInfo;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import cz.msebera.android.httpclient.Header;
+import java.io.IOException;
 
 public class MyPlayerCharacterList {
     private static final String TAG = "MyPlayerCharacterList";
@@ -40,58 +38,73 @@ public class MyPlayerCharacterList {
         });
         hasInitialized = true;
     }
+public static void updatePlayerData(final CallBack fn) {
+    HttpUtils.get("user/players", new okhttp3.Callback() {
+        @Override
+        public void onFailure(okhttp3.Call call, IOException e) {
+            fn.error(e.getMessage());
+        }
 
-    public static void updatePlayerData(final CallBack fn) {
-        HttpUtils.get("user/players", null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+        @Override
+        public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
                 try {
-                    DataCache.setPlayerData(response);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                if (fn != null)
+                    JSONArray jsonArray = new JSONArray(responseBody);
+                    DataCache.setPlayerData(jsonArray);
                     fn.success();
+                } catch (JSONException e) {
+                    fn.error(e.getMessage());
+                }
+            } else {
+                fn.error(response.message());
             }
-        });
-    }
+        }
+    });
+}
 
-    public static void updateClassData(final CallBack fn) {
-        HttpUtils.get("user/classes", null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray classes) {
+public static void updateClassData(final CallBack fn) {
+    HttpUtils.get("user/classes", new okhttp3.Callback() {
+        @Override
+        public void onFailure(okhttp3.Call call, IOException e) {
+            fn.error(e.getMessage());
+        }
+
+        @Override
+        public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
                 try {
-                    // Create class object for all incoming classes.
+                    JSONArray classes = new JSONArray(responseBody);
                     DataCache.availableClasses.clear();
                     for (int i = 0; i < classes.length(); i++) {
                         MainClassInfo obj = new MainClassInfo(classes.getJSONObject(i));
                         DataCache.availableClasses.put(obj.getId(), obj);
                     }
-
                     updateSubClassData(fn);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    fn.error(e.getMessage());
                 }
+            } else {
+                fn.error(response.message());
             }
+        }
+    });
+}
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                try {
-                    fn.error(errorResponse.getString("error"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+public static void updateSubClassData(final CallBack fn) {
+    HttpUtils.get("user/subclasses", new okhttp3.Callback() {
+        @Override
+        public void onFailure(okhttp3.Call call, IOException e) {
+            fn.error(e.getMessage());
+        }
 
-    public static void updateSubClassData(final CallBack fn) {
-        HttpUtils.get("user/subclasses", null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray classes) {
+        @Override
+        public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
                 try {
-                    // Create class object for all incoming classes.
+                    JSONArray classes = new JSONArray(responseBody);
                     DataCache.availableSubClasses.clear();
                     for (int i = 0; i < classes.length(); i++) {
                         SubClassInfo obj = new SubClassInfo(classes.getJSONObject(i));
@@ -99,20 +112,15 @@ public class MyPlayerCharacterList {
                     }
                     fn.success();
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    fn.error(e.getMessage());
                 }
+            } else {
+                fn.error(response.message());
             }
+        }
+    });
+}
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                try {
-                    fn.error(errorResponse.getString("error"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
 
     public static PlayerData emptyPlayer() {

@@ -24,6 +24,8 @@ import com.example.campaignplus.R;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
 
+import org.json.JSONException;
+
 import java.util.Objects;
 
 public class LevelFragment extends Fragment {
@@ -130,20 +132,31 @@ public class LevelFragment extends Fragment {
     private void registerSaveFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.save_fragment_button);
         btn.setOnClickListener(view -> {
-            selectedPlayer.upload(new CallBack() {
-                @Override
-                public void success() {
-                    Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
-                    // Remove current fragment on successful upload.
-                    callback.success();
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
-                }
+            try {
+                selectedPlayer.upload(new CallBack() {
+                    @Override
+                    public void success() {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
+                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                        });
 
-                @Override
-                public void error(String errorMessage) {
-                    Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
-                }
-            });
+                        // Remove current fragment on successful upload.
+                        callback.success();
+                    }
+
+                    @Override
+                    public void error(String errorMessage) {
+                        getActivity().runOnUiThread(() -> {
+
+                            Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                        });
+
+                    }
+                });
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }

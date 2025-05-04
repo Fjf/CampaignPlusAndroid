@@ -2,15 +2,13 @@ package com.example.campaignplus._data.items;
 
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
-
-import cz.msebera.android.httpclient.Header;
 
 public class AvailableItems {
     public static ArrayList<ItemData> items = new ArrayList<>();
@@ -26,23 +24,30 @@ public class AvailableItems {
     }
 
     public static void updateItems(final CallBack fn) {
-        HttpUtils.get("user/items", null, new JsonHttpResponseHandler() {
+        HttpUtils.get("user/items", new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
-                try {
-                    setItems(items);
-                    fn.success();
-                } catch (JSONException e) {
-                    fn.error("Fetching available items failed: invalid JSON format.");
-                }
+            public void onFailure(okhttp3.Call call, IOException e) {
+                fn.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                fn.error(response);
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONArray items = new JSONArray(responseBody);
+                        setItems(items);
+                        fn.success();
+                    } catch (JSONException e) {
+                        fn.error("Fetching available items failed: invalid JSON format.");
+                    }
+                } else {
+                    fn.error(response.message());
+                }
             }
         });
     }
+
 
     public static ItemData getItem(int idx) {
         for (ItemData item : items) {

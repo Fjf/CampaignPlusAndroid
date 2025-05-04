@@ -54,14 +54,10 @@ import com.example.campaignplus.player.MainFragments.ItemViewFragment;
 import com.example.campaignplus.player.MainFragments.PlayerViewFragment;
 import com.example.campaignplus.player.MainFragments.SpellViewFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
-import org.json.JSONObject;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
-
-import cz.msebera.android.httpclient.Header;
 
 public class PlayerInfoActivity extends AppCompatActivity {
 
@@ -161,9 +157,11 @@ public class PlayerInfoActivity extends AppCompatActivity {
                     Toast.makeText(PlayerInfoActivity.this, "You have no player characters.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                updatePlayerInfo(preferences.getInt("player_id", -1));
-                updatePlayerDrawer();
-                openDefaultFragment();
+                runOnUiThread(() -> {
+                    updatePlayerInfo(preferences.getInt("player_id", -1));
+                    updatePlayerDrawer();
+                    openDefaultFragment();
+                });
             }
 
             @Override
@@ -190,12 +188,17 @@ public class PlayerInfoActivity extends AppCompatActivity {
         MyPlayerCharacterList.updatePlayerData(new CallBack() {
             @Override
             public void success() {
-                updatePlayerInfo(pid);
+                runOnUiThread(() -> {
+                    updatePlayerInfo(pid);
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG).show();
+                Log.e("PlayerInfoActivity", errorMessage);
+                runOnUiThread(() -> {
+                    Toast.makeText(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG).show();
+                });
             }
         });
         updatePlayerDrawer();
@@ -383,23 +386,33 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private void deletePlayer() {
         String url = String.format(Locale.ENGLISH, "player/%s", selectedPlayer.getId());
-        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.delete(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                MyPlayerCharacterList.updatePlayerData(new CallBack() {
-                    @Override
-                    public void success() {
-                        updatePlayerInfo(DataCache.playerData.get(0).getId());
-                        updatePlayerDrawer();
-                    }
+            public void onFailure(okhttp3.Call call, IOException e) {
 
-                    @Override
-                    public void error(String errorMessage) {
+            }
 
-                    }
-                });
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    MyPlayerCharacterList.updatePlayerData(new CallBack() {
+                        @Override
+                        public void success() {
+                            runOnUiThread(() -> {
+                                updatePlayerInfo(DataCache.playerData.get(0).getId());
+                                updatePlayerDrawer();
+                            });
+                        }
+
+                        @Override
+                        public void error(String errorMessage) {
+
+                        }
+                    });
+                }
             }
         });
+
     }
 
 

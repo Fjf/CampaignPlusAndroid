@@ -33,6 +33,8 @@ import com.example.campaignplus.player.Fragments.StatsFragment;
 import com.example.campaignplus.player.Listeners.TextOnChangeSaveListener;
 import com.example.campaignplus.player.PlayerInfoActivity;
 
+import org.json.JSONException;
+
 import java.util.Objects;
 
 public class PlayerViewFragment extends PlayerInfoFragment {
@@ -104,7 +106,13 @@ public class PlayerViewFragment extends PlayerInfoFragment {
                 selectedPlayer.copper = TextProcessor.parseInt(copper.getText().toString(), 0);
 
                 handler.removeCallbacks(workRunnable);
-                workRunnable = () -> uploadPlayerData(view);
+                workRunnable = () -> {
+                    try {
+                        uploadPlayerData(view);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                };
                 handler.postDelayed(workRunnable, 2000 /*delay*/);
                 return false;
             }
@@ -208,16 +216,20 @@ public class PlayerViewFragment extends PlayerInfoFragment {
 
     }
 
-    private void uploadPlayerData(View view) {
+    private void uploadPlayerData(View view) throws JSONException {
         selectedPlayer.upload(new CallBack() {
             @Override
             public void success() {
-                Toast.makeText(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT).show();
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT).show();
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                });
             }
         });
     }
@@ -225,9 +237,14 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     @Override
     public void onUpdateCurrentPlayer() {
         // Update the shared preferences to be updated for this player
-        preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
-        setStatsFields();
-        toolbar.setTitle(selectedPlayer.getName());
+        if (view == null)
+            return;
+
+        getActivity().runOnUiThread(() -> {
+            preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+            setStatsFields();
+            toolbar.setTitle(selectedPlayer.getName());
+        });
 
     }
 }

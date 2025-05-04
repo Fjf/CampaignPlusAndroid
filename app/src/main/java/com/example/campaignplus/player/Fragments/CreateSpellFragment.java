@@ -31,11 +31,11 @@ import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus.player.Fragments.SpellInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -103,16 +103,26 @@ public class CreateSpellFragment extends Fragment {
 
 
     private void createNewSpell() throws JSONException, UnsupportedEncodingException {
-        SpellData spellData = createSpellFromFields();
-        HttpUtils.post("user/spells", new StringEntity(spellData.toJSON().toString()), new JsonHttpResponseHandler() {
+        SpellData spellData;
+        try {
+            spellData = createSpellFromFields();
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Spell level is not valid.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        HttpUtils.post("user/spells", spellData.toJSON().toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                getActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "Error creating spell: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(getActivity(), "Error creating spell: " + response, Toast.LENGTH_SHORT).show();
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    getActivity().runOnUiThread(() -> Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate());
+                } else {
+                    getActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "Error creating spell: " + response.message(), Toast.LENGTH_SHORT).show());
+                }
             }
         });
     }

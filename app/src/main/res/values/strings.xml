@@ -25,7 +25,7 @@
     <string name="charisma">Charisma</string>
     <string name="wisdom">Wisdom</string>
 
-    <string name="default_ip">213.93.44.3</string>
+    <string name="default_ip">192.168.1.1</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="select_pc_info_text">Select an existing character for this campaign. Selecting a character which is already used in one campaign will remove it from there, and add it to this campaign.</string>

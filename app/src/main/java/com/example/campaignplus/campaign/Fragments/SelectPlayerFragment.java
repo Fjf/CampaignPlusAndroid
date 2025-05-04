@@ -3,6 +3,7 @@ package com.example.campaignplus.campaign.Fragments;
 import static com.example.campaignplus._data.DataCache.playerData;
 
 import android.os.Bundle;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -18,17 +19,16 @@ import com.example.campaignplus.campaign.Adapters.SpinnerInitialTextAdapter;
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.PlayerData;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
@@ -79,7 +79,7 @@ public class SelectPlayerFragment extends Fragment {
 
         Toolbar tb = view.findViewById(R.id.fragment_toolbar);
         Spinner playerSpinner = view.findViewById(R.id.player_spinner);
-        
+
         tb.setTitle("Campaign Character");
 
         ArrayAdapter<PlayerData> arrayAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, playerData);
@@ -113,26 +113,35 @@ public class SelectPlayerFragment extends Fragment {
 
     /**
      * Updates the campaign for the selected character.
+     *
      * @param playerId the id of the player character
      */
     private void updatePlayerCampaign(int playerId) throws UnsupportedEncodingException, JSONException {
         final JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
 
         String url = String.format(Locale.ENGLISH, "player/%s/campaign", playerId);
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, data.toString(), new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onFailure(okhttp3.Call call, IOException e) {
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                });
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
-                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + response.toString(), Toast.LENGTH_SHORT).show();
-                // Go back to parent.
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    getActivity().runOnUiThread(() -> Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate());
+                } else {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + response.message(), Toast.LENGTH_SHORT).show();
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    });
+                }
             }
         });
+
     }
 }

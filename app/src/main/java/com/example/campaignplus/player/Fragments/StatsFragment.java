@@ -6,6 +6,8 @@ import static com.example.campaignplus._data.DataCache.selectedPlayer;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -24,19 +25,12 @@ import androidx.fragment.app.Fragment;
 
 import com.example.campaignplus.R;
 import com.example.campaignplus._utils.CallBack;
-import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.Charset;
 import java.util.Objects;
-
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
-import okhttp3.Call;
 
 public class StatsFragment extends Fragment {
     private String[] arr;
@@ -53,6 +47,7 @@ public class StatsFragment extends Fragment {
     private SharedPreferences.Editor editor;
     private TextView tv;
     private ViewGroup view;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     private int indexOf(int[] array, int value) {
         int id;
@@ -63,6 +58,7 @@ public class StatsFragment extends Fragment {
         }
         return -1;
     }
+
     public static class OnCompleteCallback {
         public void success() {
 
@@ -74,6 +70,7 @@ public class StatsFragment extends Fragment {
     }
 
     StatsFragment.OnCompleteCallback callback;
+
     public StatsFragment(StatsFragment.OnCompleteCallback callback) {
         this.callback = callback;
     }
@@ -82,7 +79,7 @@ public class StatsFragment extends Fragment {
         this(new StatsFragment.OnCompleteCallback());
     }
 
-    private void savePlayerData() {
+    private void savePlayerData() throws JSONException {
         String st = ((TextView) view.findViewById(R.id.totStr)).getText().toString();
         String de = ((TextView) view.findViewById(R.id.totDex)).getText().toString();
         String co = ((TextView) view.findViewById(R.id.totCon)).getText().toString();
@@ -100,12 +97,19 @@ public class StatsFragment extends Fragment {
         selectedPlayer.upload(new CallBack() {
             @Override
             public void success() {
-                Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
+                mHandler.post(() -> {
+                    Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
+
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                mHandler.post(() -> {
+
+                    Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                });
+
             }
         });
     }
@@ -221,7 +225,11 @@ public class StatsFragment extends Fragment {
         View btn = tb.findViewById(R.id.save_fragment_button);
         btn.setOnClickListener(view -> {
             // Remove current fragment
-            savePlayerData();
+            try {
+                savePlayerData();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
             callback.success();
             Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
