@@ -29,32 +29,10 @@
                 android:backgroundTint="@color/colorPrimary"
                 android:src="@drawable/ic_back_24dp" />
 
-            <com.otaliastudios.zoom.ZoomImageView
+            <com.example.campaignplus.campaign.MapView
                 android:id="@+id/map_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical|horizontal"
-                app:alignment="center"
-                app:animationDuration="280"
-                app:flingEnabled="true"
-                app:horizontalPanEnabled="true"
-                app:maxZoom="2.5"
-                app:maxZoomType="zoom"
-                app:minZoom="0.7"
-                app:minZoomType="zoom"
-                app:oneFingerScrollEnabled="true"
-                app:overPinchable="true"
-                app:overScrollHorizontal="true"
-                app:overScrollVertical="true"
-                app:scrollEnabled="true"
-                app:threeFingersScrollEnabled="true"
-                app:transformation="centerInside"
-                app:transformationGravity="auto"
-                app:twoFingersScrollEnabled="true"
-                app:verticalPanEnabled="true"
-                app:zoomEnabled="true"
-
-                />
+                android:layout_height="match_parent" />
         </FrameLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 

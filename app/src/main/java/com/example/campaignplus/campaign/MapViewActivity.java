@@ -140,14 +140,16 @@ public class MapViewActivity extends AppCompatActivity {
 
 
     private void getImage() {
-        ZoomImageView imageView = findViewById(R.id.map_container);
+        MapView mapView = findViewById(R.id.map_container);
+        mapView.setOnMapSelectedCallback(mapData -> selectMap(mapData));
+
         currentMap.fetchImage(new CallBack() {
             @Override
             public void success() {
-                BitmapDrawable image = new BitmapDrawable(getResources(), currentMap.bitmap);
-                image.setBounds(0, 0, currentMap.bitmap.getWidth(), currentMap.bitmap.getHeight());
                 runOnUiThread(() -> {
-                    imageView.setImageDrawable(image);
+                    mapView.setBitmap(currentMap.bitmap);
+                    mapView.setChildMaps(currentMap.children);
+                    mapView.resetZoom();
                 });
             }
 

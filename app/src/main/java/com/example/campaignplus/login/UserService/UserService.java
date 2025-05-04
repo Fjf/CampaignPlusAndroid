@@ -1,5 +1,7 @@
 package com.example.campaignplus.login.UserService;
 
+import android.util.Log;
+
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 
@@ -31,6 +33,7 @@ public final class UserService {
             @Override
             public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
                 if (response.isSuccessful()) {
+                    Log.d("UserService", "Login was successful.");
                     f.success();
                 } else {
                     try {
