@@ -32,20 +32,20 @@ import com.example.campaignplus.campaign.Adapters.MapSelectionAdapter;
 import com.example.campaignplus.campaign.Adapters.PlayerListAdapter;
 import com.example.campaignplus.campaign.Fragments.ShowQRFragment;
 import com.example.campaignplus.player.PlayerInfoActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
 import com.otaliastudios.zoom.ZoomImageView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MapViewActivity extends AppCompatActivity {
     private static final int CREATE_CHARACTER_INTENT = 0;
@@ -174,28 +174,32 @@ public class MapViewActivity extends AppCompatActivity {
 
             try {
                 addToCampaign(pid);
-            } catch (JSONException | UnsupportedEncodingException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void addToCampaign(int pid) throws JSONException, UnsupportedEncodingException {
+    private void addToCampaign(int pid) throws JSONException {
         String url = String.format(Locale.ENGLISH, "player/%d/campaign", pid);
 
         JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity args = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonString = data.toString();
 
-        HttpUtils.put(url, args, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                getPlayers();
+            public void onFailure(Call call, IOException e) {
+                HttpUtils.showToast(MapViewActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(MapViewActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    getPlayers();
+                } else {
+                    HttpUtils.showToast(MapViewActivity.this, "Failed to add to campaign", Toast.LENGTH_SHORT);
+                }
             }
         });
     }
@@ -238,36 +242,29 @@ public class MapViewActivity extends AppCompatActivity {
 
     private void getPlayers() {
         String url = String.format(Locale.ENGLISH, "campaign/%d/players", campaignId);
-        HttpUtils.get(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.get(url, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                try {
-                    if (!response.getBoolean("success")) {
-                        // Maybe do something here
-                        return;
-                    }
-
-                    JSONArray array = response.getJSONArray("players");
-                    DataCache.setPlayerData(array);
-
-                    updatePlayerList(DataCache.playerData);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Failed to fetch players: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        if (!responseObject.getBoolean("success")) {
+                            // Maybe do something here
+                            return;
+                        }
+                        JSONArray players = responseObject.getJSONArray("players");
+                        // Process players...
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
-    }
-
-    private void updatePlayerList(final ArrayList<PlayerData> entries) {
-        PlayerListAdapter adapter = new PlayerListAdapter(this, entries, userName);
-        playerList.setAdapter(adapter);
     }
 }

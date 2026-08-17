@@ -27,18 +27,17 @@ import com.example.campaignplus.campaign.Adapters.CampaignListAdapter;
 import com.example.campaignplus.campaign.Fragments.SelectPlayerFragment;
 import com.example.campaignplus.R;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpResponse;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class CampaignOverviewActivity extends AppCompatActivity {
     private static final int QR_CODE = 0;
@@ -117,30 +116,36 @@ public class CampaignOverviewActivity extends AppCompatActivity {
     }
 
     private void getJoinedCampaigns() {
-        HttpUtils.get("campaigns", null, new JsonHttpResponseHandler() {
+        HttpUtils.newGet("campaigns", new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                try {
-                    names = new String[response.length()];
-                    codes = new String[response.length()];
-                    ids = new int[response.length()];
-                    // Iterate over all campaign entries in list.
-                    for (int i = 0; i < response.length(); i++) {
-                        JSONObject entry = response.getJSONObject(i);
-                        names[i] = entry.getString("name");
-                        ids[i] = entry.getInt("id");
-                        codes[i] = entry.getString("code");
-                    }
-                    updateCampaignsList(names);
-                } catch (JSONException e) {
-                    Log.d(TAG, "Invalid response: " + response);
-                    e.printStackTrace();
-                }
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Failed to fetch campaigns: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONArray array = new JSONArray(jsonResponse);
+                        names = new String[array.length()];
+                        codes = new String[array.length()];
+                        ids = new int[array.length()];
+                        // Iterate over all campaign entries in list.
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject entry = array.getJSONObject(i);
+                            names[i] = entry.getString("name");
+                            ids[i] = entry.getInt("id");
+                            codes[i] = entry.getString("code");
+                        }
+                        runOnUiThread(() -> updateCampaignsList(names));
+                    } catch (Exception e) {
+                        Log.d(TAG, "Invalid response: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.d(TAG, "HTTP error: " + response.code());
+                }
             }
         });
     }
@@ -176,25 +181,31 @@ public class CampaignOverviewActivity extends AppCompatActivity {
     public void addPlayerCampaignButton(View view) {
         try {
             joinCampaign(campaignCode);
-        } catch (UnsupportedEncodingException | JSONException e) {
+        } catch (JSONException e) {
             Log.d("Error:", Objects.requireNonNull(e.getMessage()));
         }
     }
 
-    private void joinCampaign(String code) throws UnsupportedEncodingException, JSONException {
+    private void joinCampaign(String code) throws JSONException {
         String url = "campaigns/join/" + code;
-        HttpUtils.post(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.post(url, "", new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onFailure(Call call, IOException e) {
+                Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
                 // Close fragment.
                 CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
-                // Close fragment.
-                CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful()) {
+                    // Close fragment.
+                    CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                } else {
+                    Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
+                    // Close fragment.
+                    CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                }
             }
         });
     }
@@ -217,37 +228,39 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         // Load all your player characters from database.
-        HttpUtils.get("user/players", null, new JsonHttpResponseHandler() {
+        HttpUtils.newGet("user/players", new Callback() {
             @Override
-            public void onPreProcessResponse(ResponseHandlerInterface instance, HttpResponse response) {
-                // Stop the loading bar
+            public void onFailure(Call call, IOException e) {
                 runOnUiThread(() -> progressBar.setVisibility(View.GONE));
-                super.onPreProcessResponse(instance, response);
+                Log.d(TAG, "Failed to fetch players: " + e.getMessage());
             }
 
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                try {
-                    DataCache.setPlayerData(response);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            public void onResponse(Call call, Response response) {
+                runOnUiThread(() -> progressBar.setVisibility(View.GONE));
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONArray array = new JSONArray(jsonResponse);
+                        DataCache.setPlayerData(array);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(campaignCode);
+                    fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                    fragment.setExitTransition(new Slide(Gravity.TOP));
+
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction ft = fragmentManager.beginTransaction();
+
+                    ft.replace(R.id.campaign_content_layout, fragment);
+                    ft.addToBackStack(null);
+                    ft.commit();
+                } else {
+                    Log.d(TAG, "Invalid response: " + response.code());
                 }
-
-                SelectPlayerFragment fragment = SelectPlayerFragment.newInstance(campaignCode);
-                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
-                fragment.setExitTransition(new Slide(Gravity.TOP));
-
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction ft = fragmentManager.beginTransaction();
-
-                ft.replace(R.id.campaign_content_layout, fragment);
-                ft.addToBackStack(null);
-                ft.commit();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
             }
         });
     }

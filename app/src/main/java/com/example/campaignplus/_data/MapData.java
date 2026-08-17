@@ -6,17 +6,20 @@ import android.util.Log;
 
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MapData {
     int id = -1;
@@ -73,16 +76,26 @@ public class MapData {
     }
 
     public void fetch(int campaignId, CallBack callback) {
-        HttpUtils.get("campaigns/" + campaignId + "/maps", null, new JsonHttpResponseHandler() {
+        HttpUtils.newGet("campaigns/" + campaignId + "/maps", new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                setData(response);
-                callback.success();
+            public void onFailure(Call call, IOException e) {
+                callback.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                callback.error(responseString);
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject obj = new JSONObject(jsonResponse);
+                        setData(obj);
+                        callback.success();
+                    } catch (Exception e) {
+                        callback.error(e.getMessage());
+                    }
+                } else {
+                    callback.error("Failed to fetch maps: " + response.code());
+                }
             }
         });
     }

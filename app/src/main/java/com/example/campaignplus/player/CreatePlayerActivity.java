@@ -36,12 +36,9 @@ import com.example.campaignplus._data.classinfo.MainClassInfo;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.player.Adapters.ClassAdapter;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,8 +47,10 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import java.io.IOException;
 
 import static com.example.campaignplus._data.DataCache.availableClasses;
 import static com.example.campaignplus._data.DataCache.playerData;
@@ -147,7 +146,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
                     createNewCharacter();
                 else
                     updateExistingCharacter();
-            } catch (UnsupportedEncodingException | JSONException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         });
@@ -218,7 +217,7 @@ public class CreatePlayerActivity extends AppCompatActivity {
     }
 
 
-    public void createNewCharacter() throws UnsupportedEncodingException, JSONException {
+    public void createNewCharacter() throws JSONException {
         String name = playerName.getText().toString();
         String race = playerRace.getText().toString();
 
@@ -229,48 +228,47 @@ public class CreatePlayerActivity extends AppCompatActivity {
         newPlayer.setMainClassIds(selectedClassIds);
         newPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(newPlayer.toJSON().toString(), Charset.defaultCharset());
+        String jsonString = newPlayer.toJSON().toString();
 
         findViewById(R.id.player_save_created).setEnabled(false);
 
-        HttpUtils.post("user/player", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("user/player", jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onFailure(Call call, IOException e) {
                 findViewById(R.id.player_save_created).setEnabled(true);
-                try {
-                    Toast.makeText(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT).show();
+                HttpUtils.showToast(CreatePlayerActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT);
+            }
 
-                    // Add new player to datacache
-                    PlayerData player = new PlayerData(response);
-                    playerData.add(player);
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                findViewById(R.id.player_save_created).setEnabled(true);
+                if (response.isSuccessful() && response.body() != null) {
+                    String jsonResponse = response.body().string();
+                    try {
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        HttpUtils.showToast(CreatePlayerActivity.this, "New player created successfully.", Toast.LENGTH_SHORT);
 
-                    // After creating new character, this overlay may close.
-                    Intent data = new Intent();
-                    data.putExtra("player_id", player.getId());
-                    setResult(RESULT_OK, data);
-                    finish();
-                } catch (JSONException e) {
-                    Toast.makeText(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+                        // Add new player to datacache
+                        PlayerData player = new PlayerData(responseObject);
+                        playerData.add(player);
+
+                        // After creating new character, this overlay may close.
+                        Intent data = new Intent();
+                        data.putExtra("player_id", player.getId());
+                        setResult(RESULT_OK, data);
+                        finish();
+                    } catch (JSONException e) {
+                        HttpUtils.showToast(CreatePlayerActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
+                        e.printStackTrace();
+                    }
+                } else {
+                    HttpUtils.showToast(CreatePlayerActivity.this, "Failed to create player", Toast.LENGTH_SHORT);
                 }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(CreatePlayerActivity.this, response, Toast.LENGTH_SHORT).show();
-                findViewById(R.id.player_save_created).setEnabled(true);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                Toast.makeText(CreatePlayerActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
-                findViewById(R.id.player_save_created).setEnabled(true);
             }
         });
     }
 
-    private void updateExistingCharacter() throws JSONException, UnsupportedEncodingException {
+    private void updateExistingCharacter() throws JSONException {
         String name = playerName.getText().toString();
         String race = playerRace.getText().toString();
         selectedPlayer.setName(name);
@@ -279,37 +277,39 @@ public class CreatePlayerActivity extends AppCompatActivity {
         selectedPlayer.setMainClassIds(selectedClassIds);
         selectedPlayer.setSubClassIds(new ArrayList<>(selectedSubclassIds.values()));
 
-        StringEntity entity = new StringEntity(selectedPlayer.toJSON().toString(), Charset.defaultCharset());
+        String jsonString = selectedPlayer.toJSON().toString();
 
         findViewById(R.id.player_save_created).setEnabled(false);
 
         String url = String.format(Locale.ENGLISH, "player/%d", selectedPlayer.getId());
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    selectedPlayer.setData(response);
-
-                    // After creating new character, this overlay may close.
-                    Intent data = new Intent();
-                    data.putExtra("player_id", selectedPlayer.getId());
-                    setResult(RESULT_OK, data);
-
-                    Toast.makeText(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT).show();
-
-                    finish();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
+            public void onFailure(Call call, IOException e) {
                 findViewById(R.id.player_save_created).setEnabled(true);
+                Toast.makeText(CreatePlayerActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
-                Log.d("CreatePlayerActivity.updateExistingCharacter", response.toString());
-                Toast.makeText(CreatePlayerActivity.this, response.toString(), Toast.LENGTH_LONG).show();
+            public void onResponse(Call call, Response response) throws IOException {
                 findViewById(R.id.player_save_created).setEnabled(true);
+                if (response.isSuccessful() && response.body() != null) {
+                    String jsonResponse = response.body().string();
+                    try {
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        selectedPlayer.setData(responseObject);
+
+                        // After creating new character, this overlay may close.
+                        Intent data = new Intent();
+                        data.putExtra("player_id", selectedPlayer.getId());
+                        setResult(RESULT_OK, data);
+
+                        HttpUtils.showToast(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT);
+
+                        finish();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }

@@ -37,17 +37,17 @@ import com.example.campaignplus.player.CreateItemActivity;
 import com.example.campaignplus.player.Fragments.SelectItemFragment;
 import com.example.campaignplus.player.Fragments.ItemInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class ItemViewFragment extends PlayerInfoFragment {
     private static final String TAG = "ItemViewFragment";
@@ -79,31 +79,46 @@ public class ItemViewFragment extends PlayerInfoFragment {
         // in content do not change the layout size of the RecyclerView
         itemRecyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
-        RecyclerView.LayoutManager itemLayoutManager = new LinearLayoutManager(container.getContext());
+        // use a linear layout manager - use view.getContext() instead of container.getContext()
+        RecyclerView.LayoutManager itemLayoutManager = new LinearLayoutManager(view.getContext());
         itemRecyclerView.setLayoutManager(itemLayoutManager);
 
         // Set the adapter based on currently selected player.
+        // Initialize with empty list, will be populated by getPlayerItems()
         itemAdapter = new EquipmentListAdapter(selectedPlayer.equipment);
         itemRecyclerView.setAdapter(itemAdapter);
 
-        onUpdateCurrentPlayer();
         setEventListeners();
+        // Delay getPlayerItems() until after the view is fully attached
+        view.post(this::getPlayerItems);
 
         return view;
     }
 
     public void getPlayerItems() {
+        // Check if view is available and fragment is attached
+        if (view == null || !isAdded()) {
+            return;
+        }
+        
         selectedPlayer.getEquipment(new CallBack() {
             @Override
             public void success() {
-                if (selectedPlayer.equipment.size() == 0) {
-                    view.findViewById(R.id.no_items_text).setVisibility(View.VISIBLE);
-                } else {
-                    view.findViewById(R.id.no_items_text).setVisibility(View.GONE);
+                // Ensure UI updates happen on the main thread and view exists
+                if (getActivity() != null && view != null) {
+                    getActivity().runOnUiThread(() -> {
+                        // Update the adapter's data directly
+                        if (itemAdapter != null) {
+                            itemAdapter.notifyDataSetChanged();
+                        }
+                        
+                        // Show/hide empty state
+                        View noItemsText = view.findViewById(R.id.no_items_text);
+                        if (noItemsText != null) {
+                            noItemsText.setVisibility(selectedPlayer.equipment.isEmpty() ? View.VISIBLE : View.GONE);
+                        }
+                    });
                 }
-
-                itemAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -198,31 +213,32 @@ public class ItemViewFragment extends PlayerInfoFragment {
         JSONObject data = new JSONObject();
         data.put("item_id", itemId);
         data.put("amount", 1);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonString = data.toString();
 
         String url = String.format(Locale.ENGLISH, "player/%s/item", selectedPlayer.getId());
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.post(url, jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // Update list if we added an item
-                try {
-                    selectedPlayer.equipment.add(new EquipmentItem(response));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            public void onFailure(Call call, IOException e) {
+                HttpUtils.showToast(getContext(), "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String jsonResponse = response.body().string();
+                    try {
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        // Update list if we added an item
+                        selectedPlayer.equipment.add(new EquipmentItem(responseObject));
+                        itemAdapter.notifyItemInserted(selectedPlayer.equipment.size() - 1);
+                        HttpUtils.showToast(getContext(), "Successfully added item.", Toast.LENGTH_SHORT);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing JSON", e);
+                        HttpUtils.showToast(getContext(), "Error processing response", Toast.LENGTH_SHORT);
+                    }
+                } else {
+                    HttpUtils.showToast(getContext(), "Error adding item", Toast.LENGTH_SHORT);
                 }
-                itemAdapter.notifyItemInserted(selectedPlayer.equipment.size() - 1);
-                Toast.makeText(getContext(), "Successfully added item.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(getContext(), "Error adding item: Status code.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                String response = errorResponse == null ? null : errorResponse.toString();
-                onFailure(statusCode, headers, response, throwable);
             }
         });
     }
@@ -251,25 +267,29 @@ public class ItemViewFragment extends PlayerInfoFragment {
 
     private void deleteItem() {
         String url = String.format(Locale.ENGLISH, "player/%s/item/%d", selectedPlayer.getId(), selectedPlayer.equipment.get(selectedItemId).getInstanceId());
-        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.delete(url, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    if (!response.getBoolean("success")) {
-                        Log.d(TAG, "Something went wrong deleting your item.");
-                        return;
-                    }
-
-                    closeMenus();
-                    getPlayerItems();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Failed to delete item: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        if (!responseObject.getBoolean("success")) {
+                            Log.d(TAG, "Something went wrong deleting your item.");
+                            return;
+                        }
+
+                        closeMenus();
+                        getPlayerItems();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
@@ -306,7 +326,10 @@ public class ItemViewFragment extends PlayerInfoFragment {
 
     @Override
     public void onUpdateCurrentPlayer() {
-        getPlayerItems();
+        // Only fetch items if the fragment is currently visible
+        if (isAdded() && isResumed()) {
+            getPlayerItems();
+        }
     }
 
 }

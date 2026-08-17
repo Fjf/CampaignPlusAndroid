@@ -27,18 +27,17 @@ import com.example.campaignplus.player.Adapters.ItemSpinnerArrayAdapter;
 import com.example.campaignplus.R;
 import com.example.campaignplus._utils.HttpUtils;
 import com.google.android.material.button.MaterialButton;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import java.io.IOException;
 
 public class CreateItemActivity extends AppCompatActivity {
 
@@ -179,7 +178,7 @@ public class CreateItemActivity extends AppCompatActivity {
 
         try {
             createItem(itemJsonObject);
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -196,30 +195,27 @@ public class CreateItemActivity extends AppCompatActivity {
         return -1;
     }
 
-    private void createItem(JSONObject data) throws UnsupportedEncodingException {
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
-        HttpUtils.post("user/items", entity, new JsonHttpResponseHandler() {
+    private void createItem(JSONObject data) {
+        String jsonString = data.toString();
+        HttpUtils.post("user/items", jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    AvailableItems.updateItem(response);
-                } catch (JSONException e) {
-                    Toast.makeText(CreateItemActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Error: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String jsonResponse = response.body().string();
+                    try {
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        AvailableItems.updateItem(responseObject);
+                    } catch (JSONException e) {
+                        HttpUtils.showToast(CreateItemActivity.this, e.getMessage(), Toast.LENGTH_LONG);
+                    }
+                    finish();
                 }
-                finish();
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Error: " + response);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                String response = errorResponse == null ? null : errorResponse.toString();
-                onFailure(statusCode, headers, response, throwable);
-            }
-
         });
     }
 }

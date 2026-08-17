@@ -91,23 +91,28 @@ public class LoginActivity extends AppCompatActivity {
         UserService.login(userName, userPassword, new CallBack() {
             @Override
             public void success() {
-                // Store username/pw in SharedPreferences for next login to be automatic.
-                SharedPreferences.Editor edit = preferences.edit();
-                edit.putString("username", userName); edit.putString("password", userPassword);
-                edit.apply();
+                // Run UI updates on the main thread
+                runOnUiThread(() -> {
+                    // Store username/pw in SharedPreferences for next login to be automatic.
+                    SharedPreferences.Editor edit = preferences.edit();
+                    edit.putString("username", userName); edit.putString("password", userPassword);
+                    edit.apply();
 
-                login.setEnabled(true);
+                    login.setEnabled(true);
 
-                Intent intent = new Intent(LoginActivity.this, PlayerInfoActivity.class);
-                startActivity(intent);
-                finish();
-
+                    Intent intent = new Intent(LoginActivity.this, PlayerInfoActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-                info.setText(errorMessage);
-                login.setEnabled(true);
+                // Run UI updates on the main thread
+                runOnUiThread(() -> {
+                    info.setText(errorMessage);
+                    login.setEnabled(true);
+                });
             }
         });
     }

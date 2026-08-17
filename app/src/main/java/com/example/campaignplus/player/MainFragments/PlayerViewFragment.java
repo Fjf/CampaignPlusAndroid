@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.transition.Slide;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -26,12 +27,12 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.PlayerStatsData;
 import com.example.campaignplus._utils.CallBack;
+import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus._utils.TextProcessor;
 import com.example.campaignplus.player.Fragments.LevelFragment;
 import com.example.campaignplus.player.Fragments.StatsFragment;
 import com.example.campaignplus.player.Listeners.TextOnChangeSaveListener;
-import com.example.campaignplus.player.PlayerInfoActivity;
 
 import java.util.Objects;
 
@@ -61,9 +62,8 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     private TextView statArmorClass;
     private TextView statMaxHP;
     private TextView statLevel;
+    private TextView itemsSummary;
     private SharedPreferences preferences;
-
-    private PlayerInfoActivity mainActivity;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,20 +73,23 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mainActivity = (PlayerInfoActivity) getActivity();
-
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_player_overview, container, false);
 
         toolbar = getActivity().findViewById(R.id.toolbar);
-        toolbar.setTitle(selectedPlayer.getName());
+        String playerName = selectedPlayer.getName();
+        toolbar.setTitle(playerName != null ? playerName : "Character Sheet");
         toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
 
-        preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+        int playerId = selectedPlayer.getId();
+        preferences = view.getContext().getSharedPreferences("PlayerData_" + (playerId != -1 ? playerId : "default"), MODE_PRIVATE);
 
         registerStatViews();
         setStatsFields();
         setEventHandlers();
+        
+        // Fetch items to update the summary
+        fetchItemsSummary();
 
         return view;
     }
@@ -138,6 +141,29 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         view.findViewById(R.id.statCurrentHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "current_hp"));
         view.findViewById(R.id.statTemporaryHP).setOnKeyListener(new TextOnChangeSaveListener(preferences, "temporary_hp"));
     }
+    
+    private void fetchItemsSummary() {
+        // Fetch items to update the summary
+        if (selectedPlayer != null && selectedPlayer.getId() != -1) {
+            selectedPlayer.getEquipment(new CallBack() {
+                @Override
+                public void success() {
+                    if (getActivity() != null && view != null) {
+                        getActivity().runOnUiThread(() -> {
+                            itemsSummary.setText(String.format(getString(R.string.items_count), 
+                                selectedPlayer.equipment.size()));
+                        });
+                    }
+                }
+                
+                @Override
+                public void error(String errorMessage) {
+                    // Log error but don't crash
+                    Log.d(TAG, "Error fetching items: " + errorMessage);
+                }
+            });
+        }
+    }
 
     private void openFragment(Fragment fragment) {
         FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
@@ -171,11 +197,11 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         statArmorClass = view.findViewById(R.id.statArmorClass);
         statMaxHP = view.findViewById(R.id.statMaxHP);
         statLevel = view.findViewById(R.id.level_value);
+        itemsSummary = view.findViewById(R.id.items_summary);
     }
 
     public void setStatsFields() {
         PlayerStatsData sd = selectedPlayer.statsData;
-        TextView tv;
 
         // Base stats.
         totalStrength.setText(sd.getStrength());
@@ -198,6 +224,9 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         statMaxHP.setText(sd.getMaxHP());
         statLevel.setText(sd.getLevel());
 
+        // Update items summary
+        itemsSummary.setText(String.format(getString(R.string.items_count), 
+            selectedPlayer.equipment != null ? selectedPlayer.equipment.size() : 0));
 
         gold.setText(String.valueOf(selectedPlayer.gold));
         silver.setText(String.valueOf(selectedPlayer.silver));
@@ -212,22 +241,26 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         selectedPlayer.upload(new CallBack() {
             @Override
             public void success() {
-                Toast.makeText(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT).show();
+                HttpUtils.showToast(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT);
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                HttpUtils.showToast(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG);
             }
         });
     }
 
     @Override
     public void onUpdateCurrentPlayer() {
-        // Update the shared preferences to be updated for this player
-        preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
-        setStatsFields();
-        toolbar.setTitle(selectedPlayer.getName());
-
+        // Ensure UI updates happen on the main thread
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                // Update the shared preferences to be updated for this player
+                preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+                setStatsFields();
+                toolbar.setTitle(selectedPlayer.getName());
+            });
+        }
     }
 }

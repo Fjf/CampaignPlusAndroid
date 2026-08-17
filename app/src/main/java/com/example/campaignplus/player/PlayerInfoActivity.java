@@ -54,14 +54,10 @@ import com.example.campaignplus.player.MainFragments.ItemViewFragment;
 import com.example.campaignplus.player.MainFragments.PlayerViewFragment;
 import com.example.campaignplus.player.MainFragments.SpellViewFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Locale;
-
-import cz.msebera.android.httpclient.Header;
 
 public class PlayerInfoActivity extends AppCompatActivity {
 
@@ -77,6 +73,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
     private View leftDrawerWrapper;
     private DrawerPCListAdapter drawerPCListAdapter;
     private BottomNavigationView bottomNavigation;
+    private androidx.viewpager2.widget.ViewPager2 viewPager;
+    private PlayerViewPagerAdapter viewPagerAdapter;
 
     public PlayerInfoActivity() {
     }
@@ -116,36 +114,37 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
         updatePlayerList();
         /*
+         * Setup ViewPager2 for swipeable pages
+         * Note: Adapter will be initialized after player data is loaded
+         */
+        viewPager = findViewById(R.id.view_pager);
+
+        /*
          * Bottom bar programmatically switching between views
          */
         bottomNavigation = findViewById(R.id.bottom_navigation);
         // We are currently in the player account view, so we have to enable this one.
         bottomNavigation.setOnNavigationItemSelectedListener(item -> {
-            Fragment fragment = null;
-            if (item.getItemId() == R.id.page_spells) {
-                fragment = new SpellViewFragment();
-            } else if (item.getItemId() == R.id.page_account) {
-                fragment = new PlayerViewFragment();
-            } else if (item.getItemId() == R.id.page_items) {
-                fragment = new ItemViewFragment();
-            } else if (item.getItemId() == R.id.page_class) {
-                fragment = ClassInformationFragment.newInstance(selectedPlayer.mainClassIds, selectedPlayer.subClassIds);
+            if (viewPagerAdapter == null) {
+                return false;
             }
-            assert fragment != null;
-
-            if (bottomNavigation.getSelectedItemId() != item.getItemId()) {
-                fragment.setEnterTransition(new Slide(Gravity.START));
-                fragment.setExitTransition(new Fade(Fade.OUT));
+            int position = viewPagerAdapter.getPositionForItemId(item.getItemId());
+            if (viewPager.getCurrentItem() != position) {
+                viewPager.setCurrentItem(position);
             }
-
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction ft = fragmentManager.beginTransaction();
-
-            ft.replace(R.id.main_content_view, fragment);
-            ft.addToBackStack(null);
-            ft.commit();
-
             return true;
+        });
+
+        // Sync ViewPager with Bottom Navigation
+        viewPager.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (viewPagerAdapter != null) {
+                    int itemId = viewPagerAdapter.getItemIdForPosition(position);
+                    bottomNavigation.setSelectedItemId(itemId);
+                }
+            }
         });
 
     }
@@ -163,7 +162,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 }
                 updatePlayerInfo(preferences.getInt("player_id", -1));
                 updatePlayerDrawer();
-                openDefaultFragment();
             }
 
             @Override
@@ -174,7 +172,9 @@ public class PlayerInfoActivity extends AppCompatActivity {
     }
 
     private void openDefaultFragment() {
-        bottomNavigation.setSelectedItemId(R.id.page_account);
+        if (viewPagerAdapter != null) {
+            viewPager.setCurrentItem(0);
+        }
     }
 
     @Override
@@ -191,15 +191,15 @@ public class PlayerInfoActivity extends AppCompatActivity {
             @Override
             public void success() {
                 updatePlayerInfo(pid);
+                // Adapter will be initialized in updatePlayerInfo after data is loaded
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG).show();
+                HttpUtils.showToast(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG);
             }
         });
         updatePlayerDrawer();
-        openDefaultFragment();
         super.onResume();
     }
 
@@ -223,15 +223,25 @@ public class PlayerInfoActivity extends AppCompatActivity {
         selectedPlayer.updatePlayerData(new CallBack() {
             @Override
             public void success() {
-                for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                    if (fragment instanceof PlayerInfoFragment)
-                        ((PlayerInfoFragment) fragment).onUpdateCurrentPlayer();
-                }
+                runOnUiThread(() -> {
+                    // Initialize ViewPager adapter after player data is fully loaded
+                    if (viewPagerAdapter == null && selectedPlayer != null) {
+                        viewPagerAdapter = new PlayerViewPagerAdapter(PlayerInfoActivity.this, selectedPlayer);
+                        viewPager.setAdapter(viewPagerAdapter);
+                        viewPager.setOffscreenPageLimit(1);
+                    }
+                    openDefaultFragment();
+                    
+                    for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                        if (fragment instanceof PlayerInfoFragment)
+                            ((PlayerInfoFragment) fragment).onUpdateCurrentPlayer();
+                    }
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                HttpUtils.showToast(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT);
             }
         });
     }
@@ -310,7 +320,7 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
                 @Override
                 public void error(String errorMessage) {
-                    Toast.makeText(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    HttpUtils.showToast(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT);
 
                     Intent intent = new Intent(PlayerInfoActivity.this, LoginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -383,21 +393,30 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     private void deletePlayer() {
         String url = String.format(Locale.ENGLISH, "player/%s", selectedPlayer.getId());
-        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.delete(url, new okhttp3.Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                MyPlayerCharacterList.updatePlayerData(new CallBack() {
-                    @Override
-                    public void success() {
-                        updatePlayerInfo(DataCache.playerData.get(0).getId());
-                        updatePlayerDrawer();
-                    }
+            public void onFailure(okhttp3.Call call, java.io.IOException e) {
+                // Handle error
+            }
 
-                    @Override
-                    public void error(String errorMessage) {
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> {
+                        MyPlayerCharacterList.updatePlayerData(new CallBack() {
+                            @Override
+                            public void success() {
+                                updatePlayerInfo(DataCache.playerData.get(0).getId());
+                                updatePlayerDrawer();
+                            }
 
-                    }
-                });
+                            @Override
+                            public void error(String errorMessage) {
+
+                            }
+                        });
+                    });
+                }
             }
         });
     }

@@ -28,7 +28,11 @@ public class LandingActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String ip = sharedPreferences.getString("ip_address", getString(R.string.default_ip));
+
         HttpUtils.setIp(ip);
+        HttpUtils.setPreferences(getBaseContext());
+        HttpUtils.setCacheEnabled(false);
+        HttpUtils.clearCache();
 
         (new Handler()).postDelayed(new Runnable() {
             public void run() {
@@ -47,10 +51,12 @@ public class LandingActivity extends AppCompatActivity {
         String username = preferences.getString("username", null);
         String password = preferences.getString("password", null);
 
-        if (username == null || password == null) {
+        // Validate credentials exist and are not empty
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             Intent intent = new Intent(LandingActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
         UserService.login(username, password, new CallBack() {
@@ -63,6 +69,8 @@ public class LandingActivity extends AppCompatActivity {
 
             @Override
             public void error(String errorMessage) {
+                HttpUtils.setOfflineMode(false);
+                // When login fails, redirect to login screen instead of PlayerInfoActivity
                 Intent intent = new Intent(LandingActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();

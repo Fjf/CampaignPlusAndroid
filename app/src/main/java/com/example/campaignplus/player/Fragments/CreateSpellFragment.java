@@ -31,17 +31,16 @@ import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus.player.Fragments.SpellInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class CreateSpellFragment extends Fragment {
     private View view;
@@ -102,17 +101,22 @@ public class CreateSpellFragment extends Fragment {
     }
 
 
-    private void createNewSpell() throws JSONException, UnsupportedEncodingException {
+    private void createNewSpell() throws JSONException {
         SpellData spellData = createSpellFromFields();
-        HttpUtils.post("user/spells", new StringEntity(spellData.toJSON().toString()), new JsonHttpResponseHandler() {
+        String jsonString = spellData.toJSON().toString();
+        HttpUtils.post("user/spells", jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onFailure(Call call, IOException e) {
+                HttpUtils.showToast(getActivity(), "Error creating spell: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Toast.makeText(getActivity(), "Error creating spell: " + response, Toast.LENGTH_SHORT).show();
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                } else {
+                    HttpUtils.showToast(getActivity(), "Error creating spell: " + response.message(), Toast.LENGTH_SHORT);
+                }
             }
         });
     }
@@ -126,8 +130,8 @@ public class CreateSpellFragment extends Fragment {
         saveButton.setOnClickListener(view -> {
             try {
                 createNewSpell();
-            } catch (JSONException | UnsupportedEncodingException e) {
-                Log.d("CreateSpellFragment", "Encoding error:" + e.getMessage());
+            } catch (JSONException e) {
+                Log.d("CreateSpellFragment", "JSON error:" + e.getMessage());
             }
         });
 

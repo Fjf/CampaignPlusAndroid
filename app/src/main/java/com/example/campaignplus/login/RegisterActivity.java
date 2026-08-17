@@ -14,16 +14,15 @@ import android.widget.TextView;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.R;
 import com.example.campaignplus.player.PlayerInfoActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.io.IOException;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -58,12 +57,12 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 registerInfo.setText("Passwords did not match");
             }
-        } catch (JSONException | UnsupportedEncodingException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private void validate(final String name, final String password, String email) throws JSONException, UnsupportedEncodingException {
+    private void validate(final String name, final String password, String email) throws JSONException {
         // Disable button
         registerButton.setEnabled(false);
 
@@ -72,45 +71,46 @@ public class RegisterActivity extends AppCompatActivity {
         data.put("name", name);
         data.put("password", password);
         data.put("email", email);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonStr = data.toString();
 
-        HttpUtils.post("register", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("register", jsonStr, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // TODO: This might be redundant as the function returns a JSONobject.
-                try {
-                    JSONObject serverResp = new JSONObject(response.toString());
-                    if (serverResp.getBoolean("success")) {
-                        // Store username/pw in SharedPreferences for next login to be automatic.
-                        SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
-                        SharedPreferences.Editor edit = preferences.edit();
-                        edit.putString("username", name);
-                        edit.putString("password", password);
-                        edit.apply();
-
-                        Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        registerInfo.setText(serverResp.get("error").toString());
-                    }
-
-                } catch (JSONException e) {
-                    registerInfo.setText("Server response error.");
-                    Log.d(TAG, "Invalid response: " + response.toString());
-                }
-
-                // Re enable button after login response.
+            public void onFailure(Call call, IOException e) {
+                registerInfo.setText("Internal server error.");
+                Log.d(TAG, "Request failed: " + e.getMessage());
                 registerButton.setEnabled(true);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                registerInfo.setText("Internal server error.");
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject serverResp = new JSONObject(jsonResponse);
+                        if (serverResp.getBoolean("success")) {
+                            // Store username/pw in SharedPreferences for next login to be automatic.
+                            SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+                            SharedPreferences.Editor edit = preferences.edit();
+                            edit.putString("username", name);
+                            edit.putString("password", password);
+                            edit.apply();
 
+                            Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            registerInfo.setText(serverResp.optString("error", "Unknown error"));
+                        }
+                    } catch (Exception e) {
+                        registerInfo.setText("Server response error.");
+                        Log.d(TAG, "Invalid response: " + e.getMessage());
+                    }
+                } else {
+                    registerInfo.setText("Internal server error.");
+                    Log.d(TAG, "HTTP error: " + response.code());
+                }
                 // Re enable button after login response.
-                registerInfo.setEnabled(true);
+                registerButton.setEnabled(true);
             }
         });
     }

@@ -1,63 +1,95 @@
 package com.example.campaignplus.login.UserService;
 
+import android.util.Log;
+
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public final class UserService {
     private UserService() {
 
     }
 
-    public static void login(String username, String password, final CallBack f) throws JSONException, UnsupportedEncodingException {
+    public static void login(String username, String password, final CallBack f) throws JSONException {
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
         data.put("username", username);
         data.put("password", password);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonStr = data.toString();
 
-        HttpUtils.post("login", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("login", jsonStr, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                f.success();
+            public void onFailure(Call call, IOException e) {
+                Log.d("!!!!!!!!!bla", "got errropr!!!!!!!!!!!");
+                f.error(e.toString());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                f.error(responseString);
-                super.onFailure(statusCode, headers, responseString, throwable);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                try {
-                    f.error(errorResponse.getString("message"));
-                } catch (JSONException | NullPointerException e) {
-                    f.error("Invalid JSON from server.");
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseBody = response.body().string();
+                    Log.d("!!!!!!!!!bla", "got response!!!!!!!!!!!: " + responseBody);
+                    Log.d("!!!!!!!!!bla", "Response status code: " + response.code());
+                    try {
+                        JSONObject json = new JSONObject(responseBody);
+                        Log.d("!!!!!!!!!bla", "Has 'success' field: " + json.has("success"));
+                        Log.d("!!!!!!!!!bla", "Has 'message' field: " + json.has("message"));
+                        if (json.has("success")) {
+                            Log.d("!!!!!!!!!bla", "'success' value: " + json.getBoolean("success"));
+                        }
+                        if (json.has("message")) {
+                            Log.d("!!!!!!!!!bla", "'message' value: " + json.getString("message"));
+                        }
+                        // Check if login was successful based on response
+                        if (json.has("success") && json.getBoolean("success")) {
+                            Log.d("!!!!!!!!!bla", "LOGIN SUCCESSFUL");
+                            f.success();
+                        } else if (json.has("message")) {
+                            Log.d("!!!!!!!!!bla", "LOGIN FAILED: " + json.getString("message"));
+                            f.error(json.getString("message"));
+                        } else {
+                            Log.d("!!!!!!!!!bla", "LOGIN SUCCESSFUL (no error fields)");
+                            f.success(); // Assume success if no error message
+                        }
+                    } catch (JSONException e) {
+                        // If not JSON, assume success
+                        Log.d("!!!!!!!!!bla", "Response is not JSON, assuming success");
+                        f.success();
+                    }
+                } else {
+                    String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                    Log.e("!!!!!!!!!bla", "Login failed (non-success status): " + errorBody);
+                    f.error("Login failed: " + errorBody);
                 }
             }
         });
     }
 
     public static void logout(final CallBack fn) {
-        HttpUtils.post("logout", null, new JsonHttpResponseHandler() {
+        HttpUtils.post("logout", "", new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                fn.success();
+            public void onFailure(Call call, IOException e) {
+                fn.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                fn.error("");
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful()) {
+                    fn.success();
+                } else {
+                    fn.error("Logout failed");
+                }
             }
         });
     }

@@ -26,17 +26,10 @@ import com.example.campaignplus.R;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.Charset;
 import java.util.Objects;
-
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
-import okhttp3.Call;
 
 public class StatsFragment extends Fragment {
     private String[] arr;
@@ -100,12 +93,12 @@ public class StatsFragment extends Fragment {
         selectedPlayer.upload(new CallBack() {
             @Override
             public void success() {
-                Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
+                HttpUtils.showToast(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT);
             }
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                HttpUtils.showToast(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG);
             }
         });
     }
@@ -325,6 +318,12 @@ public class StatsFragment extends Fragment {
         ((CheckBox) view.findViewById(R.id.saving_throws_con)).setChecked(selectedPlayer.statsData.conSave);
         ((CheckBox) view.findViewById(R.id.saving_throws_int)).setChecked(selectedPlayer.statsData.intSave);
         ((CheckBox) view.findViewById(R.id.saving_throws_wis)).setChecked(selectedPlayer.statsData.wisSave);
+
+        // Hide Athletics row if it has no proficiency (value is 0)
+        int athleticsValue = getIntFromButton(R.id.proficiency_ath);
+        view.findViewById(R.id.strength_athletics_row).setVisibility(
+            athleticsValue > 0 ? View.VISIBLE : View.GONE
+        );
     }
 
     public void setPlayerProficiencyBonus() {

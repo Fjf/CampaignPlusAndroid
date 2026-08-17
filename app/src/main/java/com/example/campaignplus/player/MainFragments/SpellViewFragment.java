@@ -32,16 +32,17 @@ import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus.player.Adapters.SpellListAdapter;
 import com.example.campaignplus.player.Fragments.SpellInfoFragment;
 import com.example.campaignplus.player.RecyclerItemClickListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
-import cz.msebera.android.httpclient.Header;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class SpellViewFragment extends PlayerInfoFragment {
     private static final String TAG = "SpellViewActivity";
@@ -73,35 +74,45 @@ public class SpellViewFragment extends PlayerInfoFragment {
         spellLayoutManager = new LinearLayoutManager(view.getContext());
         spellRecyclerView.setLayoutManager(spellLayoutManager);
 
+        // Initialize adapter with empty list, will be populated by getPlayerSpells()
+        spellAdapter = new SpellListAdapter(new ArrayList<>());
+        spellRecyclerView.setAdapter(spellAdapter);
 
-
-        getPlayerSpells();
         setEventListeners();
+        getPlayerSpells();
 
         return view;
     }
 
     private void getPlayerSpells() {
-        ArrayList<SpellData> spells = selectedPlayer.getSpells();
+        // Check if view is available and fragment is attached
+        if (view == null || !isAdded()) {
+            return;
+        }
+        
         DataCache.selectedPlayer.updateSpells(new CallBack() {
             @Override
             public void success() {
-                if (spells.size() == 0) {
-                    view.findViewById(R.id.no_spells_text).setVisibility(View.VISIBLE);
-                } else {
-                    view.findViewById(R.id.no_spells_text).setVisibility(View.GONE);
-                }
+                // Ensure UI updates happen on the main thread and view exists
+                if (getActivity() != null && view != null) {
+                    getActivity().runOnUiThread(() -> {
+                        ArrayList<SpellData> updatedSpells = selectedPlayer.getSpells();
+                        if (updatedSpells.isEmpty()) {
+                            view.findViewById(R.id.no_spells_text).setVisibility(View.VISIBLE);
+                        } else {
+                            view.findViewById(R.id.no_spells_text).setVisibility(View.GONE);
+                        }
 
-                Collections.sort(spells, (a, b) -> Integer.compare(a.level, b.level));
-                spellAdapter = new SpellListAdapter(spells);
-                spellRecyclerView.setAdapter(spellAdapter);
-                spellAdapter.notifyDataSetChanged();
+                        Collections.sort(updatedSpells, (a, b) -> Integer.compare(a.level, b.level));
+                        spellAdapter = new SpellListAdapter(updatedSpells);
+                        spellRecyclerView.setAdapter(spellAdapter);
+                    });
+                }
             }
 
             @Override
             public void error(String errorMessage) {
                 Log.d(TAG, "Error fetching player spells: " + errorMessage);
-
             }
         });
     }
@@ -133,21 +144,25 @@ public class SpellViewFragment extends PlayerInfoFragment {
                 "player/%s/spells/%d",
                 selectedPlayer.getId(),
                 selectedPlayer.getSpells().get(selectedSpellId).id);
-        HttpUtils.delete(url, null, new JsonHttpResponseHandler() {
+        HttpUtils.delete(url, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                try {
-                    selectedPlayer.setSpells(response);
-                    getPlayerSpells();
-                    view.findViewById(R.id.overlay_spell_options).setVisibility(View.GONE);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Failed to delete spell: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONArray jsonArray = new JSONArray(jsonResponse);
+                        selectedPlayer.setSpells(jsonArray);
+                        getPlayerSpells();
+                        view.findViewById(R.id.overlay_spell_options).setVisibility(View.GONE);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
@@ -234,6 +249,9 @@ public class SpellViewFragment extends PlayerInfoFragment {
 
     @Override
     public void onUpdateCurrentPlayer() {
-        getPlayerSpells();
+        // Only fetch spells if the fragment is currently visible
+        if (isAdded() && isResumed()) {
+            getPlayerSpells();
+        }
     }
 }

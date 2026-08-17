@@ -18,18 +18,17 @@ import com.example.campaignplus.campaign.Adapters.SpinnerInitialTextAdapter;
 import com.example.campaignplus.R;
 import com.example.campaignplus._data.PlayerData;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -97,7 +96,7 @@ public class SelectPlayerFragment extends Fragment {
 
                 try {
                     updatePlayerCampaign(item.getId());
-                } catch (UnsupportedEncodingException | JSONException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -115,23 +114,34 @@ public class SelectPlayerFragment extends Fragment {
      * Updates the campaign for the selected character.
      * @param playerId the id of the player character
      */
-    private void updatePlayerCampaign(int playerId) throws UnsupportedEncodingException, JSONException {
+    private void updatePlayerCampaign(int playerId) throws JSONException {
         final JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonStr = data.toString();
 
         String url = String.format(Locale.ENGLISH, "player/%s/campaign", playerId);
-        HttpUtils.put(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, jsonStr, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onFailure(Call call, IOException e) {
+                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                // Go back to parent.
                 Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
-                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + response.toString(), Toast.LENGTH_SHORT).show();
-                // Go back to parent.
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful()) {
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                } else {
+                    try {
+                        String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign", Toast.LENGTH_SHORT).show();
+                    }
+                    // Go back to parent.
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                }
             }
         });
     }

@@ -17,6 +17,7 @@ import com.example.campaignplus.R;
 import com.example.campaignplus._data.items.AvailableItems;
 import com.example.campaignplus._data.items.ItemData;
 import com.example.campaignplus._utils.CallBack;
+import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
 import com.example.campaignplus.player.Adapters.SelectItemListAdapter;
 
@@ -82,7 +83,7 @@ public class SelectItemFragment extends Fragment {
 
             @Override
             public void error(String errorMessage) {
-                Toast.makeText(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT).show();
+                HttpUtils.showToast(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT);
             }
         });
     }

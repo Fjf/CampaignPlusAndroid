@@ -80,6 +80,10 @@ public class ClassInformationFragment extends Fragment {
         assert args != null;
         ArrayList<Integer> mainClassIds = args.getIntegerArrayList("main_class_ids");
         ArrayList<Integer> subclassIds = args.getIntegerArrayList("sub_class_ids");
+        
+        // Handle null or empty lists
+        if (mainClassIds == null) mainClassIds = new ArrayList<>();
+        if (subclassIds == null) subclassIds = new ArrayList<>();
 
         abilities = DataCache.getSortedAbilities(mainClassIds, subclassIds);
         adapter = new ClassAbilityAdapter(Objects.requireNonNull(getActivity()), abilities);

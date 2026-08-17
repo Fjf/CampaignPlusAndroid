@@ -1,6 +1,5 @@
 package com.example.campaignplus.campaign.Fragments;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,11 +11,11 @@ import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus.campaign.Listeners.SwipeDismissListener;
 import com.example.campaignplus.R;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -44,7 +43,6 @@ public class ShowQRFragment extends Fragment {
      * @param code Parameter 1.
      * @return A new instance of fragment ShowQRFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ShowQRFragment newInstance(String code) {
         ShowQRFragment fragment = new ShowQRFragment();
         Bundle args = new Bundle();
@@ -64,7 +62,7 @@ public class ShowQRFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the layout for the fragment
         view = inflater.inflate(R.layout.fragment_show_qr, container, false);
         view.setOnTouchListener(new SwipeDismissListener(new CallBack() {
             @Override
@@ -82,6 +80,7 @@ public class ShowQRFragment extends Fragment {
 
     @Override
     public void onStart() {
+        super.onStart();
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String port = sharedPreferences.getString("port", getString(R.string.default_port));
         String ip = sharedPreferences.getString("ip_address", getString(R.string.default_ip));
@@ -90,18 +89,11 @@ public class ShowQRFragment extends Fragment {
 
         Log.d(TAG, url);
         ImageView imageView = view.findViewById(R.id.qr_code_image);
-        Picasso.get().load(url).into(imageView, new Callback() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "Loading went correctly");
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.d(TAG, "Loading went wrong: " + e.getMessage());
-            }
-        });
-
-        super.onStart();
+        
+        // Migrated from Picasso to Glide
+        Glide.with(getContext())
+                .load(url)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(imageView);
     }
 }

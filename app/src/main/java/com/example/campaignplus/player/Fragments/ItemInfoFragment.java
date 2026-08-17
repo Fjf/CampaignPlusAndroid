@@ -1,8 +1,10 @@
 package com.example.campaignplus.player.Fragments;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
@@ -26,21 +28,21 @@ import com.example.campaignplus._data.items.ItemData;
 import com.example.campaignplus._data.items.ItemType;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 import static com.example.campaignplus._data.DataCache.selectedPlayer;
 import static com.example.campaignplus.player.MainFragments.ItemViewFragment.selectedItemId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class ItemInfoFragment extends Fragment {
     private String TAG = "PlayerItemActivity";
@@ -74,7 +76,7 @@ public class ItemInfoFragment extends Fragment {
         tb.findViewById(R.id.save_fragment_button).setOnClickListener(view -> {
             try {
                 updateItem();
-            } catch (JSONException | UnsupportedEncodingException e) {
+            } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -99,27 +101,30 @@ public class ItemInfoFragment extends Fragment {
         return view;
     }
 
-    private void updateItem() throws JSONException, UnsupportedEncodingException {
+    private void updateItem() throws JSONException {
         EquipmentItem item = selectedPlayer.equipment.get(selectedItemId);
 
         item.setAmount(Integer.parseInt(String.valueOf(amount.getText())));
         item.setDescription(String.valueOf(information.getText()));
 
-        StringEntity data = new StringEntity(item.toJSON().toString(), Charset.defaultCharset());
+        String jsonString = item.toJSON().toString();
 
         String url = String.format(Locale.ENGLISH, "player/%d/item/%d", selectedPlayer.getId(), item.getInstanceId());
-        HttpUtils.put(url, data, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                Toast.makeText(getContext(), "Updated item.", Toast.LENGTH_SHORT).show();
-                callback.success(selectedItemId);
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            public void onFailure(Call call, IOException e) {
+                HttpUtils.showToast(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(getContext(), "Error:" + errorResponse.toString(), Toast.LENGTH_SHORT).show();
-                super.onFailure(statusCode, headers, throwable, errorResponse);
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    HttpUtils.showToast(getContext(), "Updated item.", Toast.LENGTH_SHORT);
+                    callback.success(selectedItemId);
+                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                } else {
+                    HttpUtils.showToast(getContext(), "Error updating item", Toast.LENGTH_SHORT);
+                }
             }
         });
     }
@@ -152,6 +157,7 @@ public class ItemInfoFragment extends Fragment {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.ECLAIR)
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
         btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);

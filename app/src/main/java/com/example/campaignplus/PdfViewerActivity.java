@@ -10,19 +10,22 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.example.campaignplus._utils.PdfViewer;
-import com.github.barteksc.pdfviewer.PDFView;
-import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
-import com.github.barteksc.pdfviewer.listener.OnPageScrollListener;
-import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+// TODO: PDF Viewer functionality disabled due to deprecated library
+// The original library (com.github.barteksc:android-pdf-viewer) is no longer maintained
+// TODO: Migrate to a modern PDF viewer library when needed
+// Possible alternatives:
+// - AndroidX PDF Viewer (if available)
+// - Google's PDF Viewer library
+// - Custom WebView-based PDF viewer
+
+import android.widget.RelativeLayout;
 
 public class PdfViewerActivity extends AppCompatActivity {
 
-    private static final String TAG = "PDFViewerActivity";
-    private PDFView pdfView;
+    private static final String TAG = "PdfViewerActivity";
+    // PDFView pdfView; // Commented out - TODO: Replace with modern PDF viewer
     private SharedPreferences sharedPreferences;
     private int currentPage;
     private Toolbar toolbar;
@@ -33,9 +36,9 @@ public class PdfViewerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdf_viewer);
 
-        pdfView = findViewById(R.id.pdfView);
-        pdfWrapper = findViewById(R.id.pdf_wrapper);
-        pdfView.setSaveEnabled(true);
+        // pdfView = findViewById(R.id.pdfView); // Commented out
+        // pdfWrapper = findViewById(R.id.pdf_wrapper);
+        // pdfView.setSaveEnabled(true);
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Pdf Viewer");
@@ -43,7 +46,10 @@ public class PdfViewerActivity extends AppCompatActivity {
 
         currentPage = getIntent().getIntExtra("REQUESTED_PAGE_NUMBER", 0);
 
-        loadPdf();
+        // TODO: Implement PDF loading with modern PDF viewer library
+        // loadPdf();
+        
+        Toast.makeText(this, "PDF Viewer functionality is currently disabled. TODO: Migrate to modern PDF viewer.", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -68,7 +74,7 @@ public class PdfViewerActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    /*
     private OnPageScrollListener pdfScrollHideToolbar() {
         return new OnPageScrollListener() {
             float oldPos = 0.0f;
@@ -99,71 +105,27 @@ public class PdfViewerActivity extends AppCompatActivity {
             }
         };
     }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        currentPage = intent.getIntExtra("REQUESTED_PAGE_NUMBER", 0);
-
-        if (pdfView == null) {
-            loadPdf();
-        } else {
-            pdfView.jumpTo(currentPage);
-        }
-    }
-
-    private void loadPdf() {
-        sharedPreferences = getSharedPreferences("Settings", MODE_PRIVATE);
-        String pdfString = sharedPreferences.getString("phb_uri", null);
-
-        if (pdfString == null) {
-            Toast.makeText(this, "Please select a pdf to use this feature.", Toast.LENGTH_SHORT).show();
-
-            getLocalPdf();
-        } else {
-            preloadPdf(Uri.parse(pdfString));
-        }
-    }
+    */
 
     private void getLocalPdf() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // TODO: Implement with modern PDF viewer
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("application/pdf");
-
-        startActivityForResult(intent, 0);
-    }
-
-    private void preloadPdf(Uri pdfUri) {
-        pdfView.fromUri(pdfUri)
-                .defaultPage(currentPage)
-                .scrollHandle(new DefaultScrollHandle(this))
-                .onPageScroll(pdfScrollHideToolbar())
-                .onPageChange(pdfScrollChangeTitle())
-                .load();
-
-        PdfViewer.setView(pdfView);
+        startActivityForResult(intent, 1);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode != RESULT_OK)
-            return;
-
-        if (requestCode == 0) {
-            assert data != null;
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
-            assert uri != null;
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("phb_uri", uri.toString());
-            editor.apply();
-            preloadPdf(uri);
+            // TODO: Implement PDF loading with modern PDF viewer
+            // pdfView.fromUri(uri)
+            //         .pages(0, currentPage)
+            //         .showMinimap(false)
+            //         .showErrors(true)
+            //         .load();
         }
     }
-
-//    @Override
-//    public void onBackPressed() {
-//        moveTaskToBack(true);
-//    }
 }

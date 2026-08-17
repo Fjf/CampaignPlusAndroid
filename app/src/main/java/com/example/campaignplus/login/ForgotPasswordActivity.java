@@ -11,16 +11,15 @@ import android.widget.TextView;
 
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.R;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.io.IOException;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
     private EditText email;
@@ -43,48 +42,48 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             validate(email.getText().toString());
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
     }
 
-    private void validate(String email) throws JSONException, UnsupportedEncodingException {
+    private void validate(String email) throws JSONException {
         // Disable button
         submit.setEnabled(false);
 
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
         data.put("email", email);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonStr = data.toString();
 
-        HttpUtils.post("forgot_password", entity, new JsonHttpResponseHandler() {
+        HttpUtils.post("forgot_password", jsonStr, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    JSONObject serverResp = new JSONObject(response.toString());
-                    Log.d(TAG, serverResp.toString());
-                    if (serverResp.getBoolean("success")) {
-                        Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        info.setText(serverResp.get("error").toString());
-                    }
-
-                } catch (JSONException e) {
-                    info.setText("Server response error.");
-                    Log.d(TAG, "Invalid response: " + response.toString());
-                }
-
-                // Re enable button after login response.
+            public void onFailure(Call call, IOException e) {
+                info.setText("Internal server error.");
+                Log.d(TAG, "Request failed: " + e.getMessage());
                 submit.setEnabled(true);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                info.setText("Internal server error.");
-                Log.d(TAG, "Invalid response: " + response);
-
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject serverResp = new JSONObject(jsonResponse);
+                        Log.d(TAG, serverResp.toString());
+                        if (serverResp.getBoolean("success")) {
+                            Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            info.setText(serverResp.optString("error", "Unknown error"));
+                        }
+                    } catch (Exception e) {
+                        info.setText("Server response error.");
+                        Log.d(TAG, "Invalid response: " + e.getMessage());
+                    }
+                } else {
+                    info.setText("Internal server error.");
+                    Log.d(TAG, "HTTP error: " + response.code());
+                }
                 // Re enable button after login response.
                 submit.setEnabled(true);
             }

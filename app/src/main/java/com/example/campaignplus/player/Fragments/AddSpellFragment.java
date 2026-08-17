@@ -19,20 +19,19 @@ import com.example.campaignplus._data.SpellData;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.eventlisteners.ShortHapticFeedback;
 import com.example.campaignplus.player.Adapters.SpellInstantAutoCompleteAdapter;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class AddSpellFragment extends Fragment {
 
@@ -58,7 +57,7 @@ public class AddSpellFragment extends Fragment {
             try {
                 playerAddSpell();
             } catch (JSONException | UnsupportedEncodingException e) {
-                Toast.makeText(getContext(), "Error saving:" + e.getMessage(), Toast.LENGTH_LONG).show();
+                HttpUtils.showToast(getContext(), "Error saving:" + e.getMessage(), Toast.LENGTH_LONG);
             }
         });
 
@@ -89,27 +88,31 @@ public class AddSpellFragment extends Fragment {
         autocomplete.setThreshold(1);
 
         // TODO: Add to datacache
-        HttpUtils.get("user/spells", null, new JsonHttpResponseHandler() {
+        HttpUtils.get("user/spells", new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray spells) {
-                try {
-                    arrayAdapter.clear();
-                    for (int i = 0; i < spells.length(); i++) {
-                        SpellData spell = new SpellData(spells.getJSONObject(i));
-                        arrayAdapter.add(spell);
-                    }
-                    //Force the adapter to filter itself, necessary to show new data.
-                    //Filter based on the current text because api call is asynchronous.
-                    arrayAdapter.getFilter().filter(autocomplete.getText(), null);
-                } catch (JSONException e) {
-                    Log.d(TAG, "Something went wrong retrieving data from the server.");
-                    e.printStackTrace();
-                }
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Failed to fetch spells: " + e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String jsonResponse = response.body().string();
+                    try {
+                        JSONArray spells = new JSONArray(jsonResponse);
+                        arrayAdapter.clear();
+                        for (int i = 0; i < spells.length(); i++) {
+                            SpellData spell = new SpellData(spells.getJSONObject(i));
+                            arrayAdapter.add(spell);
+                        }
+                        //Force the adapter to filter itself, necessary to show new data.
+                        //Filter based on the current text because api call is asynchronous.
+                        arrayAdapter.getFilter().filter(autocomplete.getText(), null);
+                    } catch (JSONException e) {
+                        Log.d(TAG, "Something went wrong retrieving data from the server.");
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
@@ -129,7 +132,7 @@ public class AddSpellFragment extends Fragment {
         }
         if (id == -1) {
             // Invalid ID found.
-            Toast.makeText(getContext(), "Cannot add, spell not found.", Toast.LENGTH_LONG).show();
+            HttpUtils.showToast(getContext(), "Cannot add, spell not found.", Toast.LENGTH_LONG);
 
             return;
         }
@@ -137,34 +140,31 @@ public class AddSpellFragment extends Fragment {
         // Store all parameters in json object.
         JSONObject data = new JSONObject();
         data.put("spell_id", id);
-        StringEntity entity = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonString = data.toString();
 
         String url = String.format(Locale.ENGLISH, "player/%s/spells", DataCache.selectedPlayer.getId());
-        HttpUtils.post(url, entity, new JsonHttpResponseHandler() {
+        HttpUtils.post(url, jsonString, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                SpellData spell;
-                try {
-                    spell = new SpellData(response);
-                    DataCache.selectedPlayer.addSpell(spell);
-                    spellInput.setText("");
-                    Toast.makeText(getContext(), "Added spell.", Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "Failed to add spell: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String jsonResponse = response.body().string();
+                    try {
+                        JSONObject responseObject = new JSONObject(jsonResponse);
+                        SpellData spell = new SpellData(responseObject);
+                        DataCache.selectedPlayer.addSpell(spell);
+                        spellInput.setText("");
+                        HttpUtils.showToast(getContext(), "Added spell.", Toast.LENGTH_SHORT);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing JSON response", e);
+                        HttpUtils.showToast(getContext(), "Error adding spell: " + e.getMessage(), Toast.LENGTH_SHORT);
+                    }
                 }
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                Log.d(TAG, "Invalid response: " + response);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                String response = errorResponse == null ? null : errorResponse.toString();
-                onFailure(statusCode, headers, response, throwable);
-            }
-
         });
     }
 }

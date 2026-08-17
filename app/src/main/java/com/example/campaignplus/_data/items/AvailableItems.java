@@ -2,15 +2,17 @@ package com.example.campaignplus._data.items;
 
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class AvailableItems {
     public static ArrayList<ItemData> items = new ArrayList<>();
@@ -26,20 +28,26 @@ public class AvailableItems {
     }
 
     public static void updateItems(final CallBack fn) {
-        HttpUtils.get("user/items", null, new JsonHttpResponseHandler() {
+        HttpUtils.newGet("user/items", new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray items) {
-                try {
-                    setItems(items);
-                    fn.success();
-                } catch (JSONException e) {
-                    fn.error("Fetching available items failed: invalid JSON format.");
-                }
+            public void onFailure(Call call, IOException e) {
+                fn.error(e.getMessage());
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String response, Throwable throwable) {
-                fn.error(response);
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONArray items = new JSONArray(jsonResponse);
+                        setItems(items);
+                        fn.success();
+                    } catch (Exception e) {
+                        fn.error("Fetching available items failed: " + e.getMessage());
+                    }
+                } else {
+                    fn.error("Failed to fetch items: " + response.code());
+                }
             }
         });
     }

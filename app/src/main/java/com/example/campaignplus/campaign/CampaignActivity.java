@@ -27,18 +27,18 @@ import com.example.campaignplus._data.PlayerData;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus.player.CreatePlayerActivity;
 import com.example.campaignplus.player.PlayerInfoActivity;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class CampaignActivity extends AppCompatActivity {
     private static final int CREATE_CHARACTER_INTENT = 0;
@@ -121,22 +121,34 @@ public class CampaignActivity extends AppCompatActivity {
 
         JSONObject data = new JSONObject();
         data.put("campaign_code", campaignCode);
-        StringEntity args = new StringEntity(data.toString(), Charset.defaultCharset());
+        String jsonStr = data.toString();
 
-        HttpUtils.put(url, args, new JsonHttpResponseHandler() {
+        HttpUtils.put(url, jsonStr, new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    DataCache.updatePlayer(new PlayerData(response));
-                    updatePlayerList(DataCache.getPlayers(campaignId));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+            public void onFailure(Call call, IOException e) {
+                HttpUtils.showToast(CampaignActivity.this, "Failed to add player: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(CampaignActivity.this, errorResponse.toString(), Toast.LENGTH_SHORT).show();
+            public void onResponse(Call call, Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonResponse = response.body().string();
+                        JSONObject obj = new JSONObject(jsonResponse);
+                        DataCache.updatePlayer(new PlayerData(obj));
+                        updatePlayerList(DataCache.getPlayers(campaignId));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        HttpUtils.showToast(CampaignActivity.this, "Failed to parse response", Toast.LENGTH_SHORT);
+                    }
+                } else {
+                    try {
+                        String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                        HttpUtils.showToast(CampaignActivity.this, errorBody, Toast.LENGTH_SHORT);
+                    } catch (IOException e) {
+                        HttpUtils.showToast(CampaignActivity.this, "Failed to add player", Toast.LENGTH_SHORT);
+                    }
+                }
             }
         });
     }
