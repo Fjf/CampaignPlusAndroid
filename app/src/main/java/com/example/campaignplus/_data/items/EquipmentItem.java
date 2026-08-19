@@ -12,7 +12,7 @@ public class EquipmentItem {
     private ItemData item;
 
     public void setAmount(int amount) {
-        this.amount = amount;
+        this.amount = Math.min(amount, Integer.MAX_VALUE);
     }
 
     public int getAmount() {
@@ -33,7 +33,8 @@ public class EquipmentItem {
         this.instanceId = obj.getInt("id");
 
         if (!obj.isNull("amount")) {
-            this.amount = obj.getInt("amount");
+            long value = obj.getLong("amount");
+            this.amount = (int) Math.min(value, Integer.MAX_VALUE);
         } else {
             this.amount = 0;
         }

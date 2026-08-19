@@ -62,18 +62,22 @@ public class LandingActivity extends AppCompatActivity {
         UserService.login(username, password, new CallBack() {
             @Override
             public void success() {
-                Intent intent = new Intent(LandingActivity.this, PlayerInfoActivity.class);
-                startActivity(intent);
-                finish();
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(LandingActivity.this, PlayerInfoActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
             }
 
             @Override
             public void error(String errorMessage) {
                 HttpUtils.setOfflineMode(false);
                 // When login fails, redirect to login screen instead of PlayerInfoActivity
-                Intent intent = new Intent(LandingActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(LandingActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
             }
         });
 

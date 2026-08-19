@@ -4,7 +4,6 @@
         <item>@drawable/ic_hanging_sign_24dp</item>
         <item>@drawable/ic_spell_book_24dp</item>
         <item>@drawable/ic_scroll_unfurled_24dp</item>
-        <item>@drawable/ic_scroll_unfurled_24dp</item>
         <item>@drawable/ic_skills_24dp</item>
     </array>
     <string name="app_name">Campaign+</string>
@@ -37,6 +36,7 @@
     <string name="campaign_qr">Campaign QR</string>
     <string name="title_activity_player_class">Class Info</string>
     <string name="show_map">Show Map</string>
+    <string name="back_to_character">Back to Character</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="ritual">Ritual</string>
@@ -48,13 +48,15 @@
     <string name="armor_class">Armor Class</string>
     <string name="add_item">Add Item</string>
     <string name="items_count">Items: %d</string>
+    <string name="add_counter">Add Counter</string>
+    <string name="counter_name">Counter Name</string>
+    <string name="counter_max_value">Max Value (optional)</string>
 
 
     <string-array name="player_info_left_drawer_titles">
         <item>Add Item</item>
         <item>Create Spell</item>
         <item>My Spells</item>
-        <item>Add Spell</item>
         <item>Table Info</item>
         <item>Player Stats</item>
     </string-array>
@@ -68,4 +70,10 @@
         <item>Hit point maximum halved.</item>
         <item>Speed reduced to 0.</item>
     </string-array>
+
+    <!-- PDF Viewer strings -->
+    <string name="pdf_viewer_title">PDF Viewer</string>
+    <string name="pdf_no_file_selected">No PDF file selected\n\nTap the menu icon to select a PDF file from your device.</string>
+    <string name="pdf_loading">Loading PDF...</string>
+    <string name="pdf_error">Error loading PDF: %1$s</string>
 </resources>

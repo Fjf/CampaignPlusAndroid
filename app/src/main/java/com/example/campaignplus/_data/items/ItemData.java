@@ -120,12 +120,12 @@ public class ItemData {
          * General information about this type of item
          * All specific Weapon stats are loaded etc.
          */
-        this.id = itemJson.getInt("id");
+        this.id = itemJson.optInt("id", -1);  // Use -1 as default if id is missing
         this.name = itemJson.getString("name");
-        this.weight = itemJson.getInt("weight");
-        this.cost = itemJson.getInt("cost");
+        this.weight = itemJson.optInt("weight", 0);  // Make weight optional
+        this.cost = itemJson.optInt("cost", 0);  // Make cost optional
         this.category = itemJson.getString("category");
-        this.description = itemJson.getString("description");
+        this.description = itemJson.optString("description", "");  // Make description optional
 
         ItemType type = getItemType(this.category);
 

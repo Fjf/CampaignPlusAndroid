@@ -191,20 +191,26 @@ public class CampaignOverviewActivity extends AppCompatActivity {
         HttpUtils.post(url, "", new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
-                // Close fragment.
-                CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                runOnUiThread(() -> {
+                    Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
+                    // Close fragment.
+                    CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                });
             }
 
             @Override
             public void onResponse(Call call, Response response) {
                 if (response.isSuccessful()) {
-                    // Close fragment.
-                    CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                    runOnUiThread(() -> {
+                        // Close fragment.
+                        CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                    });
                 } else {
-                    Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
-                    // Close fragment.
-                    CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                    runOnUiThread(() -> {
+                        Toast.makeText(CampaignOverviewActivity.this, "This campaign does not exist.", Toast.LENGTH_SHORT).show();
+                        // Close fragment.
+                        CampaignOverviewActivity.this.getSupportFragmentManager().popBackStackImmediate();
+                    });
                 }
             }
         });

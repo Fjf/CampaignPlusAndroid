@@ -84,7 +84,8 @@ public class CreateSpellFragment extends Fragment {
 
     private SpellData createSpellFromFields() {
         SpellData spellData = new SpellData();
-        spellData.level = Integer.parseInt(_getText(view.findViewById(R.id.spell_info_level)));
+        String levelText = _getText(view.findViewById(R.id.spell_info_level));
+        spellData.level = levelText.isEmpty() ? 0 : Integer.parseInt(levelText);
         spellData.name = _getText(view.findViewById(R.id.name));
         spellData.castingTime = _getText(view.findViewById(R.id.spell_info_casting_time));
         spellData.higherLevel = _getText(view.findViewById(R.id.spell_info_higher_level));
@@ -113,9 +114,13 @@ public class CreateSpellFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    getActivity().runOnUiThread(() -> {
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    });
                 } else {
-                    HttpUtils.showToast(getActivity(), "Error creating spell: " + response.message(), Toast.LENGTH_SHORT);
+                    getActivity().runOnUiThread(() -> {
+                        HttpUtils.showToast(getActivity(), "Error creating spell: " + response.message(), Toast.LENGTH_SHORT);
+                    });
                 }
             }
         });

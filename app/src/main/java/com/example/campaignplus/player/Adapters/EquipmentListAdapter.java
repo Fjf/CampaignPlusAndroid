@@ -13,7 +13,7 @@ import com.example.campaignplus._data.items.EquipmentItem;
 import java.util.ArrayList;
 
 public class EquipmentListAdapter extends RecyclerView.Adapter<EquipmentListAdapter.ItemViewHolder> {
-    private final ArrayList<EquipmentItem> pidDataSet;
+    private ArrayList<EquipmentItem> pidDataSet;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -59,6 +59,11 @@ public class EquipmentListAdapter extends RecyclerView.Adapter<EquipmentListAdap
     @Override
     public int getItemCount() {
         return pidDataSet.size();
+    }
+
+    public void updateData(ArrayList<EquipmentItem> newData) {
+        this.pidDataSet = newData;
+        notifyDataSetChanged();
     }
 
 }

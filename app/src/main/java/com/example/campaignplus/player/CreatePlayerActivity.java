@@ -57,6 +57,7 @@ import static com.example.campaignplus._data.DataCache.playerData;
 import static com.example.campaignplus._data.DataCache.selectedPlayer;
 
 public class CreatePlayerActivity extends AppCompatActivity {
+    private static final String TAG = "CreatePlayerActivity";
     private TextView playerName;
     private TextView playerRace;
     private TextInputEditText playerBackstory;
@@ -291,24 +292,38 @@ public class CreatePlayerActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                findViewById(R.id.player_save_created).setEnabled(true);
                 if (response.isSuccessful() && response.body() != null) {
                     String jsonResponse = response.body().string();
                     try {
                         JSONObject responseObject = new JSONObject(jsonResponse);
                         selectedPlayer.setData(responseObject);
+                        Log.d(TAG, "Player updated successfully with ID: " + selectedPlayer.getId());
 
                         // After creating new character, this overlay may close.
                         Intent data = new Intent();
                         data.putExtra("player_id", selectedPlayer.getId());
                         setResult(RESULT_OK, data);
 
-                        HttpUtils.showToast(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT);
-
-                        finish();
+                        runOnUiThread(() -> {
+                            findViewById(R.id.player_save_created).setEnabled(true);
+                            HttpUtils.showToast(CreatePlayerActivity.this, "Updated player successfully.", Toast.LENGTH_SHORT);
+                            finish();
+                        });
                     } catch (JSONException e) {
+                        Log.e(TAG, "JSON Error: " + e.getMessage());
                         e.printStackTrace();
+                        runOnUiThread(() -> {
+                            findViewById(R.id.player_save_created).setEnabled(true);
+                            HttpUtils.showToast(CreatePlayerActivity.this, "Error parsing response: " + e.getMessage(), Toast.LENGTH_SHORT);
+                        });
                     }
+                } else {
+                    String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                    Log.e(TAG, "Update failed with code " + response.code() + ": " + errorBody);
+                    runOnUiThread(() -> {
+                        findViewById(R.id.player_save_created).setEnabled(true);
+                        HttpUtils.showToast(CreatePlayerActivity.this, "Failed to update player: " + response.code(), Toast.LENGTH_SHORT);
+                    });
                 }
             }
         });

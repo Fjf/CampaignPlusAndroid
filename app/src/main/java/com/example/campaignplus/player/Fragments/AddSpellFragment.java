@@ -74,9 +74,11 @@ public class AddSpellFragment extends Fragment {
     private void registerExitFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.close_fragment_button);
         btn.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-        btn.setOnClickListener(view -> {
+        btn.setOnClickListener(v -> {
             // Remove current fragment
-            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+            if (getActivity() != null && getActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getActivity().getSupportFragmentManager().popBackStackImmediate();
+            }
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }
@@ -105,9 +107,10 @@ public class AddSpellFragment extends Fragment {
                             SpellData spell = new SpellData(spells.getJSONObject(i));
                             arrayAdapter.add(spell);
                         }
-                        //Force the adapter to filter itself, necessary to show new data.
-                        //Filter based on the current text because api call is asynchronous.
-                        arrayAdapter.getFilter().filter(autocomplete.getText(), null);
+                        // Force the adapter to filter itself on the main thread.
+                        getActivity().runOnUiThread(() -> {
+                            arrayAdapter.getFilter().filter(autocomplete.getText(), null);
+                        });
                     } catch (JSONException e) {
                         Log.d(TAG, "Something went wrong retrieving data from the server.");
                         e.printStackTrace();
@@ -157,11 +160,15 @@ public class AddSpellFragment extends Fragment {
                         JSONObject responseObject = new JSONObject(jsonResponse);
                         SpellData spell = new SpellData(responseObject);
                         DataCache.selectedPlayer.addSpell(spell);
-                        spellInput.setText("");
-                        HttpUtils.showToast(getContext(), "Added spell.", Toast.LENGTH_SHORT);
+                        getActivity().runOnUiThread(() -> {
+                            spellInput.setText("");
+                            HttpUtils.showToast(getContext(), "Added spell.", Toast.LENGTH_SHORT);
+                        });
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing JSON response", e);
-                        HttpUtils.showToast(getContext(), "Error adding spell: " + e.getMessage(), Toast.LENGTH_SHORT);
+                        getActivity().runOnUiThread(() -> {
+                            HttpUtils.showToast(getContext(), "Error adding spell: " + e.getMessage(), Toast.LENGTH_SHORT);
+                        });
                     }
                 }
             }

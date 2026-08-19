@@ -126,7 +126,9 @@ public class CampaignActivity extends AppCompatActivity {
         HttpUtils.put(url, jsonStr, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                HttpUtils.showToast(CampaignActivity.this, "Failed to add player: " + e.getMessage(), Toast.LENGTH_SHORT);
+                runOnUiThread(() -> 
+                    HttpUtils.showToast(CampaignActivity.this, "Failed to add player: " + e.getMessage(), Toast.LENGTH_SHORT)
+                );
             }
 
             @Override
@@ -139,14 +141,20 @@ public class CampaignActivity extends AppCompatActivity {
                         updatePlayerList(DataCache.getPlayers(campaignId));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        HttpUtils.showToast(CampaignActivity.this, "Failed to parse response", Toast.LENGTH_SHORT);
+                        runOnUiThread(() -> 
+                            HttpUtils.showToast(CampaignActivity.this, "Failed to parse response", Toast.LENGTH_SHORT)
+                        );
                     }
                 } else {
                     try {
                         String errorBody = response.body() != null ? response.body().string() : "Unknown error";
-                        HttpUtils.showToast(CampaignActivity.this, errorBody, Toast.LENGTH_SHORT);
+                        runOnUiThread(() -> 
+                            HttpUtils.showToast(CampaignActivity.this, errorBody, Toast.LENGTH_SHORT)
+                        );
                     } catch (IOException e) {
-                        HttpUtils.showToast(CampaignActivity.this, "Failed to add player", Toast.LENGTH_SHORT);
+                        runOnUiThread(() -> 
+                            HttpUtils.showToast(CampaignActivity.this, "Failed to add player", Toast.LENGTH_SHORT)
+                        );
                     }
                 }
             }

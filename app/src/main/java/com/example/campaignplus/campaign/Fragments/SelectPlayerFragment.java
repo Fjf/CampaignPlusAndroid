@@ -123,24 +123,38 @@ public class SelectPlayerFragment extends Fragment {
         HttpUtils.put(url, jsonStr, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                // Go back to parent.
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        // Go back to parent.
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    });
+                }
             }
 
             @Override
             public void onResponse(Call call, Response response) {
+                if (getActivity() == null) return;
+                
                 if (response.isSuccessful()) {
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    getActivity().runOnUiThread(() -> 
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate()
+                    );
                 } else {
+                    String errorBody = "Something went wrong updating your player's campaign";
                     try {
-                        String errorBody = response.body() != null ? response.body().string() : "Unknown error";
-                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign: " + errorBody, Toast.LENGTH_SHORT).show();
+                        if (response.body() != null) {
+                            errorBody = "Something went wrong updating your player's campaign: " + response.body().string();
+                        }
                     } catch (IOException e) {
-                        Toast.makeText(getActivity(), "Something went wrong updating your player's campaign", Toast.LENGTH_SHORT).show();
+                        // Use default error message
                     }
-                    // Go back to parent.
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    final String finalErrorBody = errorBody;
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getActivity(), finalErrorBody, Toast.LENGTH_SHORT).show();
+                        // Go back to parent.
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    });
                 }
             }
         });

@@ -64,28 +64,30 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String jsonResponse = response.body().string();
-                        JSONObject serverResp = new JSONObject(jsonResponse);
-                        Log.d(TAG, serverResp.toString());
-                        if (serverResp.getBoolean("success")) {
-                            Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            info.setText(serverResp.optString("error", "Unknown error"));
+                runOnUiThread(() -> {
+                    if (response.isSuccessful() && response.body() != null) {
+                        try {
+                            String jsonResponse = response.body().string();
+                            JSONObject serverResp = new JSONObject(jsonResponse);
+                            Log.d(TAG, serverResp.toString());
+                            if (serverResp.getBoolean("success")) {
+                                Intent intent = new Intent(ForgotPasswordActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                info.setText(serverResp.optString("error", "Unknown error"));
+                            }
+                        } catch (Exception e) {
+                            info.setText("Server response error.");
+                            Log.d(TAG, "Invalid response: " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        info.setText("Server response error.");
-                        Log.d(TAG, "Invalid response: " + e.getMessage());
+                    } else {
+                        info.setText("Internal server error.");
+                        Log.d(TAG, "HTTP error: " + response.code());
                     }
-                } else {
-                    info.setText("Internal server error.");
-                    Log.d(TAG, "HTTP error: " + response.code());
-                }
-                // Re enable button after login response.
-                submit.setEnabled(true);
+                    // Re enable button after login response.
+                    submit.setEnabled(true);
+                });
             }
         });
     }

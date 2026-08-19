@@ -52,9 +52,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
     
-    // PDF Viewer - Commented out as original library is deprecated
-    // TODO: Add a modern PDF viewer library when needed (e.g., PDFView from Barteksc or alternative)
-    // implementation 'com.github.barteksc:android-pdf-viewer:2.6.1'
+    // PDF Viewer - Using external viewer via Intent
     
     // Barcode scanning - Modern ZXing integration (replacing dm7.barcodescanner)
     implementation 'com.google.zxing:core:3.5.3'

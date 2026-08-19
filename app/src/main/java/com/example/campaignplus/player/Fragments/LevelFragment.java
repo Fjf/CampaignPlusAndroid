@@ -129,23 +129,32 @@ public class LevelFragment extends Fragment {
 
     private void registerSaveFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.save_fragment_button);
-        btn.setOnClickListener(view -> {
+        btn.setOnTouchListener(new ShortHapticFeedback());
+        btn.setOnClickListener(v -> {
             selectedPlayer.upload(new CallBack() {
                 @Override
                 public void success() {
-                    Toast.makeText(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
-                    // Remove current fragment on successful upload.
-                    callback.success();
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getActivity(), "Successfully uploaded player data.", Toast.LENGTH_SHORT).show();
+                            if (callback != null) {
+                                callback.success();
+                            }
+                            getActivity().getSupportFragmentManager().popBackStackImmediate();
+                        });
+                    }
                 }
 
                 @Override
                 public void error(String errorMessage) {
-                    Toast.makeText(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getActivity(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG).show();
+                        });
+                    }
                 }
             });
         });
-        btn.setOnTouchListener(new ShortHapticFeedback());
     }
 
     @Override

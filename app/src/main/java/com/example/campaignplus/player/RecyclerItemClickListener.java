@@ -30,6 +30,14 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
                 }
                 return false;
             }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                if (child != null && clickListener != null) {
+                    clickListener.onLongPress(child, recyclerView.getChildAdapterPosition(child));
+                }
+            }
         });
     }
 
@@ -53,5 +61,7 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
         void onClick(View view, int position);
 
         void onDoubleTap(View view, int position);
+
+        void onLongPress(View view, int position);
     }
 }

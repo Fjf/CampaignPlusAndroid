@@ -19,21 +19,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campaignplus.R;
+import com.example.campaignplus._data.Counter;
 import com.example.campaignplus._data.PlayerStatsData;
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 import com.example.campaignplus._utils.PlayerInfoFragment;
 import com.example.campaignplus._utils.TextProcessor;
+import com.example.campaignplus.player.Adapters.CounterAdapter;
 import com.example.campaignplus.player.Fragments.LevelFragment;
 import com.example.campaignplus.player.Fragments.StatsFragment;
 import com.example.campaignplus.player.Listeners.TextOnChangeSaveListener;
+import com.example.campaignplus.player.Adapters.SpellSlotItemAdapter;
+import com.example.campaignplus._data.DataCache;
+import com.example.campaignplus._data.classinfo.MainClassInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class PlayerViewFragment extends PlayerInfoFragment {
@@ -64,6 +76,10 @@ public class PlayerViewFragment extends PlayerInfoFragment {
     private TextView statLevel;
     private TextView itemsSummary;
     private SharedPreferences preferences;
+    
+    private RecyclerView countersRecyclerView;
+    private CounterAdapter countersAdapter;
+    private ArrayList<Counter> countersList;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,6 +108,12 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         fetchItemsSummary();
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initCounters();
     }
 
     private void setEventHandlers() {
@@ -148,10 +170,12 @@ public class PlayerViewFragment extends PlayerInfoFragment {
             selectedPlayer.getEquipment(new CallBack() {
                 @Override
                 public void success() {
-                    if (getActivity() != null && view != null) {
+                    if (isAdded() && getActivity() != null && view != null && itemsSummary != null) {
                         getActivity().runOnUiThread(() -> {
-                            itemsSummary.setText(String.format(getString(R.string.items_count), 
-                                selectedPlayer.equipment.size()));
+                            if (isAdded() && itemsSummary != null) {
+                                itemsSummary.setText(String.format(getString(R.string.items_count), 
+                                    selectedPlayer.equipment.size()));
+                            }
                         });
                     }
                 }
@@ -225,8 +249,10 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         statLevel.setText(sd.getLevel());
 
         // Update items summary
-        itemsSummary.setText(String.format(getString(R.string.items_count), 
-            selectedPlayer.equipment != null ? selectedPlayer.equipment.size() : 0));
+        if (itemsSummary != null) {
+            itemsSummary.setText(String.format(getString(R.string.items_count), 
+                selectedPlayer.equipment != null ? selectedPlayer.equipment.size() : 0));
+        }
 
         gold.setText(String.valueOf(selectedPlayer.gold));
         silver.setText(String.valueOf(selectedPlayer.silver));
@@ -241,12 +267,20 @@ public class PlayerViewFragment extends PlayerInfoFragment {
         selectedPlayer.upload(new CallBack() {
             @Override
             public void success() {
-                HttpUtils.showToast(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        HttpUtils.showToast(view.getContext(), "Uploaded player data.", Toast.LENGTH_SHORT);
+                    });
+                }
             }
 
             @Override
             public void error(String errorMessage) {
-                HttpUtils.showToast(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        HttpUtils.showToast(view.getContext(), "Failed uploading player data: " + errorMessage, Toast.LENGTH_LONG);
+                    });
+                }
             }
         });
     }
@@ -260,7 +294,183 @@ public class PlayerViewFragment extends PlayerInfoFragment {
                 preferences = view.getContext().getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
                 setStatsFields();
                 toolbar.setTitle(selectedPlayer.getName());
+                // Reload counters when player changes
+                initCounters();
             });
         }
+    }
+    
+    private void initCounters() {
+        if (view == null) return;
+        
+        countersRecyclerView = view.findViewById(R.id.counters_recycler);
+        countersRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        
+        countersList = loadCounters();
+        
+        countersAdapter = new CounterAdapter(view.getContext(), countersList, (name, value) -> {
+            saveCounterValue(name, value);
+        }, (name) -> {
+            deleteCounter(name);
+        }, () -> {
+            showAddCounterDialog();
+        });
+        countersRecyclerView.setAdapter(countersAdapter);
+    }
+    
+    private ArrayList<Counter> loadCounters() {
+        ArrayList<Counter> counters = new ArrayList<>();
+        
+        // First, add spell slot counters from table info
+        counters.addAll(getSpellSlotCounters());
+        
+        // Then, add custom counters from SharedPreferences
+        counters.addAll(loadCustomCounters());
+        
+        return counters;
+    }
+    
+    private ArrayList<Counter> getSpellSlotCounters() {
+        ArrayList<Counter> counters = new ArrayList<>();
+        int level = Integer.parseInt(selectedPlayer.statsData.getLevel());
+        
+        for (int classId : selectedPlayer.mainClassIds) {
+            MainClassInfo classInfo = DataCache.availableClasses.get(classId);
+            if (classInfo == null) continue;
+            
+            ArrayList<String> keys = classInfo.getTableKeys();
+            ArrayList<ArrayList<String>> values = classInfo.getTableValues();
+            
+            for (int i = 0; i < keys.size(); i++) {
+                String key = keys.get(i);
+                String maxValueStr = values.get(i).get(Math.min(level - 1, values.get(i).size() - 1));
+                
+                try {
+                    int maxValue = Integer.parseInt(maxValueStr);
+                    int currentValue = maxValue; // Default to max value
+                    
+                    // Try to get the value, handling both String and Integer storage formats
+                    try {
+                        // First try getting as String (SpellSlotItemAdapter format)
+                        String storedValueStr = preferences.getString(key, String.valueOf(maxValue));
+                        currentValue = Integer.parseInt(storedValueStr);
+                    } catch (ClassCastException e) {
+                        // Value was stored as Integer, try getting as Integer
+                        currentValue = preferences.getInt(key, maxValue);
+                    }
+                    
+                    counters.add(new Counter(key, maxValue, currentValue));
+                } catch (NumberFormatException e) {
+                    // Not a numeric counter, skip
+                }
+            }
+        }
+        
+        return counters;
+    }
+    
+    private ArrayList<Counter> loadCustomCounters() {
+        ArrayList<Counter> counters = new ArrayList<>();
+        String jsonStr = preferences.getString("custom_counters", "");
+        
+        if (jsonStr.isEmpty()) return counters;
+        
+        try {
+            JSONArray jsonArr = new JSONArray(jsonStr);
+            for (int i = 0; i < jsonArr.length(); i++) {
+                Counter counter = new Counter(jsonArr.getJSONObject(i));
+                counter.setCustom(true);
+                counters.add(counter);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        
+        return counters;
+    }
+    
+    private void saveCustomCounters() {
+        JSONArray jsonArr = new JSONArray();
+        for (Counter counter : countersList) {
+            if (!isSpellSlotCounter(counter.getName())) {
+                try {
+                    jsonArr.put(counter.toJSON());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        preferences.edit().putString("custom_counters", jsonArr.toString()).apply();
+    }
+    
+    private boolean isSpellSlotCounter(String name) {
+        // Check if this counter name matches any spell slot key
+        for (int classId : selectedPlayer.mainClassIds) {
+            MainClassInfo classInfo = DataCache.availableClasses.get(classId);
+            if (classInfo == null) continue;
+            if (classInfo.getTableKeys().contains(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private void saveCounterValue(String name, int value) {
+        if (isSpellSlotCounter(name)) {
+            // Save to preferences with the counter name as key
+            preferences.edit().putInt(name, value).apply();
+        } else {
+            // Find and update custom counter
+            for (Counter counter : countersList) {
+                if (counter.getName().equals(name)) {
+                    counter.setCurrentValue(value);
+                    break;
+                }
+            }
+            saveCustomCounters();
+        }
+    }
+    
+    private void showAddCounterDialog() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_counter, null);
+        EditText nameInput = dialogView.findViewById(R.id.counter_name_input);
+        EditText maxValueInput = dialogView.findViewById(R.id.counter_max_value_input);
+        
+        new AlertDialog.Builder(getContext())
+            .setTitle(R.string.add_counter)
+            .setView(dialogView)
+            .setPositiveButton("Add", (dialog, which) -> {
+                String name = nameInput.getText().toString().trim();
+                if (name.isEmpty()) {
+                    Toast.makeText(getContext(), "Please enter a counter name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                int maxValue = 0;
+                try {
+                    String maxStr = maxValueInput.getText().toString().trim();
+                    if (!maxStr.isEmpty()) {
+                        maxValue = Integer.parseInt(maxStr);
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Invalid max value", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                // Add counter
+                Counter newCounter = new Counter(name, maxValue, maxValue > 0 ? maxValue : 1);
+                newCounter.setCustom(true);
+                countersList.add(newCounter);
+                countersAdapter.notifyDataSetChanged();
+                saveCustomCounters();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+    
+    private void deleteCounter(String name) {
+        countersList.removeIf(counter -> counter.getName().equals(name));
+        countersAdapter.notifyDataSetChanged();
+        saveCustomCounters();
     }
 }

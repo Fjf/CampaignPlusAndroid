@@ -83,34 +83,36 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String jsonResponse = response.body().string();
-                        JSONObject serverResp = new JSONObject(jsonResponse);
-                        if (serverResp.getBoolean("success")) {
-                            // Store username/pw in SharedPreferences for next login to be automatic.
-                            SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
-                            SharedPreferences.Editor edit = preferences.edit();
-                            edit.putString("username", name);
-                            edit.putString("password", password);
-                            edit.apply();
+                runOnUiThread(() -> {
+                    if (response.isSuccessful() && response.body() != null) {
+                        try {
+                            String jsonResponse = response.body().string();
+                            JSONObject serverResp = new JSONObject(jsonResponse);
+                            if (serverResp.getBoolean("success")) {
+                                // Store username/pw in SharedPreferences for next login to be automatic.
+                                SharedPreferences preferences = getSharedPreferences("LoginData", MODE_PRIVATE);
+                                SharedPreferences.Editor edit = preferences.edit();
+                                edit.putString("username", name);
+                                edit.putString("password", password);
+                                edit.apply();
 
-                            Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            registerInfo.setText(serverResp.optString("error", "Unknown error"));
+                                Intent intent = new Intent(RegisterActivity.this, PlayerInfoActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                registerInfo.setText(serverResp.optString("error", "Unknown error"));
+                            }
+                        } catch (Exception e) {
+                            registerInfo.setText("Server response error.");
+                            Log.d(TAG, "Invalid response: " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        registerInfo.setText("Server response error.");
-                        Log.d(TAG, "Invalid response: " + e.getMessage());
+                    } else {
+                        registerInfo.setText("Internal server error.");
+                        Log.d(TAG, "HTTP error: " + response.code());
                     }
-                } else {
-                    registerInfo.setText("Internal server error.");
-                    Log.d(TAG, "HTTP error: " + response.code());
-                }
-                // Re enable button after login response.
-                registerButton.setEnabled(true);
+                    // Re enable button after login response.
+                    registerButton.setEnabled(true);
+                });
             }
         });
     }

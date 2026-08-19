@@ -21,14 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/back_to_parent_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:backgroundTint="@color/colorPrimary"
-                android:src="@drawable/ic_back_24dp" />
-
             <com.otaliastudios.zoom.ZoomImageView
                 android:id="@+id/map_container"
                 android:layout_width="match_parent"
@@ -42,7 +34,6 @@
                 app:maxZoomType="zoom"
                 app:minZoom="0.7"
                 app:minZoomType="zoom"
-                app:oneFingerScrollEnabled="true"
                 app:overPinchable="true"
                 app:overScrollHorizontal="true"
                 app:overScrollVertical="true"
@@ -54,7 +45,23 @@
                 app:verticalPanEnabled="true"
                 app:zoomEnabled="true"
 
-                />
+            />
+
+            <!-- Pin overlay container -->
+            <FrameLayout
+                android:id="@+id/pin_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/back_to_parent_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:src="@drawable/ic_back_24dp"
+                app:layout_anchor="@id/map_container"
+                app:layout_anchorGravity="bottom|end" />
         </FrameLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -71,13 +78,35 @@
             android:background="@color/colorAccentLight"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:id="@+id/back_to_character_button"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="3dp"
+                android:background="@drawable/bottom_line"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_account_circle_primary_24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/back_to_character"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-
                 android:layout_marginBottom="3dp"
                 android:background="@drawable/bottom_line"
-
                 android:gravity="center"
                 android:text="Options"
                 android:textSize="10pt"
@@ -89,10 +118,8 @@
                 android:layout_height="match_parent"
                 android:background="@color/colorAccentLight"
                 android:choiceMode="singleChoice"
-
                 android:divider="@color/colorAccent"
                 android:dividerHeight="1px"
-
                 android:focusableInTouchMode="true"
                 android:orientation="vertical" />
         </LinearLayout>

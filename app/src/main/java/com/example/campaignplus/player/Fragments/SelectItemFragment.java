@@ -75,15 +75,25 @@ public class SelectItemFragment extends Fragment {
         AvailableItems.updateItems(new CallBack() {
             @Override
             public void success() {
-                // Update item list
-                items.clear();
-                items.addAll(AvailableItems.items);
-                adapter.notifyDataSetChanged();
+                // Update item list on UI thread
+                if (getActivity() != null && isAdded()) {
+                    getActivity().runOnUiThread(() -> {
+                        items.clear();
+                        items.addAll(AvailableItems.items);
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
             }
 
             @Override
             public void error(String errorMessage) {
-                HttpUtils.showToast(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT);
+                if (getActivity() != null && isAdded()) {
+                    getActivity().runOnUiThread(() -> {
+                        HttpUtils.showToast(getContext(), "Error while fetching items: " + errorMessage, Toast.LENGTH_SHORT);
+                    });
+                }
             }
         });
     }

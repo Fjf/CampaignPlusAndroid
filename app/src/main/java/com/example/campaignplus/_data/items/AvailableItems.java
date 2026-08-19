@@ -1,5 +1,9 @@
 package com.example.campaignplus._data.items;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
 import com.example.campaignplus._utils.CallBack;
 import com.example.campaignplus._utils.HttpUtils;
 
@@ -15,7 +19,15 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class AvailableItems {
+    private static final String TAG = "AvailableItems";
     public static ArrayList<ItemData> items = new ArrayList<>();
+
+    /**
+     * Helper method to post callbacks to the main thread.
+     */
+    private static void postToMainThread(Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
+    }
 
     public AvailableItems() {
         // Override default constructor to ignore initialization.
@@ -31,7 +43,11 @@ public class AvailableItems {
         HttpUtils.newGet("user/items", new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                fn.error(e.getMessage());
+                String errorMessage = e.getMessage();
+                if (errorMessage == null || errorMessage.isEmpty()) {
+                    errorMessage = "Connection failed. Please check your server settings (IP: " + HttpUtils.getUrl() + ")";
+                }
+                fn.error(errorMessage);
             }
 
             @Override
@@ -39,14 +55,23 @@ public class AvailableItems {
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String jsonResponse = response.body().string();
+                        Log.d(TAG, "Raw JSON response: " + jsonResponse);
                         JSONArray items = new JSONArray(jsonResponse);
+                        Log.d(TAG, "Parsed " + items.length() + " items");
                         setItems(items);
                         fn.success();
                     } catch (Exception e) {
-                        fn.error("Fetching available items failed: " + e.getMessage());
+                        Log.e(TAG, "Parse error: " + e.getMessage(), e);
+                        fn.error("Failed to parse items: " + e.getMessage());
                     }
                 } else {
-                    fn.error("Failed to fetch items: " + response.code());
+                    String errorMsg = "Server returned error: " + response.code();
+                    if (response.code() == 404) {
+                        errorMsg += " - Items endpoint not found. Check server configuration.";
+                    } else if (response.code() >= 500) {
+                        errorMsg += " - Server error. Please contact the server administrator.";
+                    }
+                    fn.error(errorMsg);
                 }
             }
         });

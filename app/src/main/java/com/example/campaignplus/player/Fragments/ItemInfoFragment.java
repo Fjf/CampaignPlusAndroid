@@ -96,7 +96,13 @@ public class ItemInfoFragment extends Fragment {
 
         amount.setOnEditorActionListener(listener);
 
-        getItems();
+        if (selectedItemId >= 0 && selectedItemId < selectedPlayer.equipment.size()) {
+            getItems();
+        } else {
+            Toast.makeText(getContext(), "No item selected", Toast.LENGTH_SHORT).show();
+            callback.cancel();
+            requireActivity().getSupportFragmentManager().popBackStackImmediate();
+        }
 
         return view;
     }
@@ -104,7 +110,12 @@ public class ItemInfoFragment extends Fragment {
     private void updateItem() throws JSONException {
         EquipmentItem item = selectedPlayer.equipment.get(selectedItemId);
 
-        item.setAmount(Integer.parseInt(String.valueOf(amount.getText())));
+        try {
+            long value = Long.parseLong(String.valueOf(amount.getText()));
+            item.setAmount((int) Math.min(value, Integer.MAX_VALUE));
+        } catch (NumberFormatException e) {
+            item.setAmount(Integer.MAX_VALUE);
+        }
         item.setDescription(String.valueOf(information.getText()));
 
         String jsonString = item.toJSON().toString();
@@ -119,11 +130,17 @@ public class ItemInfoFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    HttpUtils.showToast(getContext(), "Updated item.", Toast.LENGTH_SHORT);
-                    callback.success(selectedItemId);
-                    Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    if (getContext() != null && getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            HttpUtils.showToast(getContext(), "Updated item.", Toast.LENGTH_SHORT);
+                            callback.success(selectedItemId);
+                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                        });
+                    }
                 } else {
-                    HttpUtils.showToast(getContext(), "Error updating item", Toast.LENGTH_SHORT);
+                    if (getContext() != null) {
+                        HttpUtils.showToast(getContext(), "Error updating item", Toast.LENGTH_SHORT);
+                    }
                 }
             }
         });

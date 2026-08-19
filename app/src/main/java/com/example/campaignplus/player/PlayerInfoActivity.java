@@ -61,6 +61,7 @@ import java.util.Locale;
 
 public class PlayerInfoActivity extends AppCompatActivity {
 
+    private static final String TAG = "PlayerInfoActivity";
     private final int UPDATE_STATS = 0;
     private final int UPDATE_SPELL = 2;
     private final int CREATE_PLAYER_RESULT = 5;
@@ -91,7 +92,15 @@ public class PlayerInfoActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
         setSupportActionBar(toolbar);
 
-        preferences = getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+        SharedPreferences tempPrefs = getSharedPreferences("PlayerData_default", MODE_PRIVATE);
+        int defaultPlayerId = tempPrefs.getInt("player_id", -1);
+        if (selectedPlayer != null && selectedPlayer.getId() != -1) {
+            preferences = getSharedPreferences("PlayerData_" + selectedPlayer.getId(), MODE_PRIVATE);
+        } else if (defaultPlayerId != -1) {
+            preferences = getSharedPreferences("PlayerData_" + defaultPlayerId, MODE_PRIVATE);
+        } else {
+            preferences = tempPrefs;
+        }
 
         String[] leftDrawerItemTitles = getResources().getStringArray(R.array.player_info_left_drawer_titles);
         TypedArray leftDrawerItemIcons = getResources().obtainTypedArray(R.array.player_info_left_drawer_icons);
@@ -179,10 +188,19 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     @Override
     public void onResume() {
+        super.onResume();
+        
+        if (isFinishing()) {
+            return;
+        }
+        
         Intent intent = getIntent();
-        int playerId = intent.getIntExtra("player_id", -1);
+        int playerId = -1;
+        if (intent != null) {
+            playerId = intent.getIntExtra("player_id", -1);
+        }
 
-        if (playerId == -1) {
+        if (playerId == -1 && preferences != null) {
             playerId = preferences.getInt("player_id", -1);
         }
         final int pid = playerId;
@@ -191,16 +209,17 @@ public class PlayerInfoActivity extends AppCompatActivity {
             @Override
             public void success() {
                 updatePlayerInfo(pid);
-                // Adapter will be initialized in updatePlayerInfo after data is loaded
             }
 
             @Override
             public void error(String errorMessage) {
-                HttpUtils.showToast(PlayerInfoActivity.this, "Initializing player character list has failed.", Toast.LENGTH_LONG);
+                Log.e(TAG, "Failed to update player data: " + errorMessage);
+                runOnUiThread(() -> {
+                    HttpUtils.showToast(PlayerInfoActivity.this, "Failed to load player data: " + errorMessage, Toast.LENGTH_LONG);
+                });
             }
         });
         updatePlayerDrawer();
-        super.onResume();
     }
 
     public void updatePlayerDrawer() {
@@ -210,7 +229,17 @@ public class PlayerInfoActivity extends AppCompatActivity {
 
     @SuppressLint("RestrictedApi")
     private void updatePlayerInfo(int id) {
+        Log.d(TAG, "Updating player info for ID: " + id);
         selectedPlayer = DataCache.getPlayer(id);
+        Log.d(TAG, "Selected player: " + (selectedPlayer != null ? selectedPlayer.getName() : "null"));
+
+        // Save current page position before switching
+        final int currentPage;
+        if (viewPagerAdapter != null) {
+            currentPage = viewPager.getCurrentItem();
+        } else {
+            currentPage = 0;
+        }
 
         bottomNavigation.getMenu().findItem(R.id.page_account).setTitle(selectedPlayer.getName());
 
@@ -223,25 +252,31 @@ public class PlayerInfoActivity extends AppCompatActivity {
         selectedPlayer.updatePlayerData(new CallBack() {
             @Override
             public void success() {
+                Log.d(TAG, "Player data updated successfully");
                 runOnUiThread(() -> {
-                    // Initialize ViewPager adapter after player data is fully loaded
-                    if (viewPagerAdapter == null && selectedPlayer != null) {
+                    // Recreate ViewPager adapter when player changes
+                    if (selectedPlayer != null) {
                         viewPagerAdapter = new PlayerViewPagerAdapter(PlayerInfoActivity.this, selectedPlayer);
                         viewPager.setAdapter(viewPagerAdapter);
                         viewPager.setOffscreenPageLimit(1);
                     }
-                    openDefaultFragment();
-                    
-                    for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                        if (fragment instanceof PlayerInfoFragment)
-                            ((PlayerInfoFragment) fragment).onUpdateCurrentPlayer();
+                    // Restore the current page instead of always going to page 0
+                    if (viewPagerAdapter != null) {
+                        int maxPage = viewPagerAdapter.getItemCount() - 1;
+                        int targetPage = Math.min(currentPage, maxPage);
+                        viewPager.setCurrentItem(targetPage, false);
+                        int itemId = viewPagerAdapter.getItemIdForPosition(targetPage);
+                        bottomNavigation.setSelectedItemId(itemId);
                     }
                 });
             }
 
             @Override
             public void error(String errorMessage) {
-                HttpUtils.showToast(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT);
+                Log.e(TAG, "Failed to update player data: " + errorMessage);
+                runOnUiThread(() -> {
+                    HttpUtils.showToast(PlayerInfoActivity.this, errorMessage, Toast.LENGTH_SHORT);
+                });
             }
         });
     }
@@ -463,9 +498,8 @@ public class PlayerInfoActivity extends AppCompatActivity {
         final int FRAGMENT_ID_ADD_ITEM = 0;
         final int FRAGMENT_ID_CREATE_SPELL = 1;
         final int FRAGMENT_ID_SPELL = 2;
-        final int FRAGMENT_ID_ADD_SPELL = 3;
-        final int FRAGMENT_ID_SPELL_SLOTS = 4;
-        final int FRAGMENT_ID_PLAYER_STATS = 5;
+        final int FRAGMENT_ID_SPELL_SLOTS = 3;
+        final int FRAGMENT_ID_PLAYER_STATS = 4;
 
         switch (position) {
             case FRAGMENT_ID_ADD_ITEM:
@@ -485,11 +519,6 @@ public class PlayerInfoActivity extends AppCompatActivity {
                 fragment = new SpellInfoFragment();
                 fragment.setEnterTransition(new Slide(Gravity.START));
                 fragment.setExitTransition(new Slide(Gravity.END));
-                break;
-            case FRAGMENT_ID_ADD_SPELL: // Add Spell
-                fragment = new AddSpellFragment();
-                fragment.setEnterTransition(new Slide(Gravity.BOTTOM));
-                fragment.setExitTransition(new Slide(Gravity.TOP));
                 break;
             case FRAGMENT_ID_PLAYER_STATS: // Player Stats
                 fragment = new StatsFragment();

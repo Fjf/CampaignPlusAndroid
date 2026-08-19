@@ -80,20 +80,21 @@ public class MyPlayerCharacterList {
 
             @Override
             public void onResponse(Call call, Response response) {
-                Log.d(TAG, "Response received: " + response.isSuccessful() + " Body: " + (response.body() != null));
+                Log.d(TAG, "Response received: " + response.isSuccessful() + " Body: " + (response.body() != null) + " Code: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String jsonResponse = response.body().string();
                         Log.d(TAG, "JSON Response: " + jsonResponse);
                         JSONArray array = new JSONArray(jsonResponse);
                         DataCache.setPlayerData(array);
+                        if (fn != null)
+                            postToMainThread(fn::success);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.e(TAG, "Error parsing player data: " + e.getMessage());
+                        if (fn != null)
+                            postToMainThread(() -> fn.error("Error parsing player data: " + e.getMessage()));
                     }
-
-                    if (fn != null)
-                        postToMainThread(fn::success);
                 } else {
                     final String errorMsg = getErrorMessage(response);
                     Log.e(TAG, errorMsg);

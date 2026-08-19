@@ -66,7 +66,6 @@ public class SpellViewFragment extends PlayerInfoFragment {
         view = inflater.inflate(R.layout.fragment_player_spell_list, container, false);
 
         toolbar = getActivity().findViewById(R.id.toolbar);
-        toolbar.setTitle("Spells");
 
         spellRecyclerView = view.findViewById(R.id.player_spell_list);
         spellRecyclerView.setHasFixedSize(true);
@@ -80,6 +79,13 @@ public class SpellViewFragment extends PlayerInfoFragment {
 
         setEventListeners();
         getPlayerSpells();
+
+        view.findViewById(R.id.fab_add_spell).setOnClickListener(v -> {
+            Fragment fragment = new com.example.campaignplus.player.Fragments.AddSpellFragment();
+            fragment.setEnterTransition(new Slide(Gravity.START));
+            fragment.setExitTransition(new Slide(Gravity.END));
+            openFragment(fragment);
+        });
 
         return view;
     }
@@ -117,19 +123,35 @@ public class SpellViewFragment extends PlayerInfoFragment {
         });
     }
 
-    public void requestDeleteSpell(View view) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        deleteSpell();
-                        break;
+    private void showDeleteSpellConfirmationDialog() {
+        String spellName = selectedPlayer.getSpells().get(selectedSpellId).name;
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    deleteSpell();
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    break;
+            }
+        };
 
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        //No button clicked
-                        break;
-                }
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(), R.style.AlertDialog);
+        builder.setMessage("Are you sure you want to remove \"" + spellName + "\" from your spells?")
+                .setPositiveButton("Remove", dialogClickListener)
+                .setNegativeButton("Cancel", dialogClickListener)
+                .show();
+    }
+
+    public void requestDeleteSpell(View view) {
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    deleteSpell();
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
             }
         };
 
@@ -188,6 +210,12 @@ public class SpellViewFragment extends PlayerInfoFragment {
                         ((DrawerLayout) getActivity().findViewById(R.id.player_info_drawer_layout))
                                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                         view.findViewById(R.id.overlay_spell_options).setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onLongPress(View v, int position) {
+                        selectedSpellId = position;
+                        showDeleteSpellConfirmationDialog();
                     }
                 })
         );
@@ -249,8 +277,7 @@ public class SpellViewFragment extends PlayerInfoFragment {
 
     @Override
     public void onUpdateCurrentPlayer() {
-        // Only fetch spells if the fragment is currently visible
-        if (isAdded() && isResumed()) {
+        if (isAdded() && view != null) {
             getPlayerSpells();
         }
     }

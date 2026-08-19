@@ -70,8 +70,6 @@ public class ItemViewFragment extends PlayerInfoFragment {
         view = inflater.inflate(R.layout.fragment_player_item_list, container, false);
 
         Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
-        toolbar.setTitle("Items");
-        toolbar.setNavigationIcon(R.drawable.ic_menu_primary_24dp);
 
         itemRecyclerView = view.findViewById(R.id.player_item_list);
 
@@ -150,6 +148,12 @@ public class ItemViewFragment extends PlayerInfoFragment {
                                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                         view.findViewById(R.id.overlay_item_options).setVisibility(View.VISIBLE);
                     }
+
+                    @Override
+                    public void onLongPress(View v, int position) {
+                        selectedItemId = position;
+                        showDeleteItemConfirmationDialog();
+                    }
                 })
         );
 
@@ -172,7 +176,7 @@ public class ItemViewFragment extends PlayerInfoFragment {
         Fragment fragment = new ItemInfoFragment(new ItemInfoFragment.OnCompleteCallback() {
             @Override
             public void success(int itemId) {
-                itemAdapter.notifyItemChanged(itemId);
+                getPlayerItems();
             }
 
             @Override
@@ -230,7 +234,13 @@ public class ItemViewFragment extends PlayerInfoFragment {
                         JSONObject responseObject = new JSONObject(jsonResponse);
                         // Update list if we added an item
                         selectedPlayer.equipment.add(new EquipmentItem(responseObject));
-                        itemAdapter.notifyItemInserted(selectedPlayer.equipment.size() - 1);
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                if (itemAdapter != null) {
+                                    itemAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
                         HttpUtils.showToast(getContext(), "Successfully added item.", Toast.LENGTH_SHORT);
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing JSON", e);
@@ -245,6 +255,25 @@ public class ItemViewFragment extends PlayerInfoFragment {
 
     public void closeMenu(View view) {
         closeMenus();
+    }
+
+    private void showDeleteItemConfirmationDialog() {
+        String itemName = selectedPlayer.equipment.get(selectedItemId).getItem().getName();
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    deleteItem();
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    break;
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext(), R.style.AlertDialog);
+        builder.setMessage("Are you sure you want to remove \"" + itemName + "\" from your items?")
+                .setPositiveButton("Remove", dialogClickListener)
+                .setNegativeButton("Cancel", dialogClickListener)
+                .show();
     }
 
     public void requestDeleteItem(View view) {
@@ -326,8 +355,14 @@ public class ItemViewFragment extends PlayerInfoFragment {
 
     @Override
     public void onUpdateCurrentPlayer() {
-        // Only fetch items if the fragment is currently visible
-        if (isAdded() && isResumed()) {
+        if (isAdded() && view != null && itemAdapter != null) {
+            itemAdapter.updateData(selectedPlayer.equipment);
+            
+            View noItemsText = view.findViewById(R.id.no_items_text);
+            if (noItemsText != null) {
+                noItemsText.setVisibility(selectedPlayer.equipment.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+            
             getPlayerItems();
         }
     }

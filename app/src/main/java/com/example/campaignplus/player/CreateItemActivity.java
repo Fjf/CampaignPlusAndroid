@@ -135,51 +135,51 @@ public class CreateItemActivity extends AppCompatActivity {
 
     }
 
-    public void buttonCreateItem(View view) throws JSONException {
-        long categoryId = ((Spinner) findViewById(R.id.gear_category_dropdown)).getSelectedItemId();
-
-        String name = ((EditText) findViewById(R.id.item_name)).getText().toString();
-        String description = ((EditText) findViewById(R.id.item_information)).getText().toString();
-
-        // Dont allow empty strings.
-        if (name.length() == 0 || description.length() == 0) return;
-        if (categoryId == 0) return;
-
-        String category = gearCategories[(int) categoryId];
-
-        JSONObject itemJsonObject = new JSONObject();
-        JSONObject itemInfoObject = new JSONObject();
-
-        // Put standard data
-        itemJsonObject.put("name", name);
-        itemJsonObject.put("description", description);
-        itemJsonObject.put("category", category);
-        itemJsonObject.put("weight", 0);  // TODO: Create field for weight
-        itemJsonObject.put("cost", 0);  // TODO: Create field for weight
-
-        /*
-         * Put extra data specifically for Weapon-types
-         */
-        if (Objects.equals(category, "Weapon")) {
-            String diceType = (String) ((Spinner) findViewById(R.id.dice_selection)).getSelectedItem();
-            String damageType = (String) ((Spinner) findViewById(R.id.damage_type_selection)).getSelectedItem();
-
-            String diceAmount = ((EditText) findViewById(R.id.dice_amount)).getText().toString();
-            String flatDamage = ((EditText) findViewById(R.id.flat_damage)).getText().toString();
-
-            itemInfoObject.put("damage_type", damageType);
-            itemInfoObject.put("damage_dice", diceType + "d" + diceAmount);
-            itemInfoObject.put("bonus_damage", flatDamage);
-            itemInfoObject.put("bonus_damage_type", damageType);
-        }
-
-        // Add the info object as additional field to the full item
-        itemJsonObject.put("item_info", itemInfoObject);
-
+    public void buttonCreateItem(View view) {
         try {
+            long categoryId = ((Spinner) findViewById(R.id.gear_category_dropdown)).getSelectedItemId();
+
+            String name = ((EditText) findViewById(R.id.item_name)).getText().toString();
+            String description = ((EditText) findViewById(R.id.item_information)).getText().toString();
+
+            // Dont allow empty strings.
+            if (name.length() == 0 || description.length() == 0) return;
+            if (categoryId == 0) return;
+
+            String category = gearCategories[(int) categoryId];
+
+            JSONObject itemJsonObject = new JSONObject();
+            JSONObject itemInfoObject = new JSONObject();
+
+            // Put standard data
+            itemJsonObject.put("name", name);
+            itemJsonObject.put("description", description);
+            itemJsonObject.put("category", category);
+            itemJsonObject.put("weight", 0);  // TODO: Create field for weight
+            itemJsonObject.put("cost", 0);  // TODO: Create field for weight
+
+            /*
+             * Put extra data specifically for Weapon-types
+             */
+            if (Objects.equals(category, "Weapon")) {
+                String diceType = (String) ((Spinner) findViewById(R.id.dice_selection)).getSelectedItem();
+                String damageType = (String) ((Spinner) findViewById(R.id.damage_type_selection)).getSelectedItem();
+
+                String diceAmount = ((EditText) findViewById(R.id.dice_amount)).getText().toString();
+                String flatDamage = ((EditText) findViewById(R.id.flat_damage)).getText().toString();
+
+                itemInfoObject.put("damage_type", damageType);
+                itemInfoObject.put("damage_dice", diceType + "d" + diceAmount);
+                itemInfoObject.put("bonus_damage", flatDamage);
+                itemInfoObject.put("bonus_damage_type", damageType);
+            }
+
+            // Add the info object as additional field to the full item
+            itemJsonObject.put("item_info", itemInfoObject);
+
             createItem(itemJsonObject);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            HttpUtils.showToast(this, "Invalid item data: " + e.getMessage(), Toast.LENGTH_LONG);
         }
     }
 
@@ -209,11 +209,32 @@ public class CreateItemActivity extends AppCompatActivity {
                     String jsonResponse = response.body().string();
                     try {
                         JSONObject responseObject = new JSONObject(jsonResponse);
+                        // Check if the response contains an id field
+                        if (!responseObject.has("id")) {
+                            runOnUiThread(() -> 
+                                HttpUtils.showToast(CreateItemActivity.this, 
+                                    "Server response missing item ID. Response: " + jsonResponse, 
+                                    Toast.LENGTH_LONG)
+                            );
+                            return;
+                        }
                         AvailableItems.updateItem(responseObject);
+                        runOnUiThread(() -> 
+                            HttpUtils.showToast(CreateItemActivity.this, 
+                                "Item created successfully!", Toast.LENGTH_SHORT)
+                        );
                     } catch (JSONException e) {
-                        HttpUtils.showToast(CreateItemActivity.this, e.getMessage(), Toast.LENGTH_LONG);
+                        runOnUiThread(() -> 
+                            HttpUtils.showToast(CreateItemActivity.this, 
+                                "Invalid response format: " + e.getMessage(), Toast.LENGTH_LONG)
+                        );
                     }
                     finish();
+                } else {
+                    runOnUiThread(() -> 
+                        HttpUtils.showToast(CreateItemActivity.this, 
+                            "Failed to create item: " + response.message(), Toast.LENGTH_LONG)
+                    );
                 }
             }
         });

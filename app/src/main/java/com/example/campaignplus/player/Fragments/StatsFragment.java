@@ -93,12 +93,22 @@ public class StatsFragment extends Fragment {
         selectedPlayer.upload(new CallBack() {
             @Override
             public void success() {
-                HttpUtils.showToast(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        HttpUtils.showToast(view.getContext(), "Successfully uploaded player data.", Toast.LENGTH_SHORT);
+                        callback.success();
+                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
+                    });
+                }
             }
 
             @Override
             public void error(String errorMessage) {
-                HttpUtils.showToast(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        HttpUtils.showToast(view.getContext(), "Something went wrong uploading player data: " + errorMessage, Toast.LENGTH_LONG);
+                    });
+                }
             }
         });
     }
@@ -213,10 +223,8 @@ public class StatsFragment extends Fragment {
     private void registerSaveFragmentButton(Toolbar tb) {
         View btn = tb.findViewById(R.id.save_fragment_button);
         btn.setOnClickListener(view -> {
-            // Remove current fragment
+            // Don't pop backstack yet - wait for upload to complete
             savePlayerData();
-            callback.success();
-            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStackImmediate();
         });
         btn.setOnTouchListener(new ShortHapticFeedback());
     }

@@ -34,7 +34,7 @@ public class MapData {
     public String name;
     public String story;
 
-    boolean visible;
+    public boolean visible;
     public MapData parent = null;
     public ArrayList<MapData> children = new ArrayList<>();
 
@@ -54,7 +54,12 @@ public class MapData {
         parentMapId = data.optInt("parent_map_id");
 
 
-        mapUrl = data.optString("map_url");
+        String filename = data.optString("filename");
+        if (!filename.isEmpty() && !filename.equals("default.png")) {
+            mapUrl = "/static/images/uploads/" + filename;
+        } else {
+            mapUrl = "/static/images/uploads/default.png";
+        }
 
         x = data.optDouble("x");
         y = data.optDouble("y");
@@ -117,8 +122,10 @@ public class MapData {
                     in = con.getInputStream();
                     bitmap = BitmapFactory.decodeStream(in);
                     in.close();
+                    callback.success();
+                } else {
+                    callback.error("Failed to fetch image: " + responseCode);
                 }
-                callback.success();
             } catch (Exception e) {
                 callback.error(e.getMessage());
             }

@@ -1,6 +1,7 @@
 package com.example.campaignplus.campaign;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.transition.Slide;
@@ -9,8 +10,11 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -32,7 +36,10 @@ import com.example.campaignplus.campaign.Adapters.MapSelectionAdapter;
 import com.example.campaignplus.campaign.Adapters.PlayerListAdapter;
 import com.example.campaignplus.campaign.Fragments.ShowQRFragment;
 import com.example.campaignplus.player.PlayerInfoActivity;
+import com.otaliastudios.zoom.ZoomEngine;
 import com.otaliastudios.zoom.ZoomImageView;
+import android.graphics.Matrix;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,6 +66,24 @@ public class MapViewActivity extends AppCompatActivity {
     private MapData currentMap;
     private ArrayList<String> mapNameList = new ArrayList<>();
     private MapSelectionAdapter drawerMapListAdapter;
+    private ArrayList<PinView> pinViews = new ArrayList<>();
+    private ZoomImageView mapView;
+    private FrameLayout pinOverlay;
+    private Runnable updateRunnable;
+
+    private static class PinView {
+        ImageView pin;
+        TextView label;
+        double x;
+        double y;
+
+        PinView(ImageView pin, TextView label, double x, double y) {
+            this.pin = pin;
+            this.label = label;
+            this.x = x;
+            this.y = y;
+        }
+    }
 
     public MapViewActivity() {
     }
@@ -79,12 +104,14 @@ public class MapViewActivity extends AppCompatActivity {
         rootMap = new MapData(campaignId, new CallBack() {
             @Override
             public void success() {
-                selectMap(rootMap);
+                runOnUiThread(() -> selectMap(rootMap));
             }
 
             @Override
             public void error(String errorMessage) {
-
+                runOnUiThread(() -> {
+                    // Handle error if needed
+                });
             }
         });
 
@@ -110,6 +137,14 @@ public class MapViewActivity extends AppCompatActivity {
             backToParent();
         });
 
+        findViewById(R.id.back_to_character_button).setOnClickListener(view -> {
+            Intent backIntent = new Intent(MapViewActivity.this, PlayerInfoActivity.class);
+            backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(backIntent);
+            finish();
+        });
+
+        pinOverlay = findViewById(R.id.pin_overlay);
     }
 
     private void backToParent() {
@@ -141,20 +176,158 @@ public class MapViewActivity extends AppCompatActivity {
 
 
     private void getImage() {
-        ZoomImageView imageView = findViewById(R.id.map_container);
+        mapView = findViewById(R.id.map_container);
+        pinViews.clear();
+        
+        if (updateRunnable != null) {
+            mapView.removeCallbacks(updateRunnable);
+        }
+
         currentMap.fetchImage(new CallBack() {
             @Override
             public void success() {
-                BitmapDrawable image = new BitmapDrawable(getResources(), currentMap.bitmap);
-                imageView.setImageDrawable(image);
+                runOnUiThread(() -> {
+                    if (currentMap.bitmap == null) {
+                        Log.e("MapView", "Bitmap is null after success callback");
+                        return;
+                    }
+                    BitmapDrawable image = new BitmapDrawable(getResources(), currentMap.bitmap);
+                    mapView.setImageDrawable(image);
+
+                    mapView.post(() -> {
+                        Log.d("MapView", "Bitmap: " + (currentMap.bitmap != null) + ", Width: " + mapView.getWidth() + ", Height: " + mapView.getHeight());
+                        Log.d("MapView", "Image dimensions: " + currentMap.bitmap.getWidth() + "x" + currentMap.bitmap.getHeight());
+                        Log.d("MapView", "Children count: " + currentMap.children.size());
+                        if (currentMap.bitmap != null && mapView.getWidth() > 0 && mapView.getHeight() > 0) {
+                            addMapPins();
+                        }
+                    });
+                });
             }
 
             @Override
             public void error(String errorMessage) {
-
+                Log.e("MapView", "Error fetching image: " + errorMessage);
             }
         });
 
+    }
+
+    private void addMapPins() {
+        pinViews.clear();
+        
+        // Clear existing pins from overlay
+        pinOverlay.removeAllViews();
+
+        for (MapData child : currentMap.children) {
+            if (!child.visible) {
+                continue;
+            }
+
+            ImageView pin = new ImageView(this);
+            pin.setImageResource(R.drawable.location_pin);
+            pin.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+            int pinSize = (int) (48 * getResources().getDisplayMetrics().density);
+
+            FrameLayout.LayoutParams pinParams = new FrameLayout.LayoutParams(pinSize, pinSize);
+            pin.setLayoutParams(pinParams);
+
+            TextView label = new TextView(this);
+            label.setText(child.name);
+            label.setTextColor(Color.WHITE);
+            label.setTextSize(14);
+            label.setGravity(Gravity.CENTER);
+            label.setShadowLayer(3, 1, 1, Color.BLACK);
+            label.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+            final MapData childData = child;
+            pin.setOnClickListener(v -> {
+                selectMap(childData);
+                DrawerLayout drawer = findViewById(R.id.campaign_content_layout);
+                ScrollView drawerWrapper = findViewById(R.id.left_drawer_wrapper);
+                drawer.closeDrawer(drawerWrapper);
+            });
+
+            pin.setContentDescription(child.name);
+            label.setContentDescription(child.name);
+
+            pinOverlay.addView(pin);
+            pinOverlay.addView(label);
+
+            pinViews.add(new PinView(pin, label, child.x, child.y));
+        }
+
+        setupPinUpdateListeners();
+        updatePinPositions(mapView.getEngine().getMatrix());
+    }
+
+    private void setupPinUpdateListeners() {
+        if (mapView == null || currentMap == null || currentMap.bitmap == null) {
+            return;
+        }
+        
+        mapView.getEngine().addListener(new ZoomEngine.Listener() {
+            @Override
+            public void onUpdate(ZoomEngine engine, Matrix matrix) {
+                updatePinPositions(matrix);
+            }
+
+            @Override
+            public void onIdle(ZoomEngine engine) {
+            }
+        });
+    }
+
+    private void updatePinPositions(Matrix matrix) {
+        if (mapView == null || pinOverlay == null || currentMap == null || currentMap.bitmap == null) {
+            return;
+        }
+
+        int viewWidth = mapView.getWidth();
+        int viewHeight = mapView.getHeight();
+        int imageWidth = currentMap.bitmap.getWidth();
+        int imageHeight = currentMap.bitmap.getHeight();
+
+        if (viewWidth <= 0 || viewHeight <= 0) {
+            return;
+        }
+
+        float[] values = new float[9];
+        matrix.getValues(values);
+        float matrixScaleX = values[Matrix.MSCALE_X];
+        float matrixScaleY = values[Matrix.MSCALE_Y];
+        float matrixTransX = values[Matrix.MTRANS_X];
+        float matrixTransY = values[Matrix.MTRANS_Y];
+
+        Log.d("MapView", "View: " + viewWidth + "x" + viewHeight + ", Image: " + imageWidth + "x" + imageHeight);
+        Log.d("MapView", "Matrix: scale=" + matrixScaleX + ", trans=(" + matrixTransX + ", " + matrixTransY + ")");
+
+        int pinSize = (int) (48 * getResources().getDisplayMetrics().density);
+        int halfSize = pinSize / 2;
+
+        for (PinView pinView : pinViews) {
+            float[] pinPoint = new float[]{(float) pinView.x, (float) pinView.y};
+            matrix.mapPoints(pinPoint);
+            
+            float finalX = pinPoint[0];
+            float finalY = pinPoint[1];
+
+            Log.d("MapView", "Pin " + pinView.pin.getContentDescription() + ": orig=(" + pinView.x + "," + pinView.y + ") mapped=(" + finalX + "," + finalY + ")");
+
+            FrameLayout.LayoutParams pinParams = new FrameLayout.LayoutParams(pinSize, pinSize);
+            pinParams.leftMargin = (int) (finalX - halfSize);
+            pinParams.topMargin = (int) (finalY - pinSize);
+            pinView.pin.setLayoutParams(pinParams);
+
+            FrameLayout.LayoutParams labelParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
+            );
+            labelParams.leftMargin = (int) finalX;
+            labelParams.topMargin = (int) (finalY - pinSize - 25);
+            pinView.label.setLayoutParams(labelParams);
+            pinView.label.post(() -> pinView.label.setTranslationX(-pinView.label.getWidth() / 2f));
+        }
     }
 
     @Override
@@ -190,7 +363,9 @@ public class MapViewActivity extends AppCompatActivity {
         HttpUtils.put(url, jsonString, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                HttpUtils.showToast(MapViewActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT);
+                runOnUiThread(() -> 
+                    HttpUtils.showToast(MapViewActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT)
+                );
             }
 
             @Override
@@ -198,7 +373,9 @@ public class MapViewActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     getPlayers();
                 } else {
-                    HttpUtils.showToast(MapViewActivity.this, "Failed to add to campaign", Toast.LENGTH_SHORT);
+                    runOnUiThread(() -> 
+                        HttpUtils.showToast(MapViewActivity.this, "Failed to add to campaign", Toast.LENGTH_SHORT)
+                    );
                 }
             }
         });
